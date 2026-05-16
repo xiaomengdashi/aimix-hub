@@ -2,6 +2,7 @@
 
 import { useChat, type UIMessage } from "@ai-sdk/react";
 import type { AssistantRuntime } from "@assistant-ui/core";
+import type { RemoteThreadListAdapter } from "@assistant-ui/core";
 import {
   InMemoryThreadListAdapter,
   useRemoteThreadListRuntime,
@@ -12,14 +13,26 @@ import {
   type UseChatRuntimeOptions,
   AssistantChatTransport,
 } from "@assistant-ui/react-ai-sdk";
+import type { ThreadMessage } from "@assistant-ui/core";
 import type { ChatTransport } from "ai";
+import { createAssistantStream } from "assistant-stream";
 import { useCallback, useEffect, useMemo, useRef } from "react";
+import { generateAITitle } from "@/lib/thread-title";
 
 const threadListAdapter = new InMemoryThreadListAdapter();
 threadListAdapter.initialize = async (threadId: string) => ({
   remoteId: threadId,
   externalId: undefined,
 });
+(threadListAdapter as RemoteThreadListAdapter).generateTitle = async (
+  _remoteId: string,
+  messages: readonly ThreadMessage[],
+) => {
+  const title = await generateAITitle(messages);
+  return createAssistantStream((controller) => {
+    if (title) controller.appendText(title);
+  });
+};
 
 const useDynamicChatTransport = <UI_MESSAGE extends UIMessage = UIMessage>(
   transport: ChatTransport<UI_MESSAGE>,

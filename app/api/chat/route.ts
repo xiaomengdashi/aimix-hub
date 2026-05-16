@@ -1,15 +1,9 @@
-import { createAnthropic } from "@ai-sdk/anthropic";
 import { streamText, convertToModelMessages, type UIMessage } from "ai";
-
-function normalizeAnthropicBaseUrl(url: string | undefined): string {
-  const base = (url ?? "https://yunwu.ai/v1").replace(/\/$/, "");
-  return base.endsWith("/v1") ? base : `${base}/v1`;
-}
-
-const anthropic = createAnthropic({
-  baseURL: normalizeAnthropicBaseUrl(process.env.ANTHROPIC_BASE_URL),
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+import { anthropic } from "@/lib/anthropic";
+import {
+  DEFAULT_CHAT_MODEL_ID,
+  parseChatModelId,
+} from "@/lib/chat-models";
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -22,8 +16,17 @@ export async function POST(req: Request) {
     });
   }
 
+  if (model !== undefined && model !== null && parseChatModelId(model) === null) {
+    return new Response(JSON.stringify({ error: "Invalid model" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const modelId = parseChatModelId(model) ?? DEFAULT_CHAT_MODEL_ID;
+
   const result = streamText({
-    model: anthropic(model || "claude-sonnet-4-6"),
+    model: anthropic(modelId),
     messages: await convertToModelMessages(messages as UIMessage[]),
   });
 
