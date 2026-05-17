@@ -13,6 +13,7 @@ import { ChatUiThemeProvider, useChatUiTheme } from "@/components/assistant-ui/c
 import { Claude } from "@/components/assistant-ui/claude";
 import { ClaudeChatLayout } from "@/components/assistant-ui/claude-chat-layout";
 import { Thread } from "@/components/assistant-ui/thread";
+import { ContextUsageIndicator } from "@/components/assistant-ui/context-usage-indicator";
 import { ModelPicker } from "@/components/assistant-ui/model-picker";
 import { ThreadListSidebar } from "@/components/assistant-ui/threadlist-sidebar";
 import {
@@ -74,6 +75,10 @@ const ChatShellContent: FC<{
                   <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
                     <SidebarTrigger />
                     <ModelPicker />
+                    <ContextUsageIndicator
+                      variant="shadcn"
+                      className="ms-auto hidden min-w-0 max-w-xs md:flex"
+                    />
                     <UserMenu displayName={displayUsername} />
                   </header>
                   {chatError ? (

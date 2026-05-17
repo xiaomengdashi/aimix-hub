@@ -1,4 +1,9 @@
-import { streamText, convertToModelMessages, type UIMessage } from "ai";
+import {
+  streamText,
+  convertToModelMessages,
+  type UIMessage,
+} from "ai";
+import type { ChatUsageMetadata } from "@/lib/chat-context-usage";
 import { anthropic } from "@/lib/anthropic";
 import { requireUser } from "@/lib/auth/require-user";
 import {
@@ -53,5 +58,19 @@ export async function POST(req: Request) {
     ),
   });
 
-  return result.toUIMessageStreamResponse();
+  return result.toUIMessageStreamResponse({
+    originalMessages: messages as UIMessage[],
+    messageMetadata: ({ part }) => {
+      if (part.type !== "finish") return undefined;
+
+      const inputTokens = part.totalUsage.inputTokens ?? 0;
+      const outputTokens = part.totalUsage.outputTokens ?? 0;
+      const metadata: ChatUsageMetadata = {
+        inputTokens,
+        outputTokens,
+        contextTokens: inputTokens + outputTokens,
+      };
+      return metadata;
+    },
+  });
 }

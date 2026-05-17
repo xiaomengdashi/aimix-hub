@@ -2,6 +2,8 @@ export type ChatModel = {
   id: string;
   name: string;
   description: string;
+  /** Model context window in tokens (for usage display). */
+  contextWindow: number;
 };
 
 export const CHAT_MODELS: ChatModel[] = [
@@ -9,16 +11,19 @@ export const CHAT_MODELS: ChatModel[] = [
     id: "claude-sonnet-4-6",
     name: "Sonnet 4.6",
     description: "均衡：聪明、快速，适合日常使用",
+    contextWindow: 200_000,
   },
   {
     id: "claude-opus-4-7",
     name: "Opus 4.7",
     description: "最强能力，适合复杂任务",
+    contextWindow: 200_000,
   },
   {
     id: "claude-haiku-4-5-20251001",
     name: "Haiku 4.5",
     description: "最快、最省，适合简单对话",
+    contextWindow: 200_000,
   },
 ];
 
@@ -42,4 +47,8 @@ export function parseChatModelId(model: unknown): string | null {
 
 export function getChatModel(id: string): ChatModel | undefined {
   return CHAT_MODELS.find((m) => m.id === id);
+}
+
+export function getChatModelContextWindow(id: string): number {
+  return getChatModel(id)?.contextWindow ?? CHAT_MODELS[0]!.contextWindow;
 }

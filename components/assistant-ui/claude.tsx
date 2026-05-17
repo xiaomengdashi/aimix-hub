@@ -25,6 +25,7 @@ import { useChatMode } from "@/components/assistant-ui/chat-mode-context";
 import { useChatModel } from "@/components/assistant-ui/chat-model-context";
 import { useChatSession } from "@/components/assistant-ui/chat-session-context";
 import { UserMessageAttachments } from "@/components/assistant-ui/attachment";
+import { ContextUsageIndicator } from "@/components/assistant-ui/context-usage-indicator";
 import { ModeTabs } from "@/components/assistant-ui/mode-tabs";
 import { MarkdownText } from "@/components/assistant-ui/markdown-text";
 import { CHAT_MODELS, getChatModel } from "@/lib/chat-models";
@@ -62,6 +63,10 @@ export const Claude: FC = () => {
 
           <ThreadPrimitive.ViewportFooter className="sticky bottom-0 mx-auto mt-auto w-full max-w-3xl bg-linear-to-b from-transparent via-[#F0ECE0]/85 to-[#F0ECE0] pt-4 pb-2 dark:via-[#2b2a27]/85 dark:to-[#2b2a27]">
             <Composer onSend={onComposerSubmit} />
+            <ContextUsageIndicator
+              variant="claude"
+              className="mx-auto mt-2 w-full max-w-3xl justify-center sm:hidden"
+            />
             <p className="pt-2 text-center text-[#8a8780] text-xs dark:text-[#a3a098]">
               Claude can make mistakes. Please double-check responses.
             </p>
@@ -81,6 +86,10 @@ const EmptyState: FC<{ onSend?: () => void }> = ({ onSend }) => {
           <span>How can I help you today?</span>
         </h1>
         <Composer onSend={onSend} />
+        <ContextUsageIndicator
+          variant="claude"
+          className="justify-center sm:hidden"
+        />
         <ModeTabs />
       </div>
     </div>
@@ -111,6 +120,10 @@ const Composer: FC<{ onSend?: () => void }> = ({ onSend }) => {
             <ClaudeComposerAddAttachment
               onError={onAttachmentError}
               className="flex size-8 shrink-0 items-center justify-center rounded-md text-[#5b5950] transition-colors hover:bg-[#1a1a18]/5 hover:text-[#1a1a18] dark:text-[#a3a098] dark:hover:bg-white/5 dark:hover:text-[#eee]"
+            />
+            <ContextUsageIndicator
+              variant="claude"
+              className="hidden min-w-0 flex-1 sm:flex"
             />
 
             <div className="ml-auto flex items-center gap-1">
