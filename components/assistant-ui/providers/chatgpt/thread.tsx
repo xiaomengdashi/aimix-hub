@@ -14,14 +14,11 @@ import {
 } from "@assistant-ui/react";
 import {
   ArrowUpIcon,
-  CheckIcon,
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  CopyIcon,
   Cross2Icon,
   Pencil1Icon,
-  ReloadIcon,
 } from "@radix-ui/react-icons";
 import { useEffect, useState, type FC } from "react";
 import { AssistantFilePart } from "@/components/assistant-ui/message/assistant-file-part";
@@ -29,24 +26,19 @@ import { MarkdownText } from "@/components/assistant-ui/message/markdown-text";
 import { TooltipIconButton } from "@/components/assistant-ui/message/tooltip-icon-button";
 import { useShallow } from "zustand/shallow";
 import {
-  AudioLines,
   Globe,
   ImageIcon,
   Lightbulb,
   Mic,
-  MoreHorizontal,
   PlusIcon,
-  Share,
   Sparkles,
   Telescope,
-  ThumbsDown,
-  ThumbsUp,
-  Volume2,
 } from "lucide-react";
 import { useComposerTool } from "@/components/assistant-ui/contexts/composer-tool-context";
 import { CHATGPT_COMPOSER_TOOL_IDS } from "@/lib/chat/composer-tools";
 import { ComposerToolsMenu } from "@/components/assistant-ui/providers/shared/composer-tools-menu";
-import { ProviderModelPicker } from "@/components/assistant-ui/providers/shared/model-picker";
+import { AssistantMessageActionBar } from "@/components/assistant-ui/providers/shared/assistant-message-action-bar";
+import { VoicePlaceholderButton } from "@/components/assistant-ui/providers/shared/voice-ui-placeholder";
 import { ContextUsageIndicator } from "@/components/assistant-ui/shell/context-usage-indicator";
 
 const CHATGPT_TOOLS_MENU = CHATGPT_COMPOSER_TOOL_IDS.map((id) => {
@@ -145,8 +137,8 @@ const Composer: FC<{ placeholder?: string }> = ({ placeholder: placeholderProp }
         className="min-h-9 w-full resize-none bg-transparent px-3 pt-2 text-[#0d0d0d] text-base outline-none placeholder:text-[#8e8e8e] dark:text-[#ececec] dark:placeholder:text-[#8e8e8e]"
       />
 
-      <div className="flex items-center justify-between gap-2 px-1 pt-1">
-        <div className="flex items-center gap-1">
+      <div className="flex w-full items-center gap-2 px-1 pt-1">
+        <div className="flex min-w-0 flex-1 items-center gap-1">
           <ComposerPrimitive.AddAttachment asChild>
             <button
               type="button"
@@ -156,11 +148,14 @@ const Composer: FC<{ placeholder?: string }> = ({ placeholder: placeholderProp }
               <PlusIcon size={18} />
             </button>
           </ComposerPrimitive.AddAttachment>
+          <ComposerToolsMenu
+            variant="chatgpt"
+            tools={CHATGPT_TOOLS_MENU}
+            align="start"
+          />
         </div>
 
         <div className="flex items-center gap-1">
-          <ComposerToolsMenu variant="chatgpt" tools={CHATGPT_TOOLS_MENU} />
-          <ProviderModelPicker variant="chatgpt" />
           <ComposerPrimaryAction />
         </div>
       </div>
@@ -183,51 +178,19 @@ const ComposerPrimaryAction: FC = () => {
         </ComposerPrimitive.Cancel>
       </AuiIf>
 
-      <AuiIf
-        condition={(s) => !s.thread.isRunning && s.composer.dictation != null}
-      >
-        <ComposerPrimitive.StopDictation
-          className="flex size-9 items-center justify-center rounded-full bg-[#ff5d1f] text-white"
-          aria-label="Stop dictation"
-        >
-          <div className="size-2.5 animate-pulse rounded-[2px] bg-current" />
-        </ComposerPrimitive.StopDictation>
-      </AuiIf>
-
-      <AuiIf
-        condition={(s) =>
-          !s.thread.isRunning &&
-          s.composer.dictation == null &&
-          !s.composer.isEmpty
-        }
-      >
+      <AuiIf condition={(s) => !s.thread.isRunning && !s.composer.isEmpty}>
         <ComposerPrimitive.Send className="flex size-9 items-center justify-center rounded-full bg-[#0d0d0d] text-white transition-opacity disabled:opacity-30 dark:bg-white dark:text-black">
           <ArrowUpIcon className="size-5" />
         </ComposerPrimitive.Send>
       </AuiIf>
 
-      <AuiIf
-        condition={(s) =>
-          !s.thread.isRunning &&
-          s.composer.dictation == null &&
-          s.composer.isEmpty
-        }
-      >
-        <ComposerPrimitive.Dictate
-          className="flex size-9 items-center justify-center rounded-full text-[#5d5d5d] transition-colors hover:bg-[#0d0d0d]/5 hover:text-[#0d0d0d] dark:text-[#cdcdcd] dark:hover:bg-white/10 dark:hover:text-white"
-          aria-label="Dictate"
+      <AuiIf condition={(s) => !s.thread.isRunning && s.composer.isEmpty}>
+        <VoicePlaceholderButton
+          className="flex size-9 items-center justify-center rounded-full text-[#5d5d5d] dark:text-[#cdcdcd]"
+          aria-label="语音输入"
         >
           <Mic className="size-4" />
-        </ComposerPrimitive.Dictate>
-
-        <button
-          type="button"
-          aria-hidden="true"
-          tabIndex={-1}
-          className="flex size-9 items-center justify-center rounded-full bg-[#ff5d1f] text-white"
-        >
-          <AudioLines className="size-4" />
-        </button>
+        </VoicePlaceholderButton>
       </AuiIf>
     </div>
   );
@@ -296,9 +259,6 @@ const EditComposer: FC = () => {
   );
 };
 
-const assistantActionClassName =
-  "flex size-8 items-center justify-center rounded-md text-[#5d5d5d] transition-colors hover:bg-[#0d0d0d]/5 hover:text-[#0d0d0d] dark:text-[#afafaf] dark:hover:bg-white/10 dark:hover:text-white";
-
 const AssistantMessage: FC = () => {
   return (
     <MessagePrimitive.Root className="relative mx-auto flex w-full max-w-3xl flex-col">
@@ -310,41 +270,7 @@ const AssistantMessage: FC = () => {
       </div>
 
       <div className="-ml-2 flex items-center pt-1">
-        <ActionBarPrimitive.Root
-          hideWhenRunning
-          className="flex items-center gap-0.5"
-        >
-          <ActionBarPrimitive.Copy className={assistantActionClassName}>
-            <AuiIf condition={(s) => s.message.isCopied}>
-              <CheckIcon />
-            </AuiIf>
-            <AuiIf condition={(s) => !s.message.isCopied}>
-              <CopyIcon />
-            </AuiIf>
-          </ActionBarPrimitive.Copy>
-          <ActionBarPrimitive.FeedbackPositive
-            className={assistantActionClassName}
-          >
-            <ThumbsUp className="size-4" />
-          </ActionBarPrimitive.FeedbackPositive>
-          <ActionBarPrimitive.FeedbackNegative
-            className={assistantActionClassName}
-          >
-            <ThumbsDown className="size-4" />
-          </ActionBarPrimitive.FeedbackNegative>
-          <ActionBarPrimitive.Speak className={assistantActionClassName}>
-            <Volume2 className="size-4" />
-          </ActionBarPrimitive.Speak>
-          <button type="button" className={assistantActionClassName}>
-            <Share className="size-4" />
-          </button>
-          <ActionBarPrimitive.Reload className={assistantActionClassName}>
-            <ReloadIcon />
-          </ActionBarPrimitive.Reload>
-          <button type="button" className={assistantActionClassName}>
-            <MoreHorizontal className="size-4" />
-          </button>
-        </ActionBarPrimitive.Root>
+        <AssistantMessageActionBar variant="chatgpt" />
         <BranchPicker className="ml-1" />
       </div>
     </MessagePrimitive.Root>

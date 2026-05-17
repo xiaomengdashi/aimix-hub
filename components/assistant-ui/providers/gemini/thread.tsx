@@ -14,11 +14,9 @@ import {
   Cross2Icon,
   Pencil1Icon,
   PlusIcon,
-  ReloadIcon,
 } from "@radix-ui/react-icons";
 import {
   CopyIcon,
-  EllipsisVertical,
   Globe,
   ImageIcon,
   Lightbulb,
@@ -29,15 +27,15 @@ import {
   Sparkles,
   Square,
   Telescope,
-  ThumbsDown,
-  ThumbsUp,
 } from "lucide-react";
 import { type FC, useCallback, useEffect, useState } from "react";
 import { useShallow } from "zustand/shallow";
 import { MarkdownText } from "@/components/assistant-ui/message/markdown-text";
 import { useComposerTool } from "@/components/assistant-ui/contexts/composer-tool-context";
+import { AssistantMessageActionBar } from "@/components/assistant-ui/providers/shared/assistant-message-action-bar";
 import { ComposerToolsMenu } from "@/components/assistant-ui/providers/shared/composer-tools-menu";
 import { ProviderModelPicker } from "@/components/assistant-ui/providers/shared/model-picker";
+import { VoicePlaceholderButton } from "@/components/assistant-ui/providers/shared/voice-ui-placeholder";
 import { ContextUsageIndicator } from "@/components/assistant-ui/shell/context-usage-indicator";
 import {
   GEMINI_COMPOSER_TOOL_IDS,
@@ -152,6 +150,38 @@ const SuggestionChip: FC<{
   );
 };
 
+const geminiPrimaryBtnClass =
+  "absolute inset-0 flex items-center justify-center rounded-full transition-all duration-300 ease-out";
+
+const GeminiComposerPrimaryAction: FC = () => (
+  <div className="relative size-10 shrink-0">
+    <AuiIf condition={(s) => s.thread.isRunning}>
+      <ComposerPrimitive.Cancel
+        className={`${geminiPrimaryBtnClass} bg-[#d3e3fd] text-[#1f1f1f] hover:bg-[#c2d7fb] dark:bg-[#1f3760] dark:text-[#e3e3e3] dark:hover:bg-[#2a4a7a]`}
+      >
+        <Square width={14} height={14} fill="currentColor" />
+      </ComposerPrimitive.Cancel>
+    </AuiIf>
+
+    <AuiIf condition={(s) => !s.thread.isRunning && !s.composer.isEmpty}>
+      <ComposerPrimitive.Send
+        className={`${geminiPrimaryBtnClass} bg-[#d3e3fd] text-[#1f1f1f] hover:bg-[#c2d7fb] dark:bg-[#1f3760] dark:text-[#e3e3e3] dark:hover:bg-[#2a4a7a]`}
+      >
+        <SendHorizonal width={20} height={20} />
+      </ComposerPrimitive.Send>
+    </AuiIf>
+
+    <AuiIf condition={(s) => !s.thread.isRunning && s.composer.isEmpty}>
+      <VoicePlaceholderButton
+        className={`${geminiPrimaryBtnClass} hover:bg-[#444746]/8 dark:hover:bg-[#c4c7c5]/8`}
+        aria-label="语音输入"
+      >
+        <Mic width={20} height={20} />
+      </VoicePlaceholderButton>
+    </AuiIf>
+  </div>
+);
+
 const Composer: FC = () => {
   const isEmpty = useAuiState((s) => s.composer.isEmpty);
   const isRunning = useAuiState((s) => s.thread.isRunning);
@@ -200,21 +230,7 @@ const Composer: FC = () => {
 
           <div className="flex items-center gap-2">
             <ProviderModelPicker variant="gemini" />
-            <div className="relative size-10 shrink-0">
-              <button
-                type="button"
-                className="absolute inset-0 flex items-center justify-center rounded-full transition-all duration-300 ease-out hover:bg-[#444746]/8 group-data-[empty=false]/composer:scale-0 group-data-[running=true]/composer:scale-0 group-data-[empty=false]/composer:opacity-0 group-data-[running=true]/composer:opacity-0 dark:hover:bg-[#c4c7c5]/8"
-                aria-label="Voice mode"
-              >
-                <Mic width={20} height={20} />
-              </button>
-              <ComposerPrimitive.Send className="absolute inset-0 flex items-center justify-center rounded-full bg-[#d3e3fd] text-[#1f1f1f] transition-all duration-300 ease-out hover:bg-[#c2d7fb] group-data-[empty=true]/composer:scale-0 group-data-[running=true]/composer:scale-0 group-data-[empty=true]/composer:opacity-0 group-data-[running=true]/composer:opacity-0 dark:bg-[#1f3760] dark:text-[#e3e3e3] dark:hover:bg-[#2a4a7a]">
-                <SendHorizonal width={20} height={20} />
-              </ComposerPrimitive.Send>
-              <ComposerPrimitive.Cancel className="absolute inset-0 flex items-center justify-center rounded-full bg-[#d3e3fd] text-[#1f1f1f] transition-all duration-300 ease-out hover:bg-[#c2d7fb] group-data-[running=false]/composer:scale-0 group-data-[running=false]/composer:opacity-0 dark:bg-[#1f3760] dark:text-[#e3e3e3] dark:hover:bg-[#2a4a7a]">
-                <Square width={14} height={14} fill="currentColor" />
-              </ComposerPrimitive.Cancel>
-            </div>
+            <GeminiComposerPrimaryAction />
           </div>
         </div>
       </div>
@@ -257,23 +273,10 @@ const ChatMessage: FC = () => {
           <div className="prose prose-sm dark:prose-invert wrap-break-word prose-li:my-1 prose-ol:my-1 prose-p:my-2 prose-ul:my-1 text-[#1f1f1f] dark:text-[#e3e3e3]">
             <MessagePrimitive.Parts components={{ Text: MarkdownText }} />
           </div>
-          <ActionBarPrimitive.Root className="mt-2 -ml-2 flex items-center gap-0.5 opacity-0 transition-opacity duration-300 group-focus-within/message:opacity-100 group-hover/message:opacity-100">
-            <ActionBarPrimitive.FeedbackPositive className={actionBtnClass}>
-              <ThumbsUp width={14} height={14} />
-            </ActionBarPrimitive.FeedbackPositive>
-            <ActionBarPrimitive.FeedbackNegative className={actionBtnClass}>
-              <ThumbsDown width={14} height={14} />
-            </ActionBarPrimitive.FeedbackNegative>
-            <ActionBarPrimitive.Reload className={actionBtnClass}>
-              <ReloadIcon width={14} height={14} />
-            </ActionBarPrimitive.Reload>
-            <ActionBarPrimitive.Copy className={actionBtnClass}>
-              <CopyIcon width={14} height={14} />
-            </ActionBarPrimitive.Copy>
-            <button type="button" className={actionBtnClass}>
-              <EllipsisVertical width={14} height={14} />
-            </button>
-          </ActionBarPrimitive.Root>
+          <AssistantMessageActionBar
+            variant="gemini"
+            className="mt-2 -ml-2 opacity-0 transition-opacity duration-300 group-focus-within/message:opacity-100 group-hover/message:opacity-100"
+          />
         </div>
       </AuiIf>
     </MessagePrimitive.Root>

@@ -29,5 +29,6 @@ export const ChatGPTLayout: FC<{
     alertClassName="border border-destructive/30 bg-destructive/10 text-destructive"
     footerBorderClassName="border-[#e5e5e5] dark:border-[#303030]"
     contextUsageClassName="text-[#5d5d5d] dark:text-[#a8a8a8]"
+    headerModelPickerVariant="chatgpt"
   />
 );

@@ -2,6 +2,10 @@
 
 import { PanelLeft } from "lucide-react";
 import { useEffect, useState, type FC, type ReactNode } from "react";
+import {
+  ProviderModelPicker,
+  type ProviderModelPickerVariant,
+} from "@/components/assistant-ui/providers/shared/model-picker";
 import { ProviderSwitch } from "@/components/assistant-ui/providers/shared/provider-switch";
 import type { ProviderSwitchVariant } from "@/components/assistant-ui/providers/shared/provider-switch-styles";
 import { ContextUsageIndicator } from "@/components/assistant-ui/shell/context-usage-indicator";
@@ -31,6 +35,7 @@ export type CollapsibleSidebarLayoutProps = {
   alertClassName: string;
   footerBorderClassName: string;
   contextUsageClassName?: string;
+  headerModelPickerVariant?: ProviderModelPickerVariant;
 };
 
 export const CollapsibleSidebarLayout: FC<CollapsibleSidebarLayoutProps> = ({
@@ -48,6 +53,7 @@ export const CollapsibleSidebarLayout: FC<CollapsibleSidebarLayoutProps> = ({
   alertClassName,
   footerBorderClassName,
   contextUsageClassName,
+  headerModelPickerVariant,
 }) => {
   const isMobile = useIsMobile();
   const [desktopOpen, setDesktopOpen] = useState(true);
@@ -128,6 +134,12 @@ export const CollapsibleSidebarLayout: FC<CollapsibleSidebarLayoutProps> = ({
           >
             <PanelLeft className="size-4" />
           </button>
+          {headerModelPickerVariant ? (
+            <ProviderModelPicker
+              variant={headerModelPickerVariant}
+              className="min-w-0 shrink"
+            />
+          ) : null}
           <ContextUsageIndicator
             variant="shadcn"
             className={cn(

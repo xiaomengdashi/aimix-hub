@@ -14,7 +14,7 @@ import {
   Pencil1Icon,
   ReloadIcon,
 } from "@radix-ui/react-icons";
-import { AudioLines, ThumbsDown, ThumbsUp } from "lucide-react";
+import { Mic } from "lucide-react";
 import type { FC } from "react";
 import {
   ClaudeComposerAddAttachment,
@@ -26,7 +26,9 @@ import { UserMessageAttachments } from "@/components/assistant-ui/message/attach
 import { ContextUsageIndicator } from "@/components/assistant-ui/shell/context-usage-indicator";
 import { ModeTabs } from "@/components/assistant-ui/shell/mode-tabs";
 import { MarkdownText } from "@/components/assistant-ui/message/markdown-text";
+import { AssistantMessageActionBar } from "@/components/assistant-ui/providers/shared/assistant-message-action-bar";
 import { ProviderModelPicker } from "@/components/assistant-ui/providers/shared/model-picker";
+import { VoicePlaceholderButton } from "@/components/assistant-ui/providers/shared/voice-ui-placeholder";
 
 const messageActionButtonClassName =
   "flex size-8 items-center justify-center rounded-md text-[#5b5950] transition-colors hover:bg-[#1a1a18]/5 hover:text-[#1a1a18] dark:text-[#a3a098] dark:hover:bg-white/5 dark:hover:text-[#eee]";
@@ -138,22 +140,8 @@ const ComposerPrimaryAction: FC = () => {
       </AuiIf>
 
       <AuiIf
-        condition={(s) => !s.thread.isRunning && s.composer.dictation != null}
-      >
-        <ComposerPrimitive.StopDictation
-          className="flex size-8 items-center justify-center rounded-md bg-[#c96442] text-white transition-colors hover:bg-[#b1573a]"
-          aria-label="Stop dictation"
-        >
-          <div className="size-2.5 animate-pulse rounded-[2px] bg-current" />
-        </ComposerPrimitive.StopDictation>
-      </AuiIf>
-
-      <AuiIf
         condition={(s) =>
-          !s.thread.isRunning &&
-          s.composer.dictation == null &&
-          !s.composer.isEmpty &&
-          s.composer.canSend
+          !s.thread.isRunning && !s.composer.isEmpty && s.composer.canSend
         }
       >
         <ComposerPrimitive.Send className="flex size-8 items-center justify-center rounded-md bg-[#c96442] text-white transition-colors hover:bg-[#b1573a] disabled:pointer-events-none disabled:opacity-50">
@@ -161,19 +149,13 @@ const ComposerPrimaryAction: FC = () => {
         </ComposerPrimitive.Send>
       </AuiIf>
 
-      <AuiIf
-        condition={(s) =>
-          !s.thread.isRunning &&
-          s.composer.dictation == null &&
-          s.composer.isEmpty
-        }
-      >
-        <ComposerPrimitive.Dictate
-          className="flex size-8 items-center justify-center rounded-md text-[#5b5950] transition-colors hover:bg-[#1a1a18]/5 hover:text-[#1a1a18] dark:text-[#a3a098] dark:hover:bg-white/5 dark:hover:text-[#eee]"
-          aria-label="Use voice mode"
+      <AuiIf condition={(s) => !s.thread.isRunning && s.composer.isEmpty}>
+        <VoicePlaceholderButton
+          className="flex size-8 items-center justify-center rounded-md text-[#5b5950] dark:text-[#a3a098]"
+          aria-label="语音输入"
         >
-          <AudioLines className="size-4" />
-        </ComposerPrimitive.Dictate>
+          <Mic className="size-4" />
+        </VoicePlaceholderButton>
       </AuiIf>
     </>
   );
@@ -233,33 +215,11 @@ const ClaudeAssistantMessage: FC = () => {
             }}
           </MessagePrimitive.Parts>
         </div>
-        <ActionBarPrimitive.Root
-          hideWhenRunning
+        <AssistantMessageActionBar
+          variant="claude"
           autohide="not-last"
-          className="mt-2 flex items-center gap-0.5 opacity-0 transition-opacity group-focus-within/message:opacity-100 group-hover/message:opacity-100"
-        >
-          <ActionBarPrimitive.Copy className={messageActionButtonClassName}>
-            <AuiIf condition={(s) => s.message.isCopied}>
-              <CheckIcon />
-            </AuiIf>
-            <AuiIf condition={(s) => !s.message.isCopied}>
-              <ClipboardIcon width={16} height={16} />
-            </AuiIf>
-          </ActionBarPrimitive.Copy>
-          <ActionBarPrimitive.FeedbackPositive
-            className={messageActionButtonClassName}
-          >
-            <ThumbsUp className="size-4" />
-          </ActionBarPrimitive.FeedbackPositive>
-          <ActionBarPrimitive.FeedbackNegative
-            className={messageActionButtonClassName}
-          >
-            <ThumbsDown className="size-4" />
-          </ActionBarPrimitive.FeedbackNegative>
-          <ActionBarPrimitive.Reload className={messageActionButtonClassName}>
-            <ReloadIcon width={16} height={16} />
-          </ActionBarPrimitive.Reload>
-        </ActionBarPrimitive.Root>
+          className="mt-2 opacity-0 transition-opacity group-focus-within/message:opacity-100 group-hover/message:opacity-100"
+        />
       </div>
     </MessagePrimitive.Root>
   );
