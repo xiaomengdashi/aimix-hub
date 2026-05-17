@@ -5,11 +5,11 @@ import type { RemoteThreadListAdapter } from "@assistant-ui/core";
 import type { User } from "@supabase/supabase-js";
 import { useEffect, useMemo, useState, type FC } from "react";
 import { ChatActiveThreadTracker } from "@/components/assistant-ui/chat-active-thread-tracker";
+import { ChatThreadListOrderSync } from "@/components/assistant-ui/chat-thread-list-order-sync";
 import { ChatModeProvider } from "@/components/assistant-ui/chat-mode-context";
 import { ChatModelProvider } from "@/components/assistant-ui/chat-model-context";
 import { ChatSessionProvider } from "@/components/assistant-ui/chat-session-context";
 import { ChatUiThemeProvider, useChatUiTheme } from "@/components/assistant-ui/chat-ui-theme-context";
-import { ChatUiThemeSwitch } from "@/components/assistant-ui/chat-ui-theme-switch";
 import { Claude } from "@/components/assistant-ui/claude";
 import { ClaudeChatLayout } from "@/components/assistant-ui/claude-chat-layout";
 import { Thread } from "@/components/assistant-ui/thread";
@@ -58,6 +58,7 @@ const ChatShellContent: FC<{
         >
         <AssistantRuntimeProvider runtime={runtime}>
           <ChatActiveThreadTracker userId={userId} />
+          <ChatThreadListOrderSync />
           {theme === "claude" ? (
             <ClaudeChatLayout
               displayUsername={displayUsername}
@@ -73,7 +74,6 @@ const ChatShellContent: FC<{
                   <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
                     <SidebarTrigger />
                     <ModelPicker />
-                    <ChatUiThemeSwitch className="ms-1" />
                     <UserMenu displayName={displayUsername} />
                   </header>
                   {chatError ? (

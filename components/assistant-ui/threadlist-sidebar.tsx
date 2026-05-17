@@ -3,12 +3,14 @@ import { MessagesSquare } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { ChatUiThemeSwitch } from "@/components/assistant-ui/chat-ui-theme-switch";
 import { ThreadList } from "@/components/assistant-ui/thread-list";
 
 export function ThreadListSidebar({
@@ -40,6 +42,9 @@ export function ThreadListSidebar({
       <SidebarContent className="aui-sidebar-content px-2">
         <ThreadList />
       </SidebarContent>
+      <SidebarFooter className="aui-sidebar-footer border-t">
+        <ChatUiThemeSwitch fullWidth />
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );

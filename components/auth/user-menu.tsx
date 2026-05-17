@@ -1,8 +1,10 @@
 "use client";
 
-import { ChevronDownIcon, LogOutIcon, UserIcon } from "lucide-react";
+import { ArchivedThreadsDialog } from "@/components/assistant-ui/archived-threads-dialog";
+import { ChevronDownIcon, LogOutIcon, UserIcon, ArchiveIcon } from "lucide-react";
 import Link from "next/link";
-import type { FC } from "react";
+import { useState, type FC } from "react";
+import { useAuiState } from "@assistant-ui/store";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,8 +23,11 @@ type UserMenuProps = {
 export const UserMenu: FC<UserMenuProps> = ({ displayName }) => {
   const initial = displayName.slice(0, 1).toUpperCase();
   const { signOut, loading } = useSignOut();
+  const [archivedOpen, setArchivedOpen] = useState(false);
+  const archivedCount = useAuiState((s) => s.threads.archivedThreadIds.length);
 
   return (
+    <>
     <DropdownMenu>
       <DropdownMenuTrigger
         className={cn(
@@ -45,6 +50,20 @@ export const UserMenu: FC<UserMenuProps> = ({ displayName }) => {
           <p className="text-muted-foreground text-xs">已登录</p>
         </div>
         <DropdownMenuSeparator />
+        <DropdownMenuItem
+          icon={<ArchiveIcon className="size-4" />}
+          onSelect={(event) => {
+            event.preventDefault();
+            setArchivedOpen(true);
+          }}
+        >
+          已归档
+          {archivedCount > 0 ? (
+            <span className="ms-auto text-muted-foreground text-xs tabular-nums">
+              {archivedCount}
+            </span>
+          ) : null}
+        </DropdownMenuItem>
         <DropdownMenuItem asChild icon={<UserIcon className="size-4" />}>
           <Link href="/account">个人信息</Link>
         </DropdownMenuItem>
@@ -62,5 +81,7 @@ export const UserMenu: FC<UserMenuProps> = ({ displayName }) => {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+    <ArchivedThreadsDialog open={archivedOpen} onOpenChange={setArchivedOpen} />
+    </>
   );
 };

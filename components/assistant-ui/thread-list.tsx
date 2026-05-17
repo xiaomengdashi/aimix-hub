@@ -23,10 +23,14 @@ export const ThreadList: FC<{ variant?: ThreadListVariant }> = ({
   return (
     <ThreadListPrimitive.Root className="aui-root aui-thread-list-root flex flex-col gap-1">
       <ThreadListNew variant={variant} />
-      <AuiIf condition={(s) => s.threads.isLoading}>
+      <AuiIf
+        condition={(s) => s.threads.isLoading && s.threads.threadIds.length === 0}
+      >
         <ThreadListSkeleton variant={variant} />
       </AuiIf>
-      <AuiIf condition={(s) => !s.threads.isLoading}>
+      <AuiIf
+        condition={(s) => !s.threads.isLoading || s.threads.threadIds.length > 0}
+      >
         <ThreadListPrimitive.Items>
           {() => <ThreadListItem variant={variant} />}
         </ThreadListPrimitive.Items>

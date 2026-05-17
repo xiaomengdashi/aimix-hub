@@ -13,7 +13,8 @@ const OPTIONS: { id: ChatUiTheme; label: string }[] = [
 export const ChatUiThemeSwitch: FC<{
   className?: string;
   variant?: "default" | "claude";
-}> = ({ className, variant = "default" }) => {
+  fullWidth?: boolean;
+}> = ({ className, variant = "default", fullWidth = false }) => {
   const { theme, setTheme } = useChatUiTheme();
   const isClaude = variant === "claude";
 
@@ -23,6 +24,7 @@ export const ChatUiThemeSwitch: FC<{
       aria-label="界面主题"
       className={cn(
         "flex rounded-lg border p-0.5 text-sm",
+        fullWidth && "w-full",
         isClaude
           ? "border-[#E5E0D6] bg-[#F0ECE0]/80 font-serif dark:border-[#3d3a35] dark:bg-[#2b2a27]/80"
           : "border-border bg-muted/40",
@@ -39,6 +41,7 @@ export const ChatUiThemeSwitch: FC<{
             onClick={() => setTheme(id)}
             className={cn(
               "rounded-md px-2.5 py-1 transition-colors",
+              fullWidth && "flex-1",
               isClaude
                 ? active
                   ? "bg-white text-[#1a1a18] shadow-sm dark:bg-[#1f1e1b] dark:text-[#eee]"

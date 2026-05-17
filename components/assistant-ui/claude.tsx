@@ -38,6 +38,9 @@ import {
 const messageActionButtonClassName =
   "flex size-8 items-center justify-center rounded-md text-[#5b5950] transition-colors hover:bg-[#1a1a18]/5 hover:text-[#1a1a18] dark:text-[#a3a098] dark:hover:bg-white/5 dark:hover:text-[#eee]";
 
+const claudeEditActionClassName =
+  "rounded-md px-3 py-1.5 font-serif text-sm transition-colors";
+
 export const Claude: FC = () => {
   const { onComposerSubmit } = useChatSession();
 
@@ -49,9 +52,13 @@ export const Claude: FC = () => {
 
       <AuiIf condition={(s) => !s.thread.isEmpty}>
         <ThreadPrimitive.Viewport className="flex grow flex-col overflow-y-auto px-4 pt-12">
-          <ThreadPrimitive.Messages>
-            {() => <ChatMessage />}
-          </ThreadPrimitive.Messages>
+          <ThreadPrimitive.Messages
+            components={{
+              UserMessage: ClaudeUserMessage,
+              AssistantMessage: ClaudeAssistantMessage,
+              EditComposer: ClaudeEditComposer,
+            }}
+          />
 
           <ThreadPrimitive.ViewportFooter className="sticky bottom-0 mx-auto mt-auto w-full max-w-3xl bg-linear-to-b from-transparent via-[#F0ECE0]/85 to-[#F0ECE0] pt-4 pb-2 dark:via-[#2b2a27]/85 dark:to-[#2b2a27]">
             <Composer onSend={onComposerSubmit} />
@@ -203,79 +210,125 @@ const ClaudeModelPicker: FC = () => {
   );
 };
 
-const ChatMessage: FC = () => {
+const ClaudeUserMessage: FC = () => {
   return (
-    <MessagePrimitive.Root className="group/message relative mx-auto flex w-full max-w-3xl flex-col py-2">
-      <AuiIf condition={(s) => s.message.role === "user"}>
-        <div className="flex max-w-[80%] flex-col items-end gap-1.5">
-          <UserMessageAttachments />
-          <div className="wrap-break-word w-full whitespace-pre-wrap rounded-2xl bg-[#E5E0D6] px-4 py-2.5 text-[#1a1a18] empty:hidden dark:bg-[#393937] dark:text-[#eee]">
-            <MessagePrimitive.Parts>
-              {({ part }) => {
-                if (part.type === "text") return <MarkdownText />;
-                return null;
-              }}
-            </MessagePrimitive.Parts>
-          </div>
-          <ActionBarPrimitive.Root
-            hideWhenRunning
-            autohide="not-last"
-            className="-mt-px flex items-center gap-0.5 opacity-0 transition-opacity group-focus-within/message:opacity-100 group-hover/message:opacity-100"
-          >
-            <ActionBarPrimitive.Edit className={messageActionButtonClassName}>
-              <Pencil1Icon width={16} height={16} />
-            </ActionBarPrimitive.Edit>
-            <ActionBarPrimitive.Copy className={messageActionButtonClassName}>
-              <AuiIf condition={(s) => s.message.isCopied}>
-                <CheckIcon />
-              </AuiIf>
-              <AuiIf condition={(s) => !s.message.isCopied}>
-                <ClipboardIcon width={16} height={16} />
-              </AuiIf>
-            </ActionBarPrimitive.Copy>
-          </ActionBarPrimitive.Root>
+    <MessagePrimitive.Root
+      className="group/message relative mx-auto flex w-full max-w-3xl flex-col py-2"
+      data-role="user"
+    >
+      <div className="flex max-w-[80%] flex-col items-end gap-1.5 ms-auto">
+        <UserMessageAttachments />
+        <div className="wrap-break-word w-full whitespace-pre-wrap rounded-2xl bg-[#E5E0D6] px-4 py-2.5 text-[#1a1a18] empty:hidden dark:bg-[#393937] dark:text-[#eee]">
+          <MessagePrimitive.Parts>
+            {({ part }) => {
+              if (part.type === "text") return <MarkdownText />;
+              return null;
+            }}
+          </MessagePrimitive.Parts>
         </div>
-      </AuiIf>
+        <ActionBarPrimitive.Root
+          hideWhenRunning
+          autohide="not-last"
+          autohideFloat="single-branch"
+          className="-mt-px flex items-center gap-0.5 opacity-0 transition-opacity group-focus-within/message:opacity-100 group-hover/message:opacity-100 data-[floating]:opacity-100"
+        >
+          <ActionBarPrimitive.Edit className={messageActionButtonClassName}>
+            <Pencil1Icon width={16} height={16} />
+          </ActionBarPrimitive.Edit>
+          <ActionBarPrimitive.Copy className={messageActionButtonClassName}>
+            <AuiIf condition={(s) => s.message.isCopied}>
+              <CheckIcon />
+            </AuiIf>
+            <AuiIf condition={(s) => !s.message.isCopied}>
+              <ClipboardIcon width={16} height={16} />
+            </AuiIf>
+          </ActionBarPrimitive.Copy>
+        </ActionBarPrimitive.Root>
+      </div>
+    </MessagePrimitive.Root>
+  );
+};
 
-      <AuiIf condition={(s) => s.message.role === "assistant"}>
-        <div className="flex flex-col">
-          <div className="prose prose-claude wrap-break-word font-serif text-[#1a1a18] leading-[1.65rem] dark:text-[#eee]">
-            <MessagePrimitive.Parts>
-              {({ part }) => {
-                if (part.type === "text") return <MarkdownText />;
-                return null;
-              }}
-            </MessagePrimitive.Parts>
-          </div>
-          <ActionBarPrimitive.Root
-            hideWhenRunning
-            autohide="not-last"
-            className="mt-2 flex items-center gap-0.5 opacity-0 transition-opacity group-focus-within/message:opacity-100 group-hover/message:opacity-100"
-          >
-            <ActionBarPrimitive.Copy className={messageActionButtonClassName}>
-              <AuiIf condition={(s) => s.message.isCopied}>
-                <CheckIcon />
-              </AuiIf>
-              <AuiIf condition={(s) => !s.message.isCopied}>
-                <ClipboardIcon width={16} height={16} />
-              </AuiIf>
-            </ActionBarPrimitive.Copy>
-            <ActionBarPrimitive.FeedbackPositive
-              className={messageActionButtonClassName}
-            >
-              <ThumbsUp className="size-4" />
-            </ActionBarPrimitive.FeedbackPositive>
-            <ActionBarPrimitive.FeedbackNegative
-              className={messageActionButtonClassName}
-            >
-              <ThumbsDown className="size-4" />
-            </ActionBarPrimitive.FeedbackNegative>
-            <ActionBarPrimitive.Reload className={messageActionButtonClassName}>
-              <ReloadIcon width={16} height={16} />
-            </ActionBarPrimitive.Reload>
-          </ActionBarPrimitive.Root>
+const ClaudeAssistantMessage: FC = () => {
+  return (
+    <MessagePrimitive.Root
+      className="group/message relative mx-auto flex w-full max-w-3xl flex-col py-2"
+      data-role="assistant"
+    >
+      <div className="flex flex-col">
+        <div className="prose prose-claude wrap-break-word font-serif text-[#1a1a18] leading-[1.65rem] dark:text-[#eee]">
+          <MessagePrimitive.Parts>
+            {({ part }) => {
+              if (part.type === "text") return <MarkdownText />;
+              return null;
+            }}
+          </MessagePrimitive.Parts>
         </div>
-      </AuiIf>
+        <ActionBarPrimitive.Root
+          hideWhenRunning
+          autohide="not-last"
+          className="mt-2 flex items-center gap-0.5 opacity-0 transition-opacity group-focus-within/message:opacity-100 group-hover/message:opacity-100"
+        >
+          <ActionBarPrimitive.Copy className={messageActionButtonClassName}>
+            <AuiIf condition={(s) => s.message.isCopied}>
+              <CheckIcon />
+            </AuiIf>
+            <AuiIf condition={(s) => !s.message.isCopied}>
+              <ClipboardIcon width={16} height={16} />
+            </AuiIf>
+          </ActionBarPrimitive.Copy>
+          <ActionBarPrimitive.FeedbackPositive
+            className={messageActionButtonClassName}
+          >
+            <ThumbsUp className="size-4" />
+          </ActionBarPrimitive.FeedbackPositive>
+          <ActionBarPrimitive.FeedbackNegative
+            className={messageActionButtonClassName}
+          >
+            <ThumbsDown className="size-4" />
+          </ActionBarPrimitive.FeedbackNegative>
+          <ActionBarPrimitive.Reload className={messageActionButtonClassName}>
+            <ReloadIcon width={16} height={16} />
+          </ActionBarPrimitive.Reload>
+        </ActionBarPrimitive.Root>
+      </div>
+    </MessagePrimitive.Root>
+  );
+};
+
+const ClaudeEditComposer: FC = () => {
+  return (
+    <MessagePrimitive.Root
+      className="relative mx-auto flex w-full max-w-3xl flex-col py-2"
+      data-role="user"
+    >
+      <div className="flex max-w-[80%] flex-col items-end gap-2 ms-auto w-full">
+        <ComposerPrimitive.Root className="flex w-full flex-col gap-2 rounded-2xl border border-[#E5E0D6] bg-white px-3.5 pt-3 pb-2.5 dark:border-[#3d3a35] dark:bg-[#1f1e1b]">
+          <ComposerPrimitive.Input
+            className="block min-h-14 w-full resize-none bg-transparent font-serif text-[#1a1a18] outline-none dark:text-[#eee]"
+            autoFocus
+            aria-label="编辑消息"
+          />
+          <div className="flex items-center justify-end gap-2">
+            <ComposerPrimitive.Cancel asChild>
+              <button
+                type="button"
+                className={`${claudeEditActionClassName} text-[#5b5950] hover:bg-[#1a1a18]/5 hover:text-[#1a1a18] dark:text-[#a3a098] dark:hover:bg-white/5 dark:hover:text-[#eee]`}
+              >
+                取消
+              </button>
+            </ComposerPrimitive.Cancel>
+            <ComposerPrimitive.Send asChild>
+              <button
+                type="button"
+                className={`${claudeEditActionClassName} bg-[#c96442] text-white hover:bg-[#b1573a]`}
+              >
+                更新并发送
+              </button>
+            </ComposerPrimitive.Send>
+          </div>
+        </ComposerPrimitive.Root>
+      </div>
     </MessagePrimitive.Root>
   );
 };

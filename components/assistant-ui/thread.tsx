@@ -32,8 +32,6 @@ import {
   MessagePrimitive,
   SuggestionPrimitive,
   ThreadPrimitive,
-  useAui,
-  useAuiState,
 } from "@assistant-ui/react";
 import {
   ArrowDownIcon,
@@ -48,7 +46,7 @@ import {
   RefreshCwIcon,
   SquareIcon,
 } from "lucide-react";
-import { useCallback, type FC, type FormEvent } from "react";
+import type { FC } from "react";
 
 export const Thread: FC = () => {
   return (
@@ -74,9 +72,13 @@ export const Thread: FC = () => {
             data-slot="aui_message-group"
             className="mb-10 flex flex-col gap-y-8 empty:hidden"
           >
-            <ThreadPrimitive.Messages>
-              {() => <ThreadMessage />}
-            </ThreadPrimitive.Messages>
+            <ThreadPrimitive.Messages
+              components={{
+                UserMessage,
+                AssistantMessage,
+                EditComposer,
+              }}
+            />
           </div>
 
           <ThreadPrimitive.ViewportFooter className="aui-thread-viewport-footer sticky bottom-0 mt-auto flex flex-col gap-4 overflow-visible rounded-t-(--composer-radius) bg-background pb-4 md:pb-6">
@@ -87,15 +89,6 @@ export const Thread: FC = () => {
       </ThreadPrimitive.Viewport>
     </ThreadPrimitive.Root>
   );
-};
-
-const ThreadMessage: FC = () => {
-  const role = useAuiState((s) => s.message.role);
-  const isEditing = useAuiState((s) => s.message.composer.isEditing);
-
-  if (isEditing) return <EditComposer />;
-  if (role === "user") return <UserMessage />;
-  return <AssistantMessage />;
 };
 
 const ThreadScrollToBottom: FC = () => {
@@ -360,23 +353,19 @@ const UserMessage: FC = () => {
   return (
     <MessagePrimitive.Root
       data-slot="aui_user-message-root"
-      className="fade-in slide-in-from-bottom-1 grid animate-in auto-rows-auto grid-cols-[minmax(72px,1fr)_auto] content-start gap-y-2 px-2 duration-150 [contain-intrinsic-size:auto_60px] [content-visibility:auto] [&:where(>*)]:col-start-2"
+      className="group/message fade-in slide-in-from-bottom-1 flex animate-in flex-col items-end gap-1 px-2 duration-150 [contain-intrinsic-size:auto_60px] [content-visibility:auto]"
       data-role="user"
     >
       <UserMessageAttachments />
 
-      <div className="aui-user-message-content-wrapper relative col-start-2 min-w-0">
-        <div className="aui-user-message-content wrap-break-word peer rounded-2xl bg-muted px-4 py-2.5 text-foreground empty:hidden">
-          <MessagePrimitive.Parts />
-        </div>
-        <div className="aui-user-action-bar-wrapper absolute start-0 top-1/2 -translate-x-full -translate-y-1/2 pe-2 peer-empty:hidden rtl:translate-x-full">
-          <UserActionBar />
-        </div>
+      <div className="aui-user-message-content wrap-break-word max-w-[85%] rounded-2xl bg-muted px-4 py-2.5 text-foreground empty:hidden">
+        <MessagePrimitive.Parts />
       </div>
+      <UserActionBar />
 
       <BranchPicker
         data-slot="aui_user-branch-picker"
-        className="col-span-full col-start-1 row-start-3 -me-1 justify-end"
+        className="-me-1 justify-end"
       />
     </MessagePrimitive.Root>
   );
@@ -387,10 +376,11 @@ const UserActionBar: FC = () => {
     <ActionBarPrimitive.Root
       hideWhenRunning
       autohide="not-last"
-      className="aui-user-action-bar-root flex flex-col items-end"
+      autohideFloat="single-branch"
+      className="aui-user-action-bar-root flex items-center gap-1 text-muted-foreground opacity-0 transition-opacity group-hover/message:opacity-100 group-focus-within/message:opacity-100 data-[floating]:opacity-100"
     >
       <ActionBarPrimitive.Edit asChild>
-        <TooltipIconButton tooltip="Edit" className="aui-user-action-edit p-4">
+        <TooltipIconButton tooltip="编辑" side="bottom">
           <PencilIcon />
         </TooltipIconButton>
       </ActionBarPrimitive.Edit>
@@ -398,60 +388,30 @@ const UserActionBar: FC = () => {
   );
 };
 
-const useEditComposerSend = () => {
-  const aui = useAui();
-  const disabled = useAuiState(
-    (s) =>
-      !s.composer.canSend ||
-      (s.thread.isRunning && !s.thread.capabilities.queue),
-  );
-  const sendUpdate = useCallback(() => {
-    aui.composer().send({ startRun: true });
-  }, [aui]);
-  return { disabled, sendUpdate };
-};
-
-const EditComposerUpdateButton: FC = () => {
-  const { disabled, sendUpdate } = useEditComposerSend();
-  return (
-    <Button size="sm" type="button" disabled={disabled} onClick={sendUpdate}>
-      Update
-    </Button>
-  );
-};
-
 const EditComposer: FC = () => {
-  const { disabled, sendUpdate } = useEditComposerSend();
-
-  const handleSubmit = useCallback(
-    (e: FormEvent) => {
-      e.preventDefault();
-      if (disabled) return;
-      sendUpdate();
-    },
-    [disabled, sendUpdate],
-  );
-
   return (
     <MessagePrimitive.Root
       data-slot="aui_edit-composer-wrapper"
       className="flex flex-col px-2"
+      data-role="user"
     >
-      <ComposerPrimitive.Root
-        className="aui-edit-composer-root ms-auto flex w-full max-w-[85%] flex-col rounded-2xl bg-muted"
-        onSubmit={handleSubmit}
-      >
+      <ComposerPrimitive.Root className="aui-edit-composer-root ms-auto flex w-full max-w-[85%] flex-col rounded-2xl bg-muted">
         <ComposerPrimitive.Input
           className="aui-edit-composer-input min-h-14 w-full resize-none bg-transparent p-4 text-foreground text-sm outline-none"
           autoFocus
+          aria-label="编辑消息"
         />
         <div className="aui-edit-composer-footer mx-3 mb-3 flex items-center gap-2 self-end">
           <ComposerPrimitive.Cancel asChild>
-            <Button variant="ghost" size="sm">
-              Cancel
+            <Button variant="ghost" size="sm" type="button">
+              取消
             </Button>
           </ComposerPrimitive.Cancel>
-          <EditComposerUpdateButton />
+          <ComposerPrimitive.Send asChild>
+            <Button size="sm" type="button">
+              更新并发送
+            </Button>
+          </ComposerPrimitive.Send>
         </div>
       </ComposerPrimitive.Root>
     </MessagePrimitive.Root>
