@@ -3,56 +3,48 @@
 import {
   ActionBarPrimitive,
   AuiIf,
-  AttachmentPrimitive,
   ComposerPrimitive,
   MessagePrimitive,
   ThreadPrimitive,
-  useAuiState,
 } from "@assistant-ui/react";
 import {
   ArrowUpIcon,
   CheckIcon,
   ChevronDownIcon,
   ClipboardIcon,
-  Cross2Icon,
   Pencil1Icon,
-  PlusIcon,
   ReloadIcon,
 } from "@radix-ui/react-icons";
+import { AudioLines, Sparkle, ThumbsDown, ThumbsUp } from "lucide-react";
+import type { FC } from "react";
 import {
-  AudioLines,
-  Calendar as CalendarIcon,
-  Code as CodeIcon,
-  FolderOpen,
-  GraduationCap,
-  PenLine,
-  Sparkle,
-  ThumbsDown,
-  ThumbsUp,
-} from "lucide-react";
-import { useEffect, useState, type FC } from "react";
-import { useShallow } from "zustand/shallow";
+  ClaudeComposerAddAttachment,
+  ClaudeComposerAttachments,
+} from "@/components/assistant-ui/claude-composer-attachment";
+import { useChatMode } from "@/components/assistant-ui/chat-mode-context";
+import { useChatModel } from "@/components/assistant-ui/chat-model-context";
+import { useChatSession } from "@/components/assistant-ui/chat-session-context";
+import { UserMessageAttachments } from "@/components/assistant-ui/attachment";
+import { ModeTabs } from "@/components/assistant-ui/mode-tabs";
 import { MarkdownText } from "@/components/assistant-ui/markdown-text";
+import { CHAT_MODELS, getChatModel } from "@/lib/chat-models";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/shared/dropdown-menu";
 
 const messageActionButtonClassName =
   "flex size-8 items-center justify-center rounded-md text-[#5b5950] transition-colors hover:bg-[#1a1a18]/5 hover:text-[#1a1a18] dark:text-[#a3a098] dark:hover:bg-white/5 dark:hover:text-[#eee]";
 
-export const Claude: FC<{
-  model?: string;
-  onModelChange?: (model: string) => void;
-  onSend?: () => void;
-}> = ({ model, onModelChange, onSend }) => {
+export const Claude: FC = () => {
+  const { onComposerSubmit } = useChatSession();
+
   return (
     <ThreadPrimitive.Root className="flex h-full flex-col items-stretch bg-[#F0ECE0] font-serif text-[#1a1a18] dark:bg-[#2b2a27] dark:text-[#eee]">
       <AuiIf condition={(s) => s.thread.isEmpty}>
-        <EmptyState model={model} onModelChange={onModelChange} onSend={onSend} />
+        <EmptyState onSend={onComposerSubmit} />
       </AuiIf>
 
       <AuiIf condition={(s) => !s.thread.isEmpty}>
@@ -62,11 +54,7 @@ export const Claude: FC<{
           </ThreadPrimitive.Messages>
 
           <ThreadPrimitive.ViewportFooter className="sticky bottom-0 mx-auto mt-auto w-full max-w-3xl bg-linear-to-b from-transparent via-[#F0ECE0]/85 to-[#F0ECE0] pt-4 pb-2 dark:via-[#2b2a27]/85 dark:to-[#2b2a27]">
-            <Composer
-              model={model}
-              onModelChange={onModelChange}
-              onSend={onSend}
-            />
+            <Composer onSend={onComposerSubmit} />
             <p className="pt-2 text-center text-[#8a8780] text-xs dark:text-[#a3a098]">
               Claude can make mistakes. Please double-check responses.
             </p>
@@ -77,11 +65,7 @@ export const Claude: FC<{
   );
 };
 
-const EmptyState: FC<{
-  model?: string;
-  onModelChange?: (model: string) => void;
-  onSend?: () => void;
-}> = ({ model, onModelChange, onSend }) => {
+const EmptyState: FC<{ onSend?: () => void }> = ({ onSend }) => {
   return (
     <div className="flex grow flex-col items-center justify-center px-4">
       <div className="mx-auto flex w-full max-w-2xl flex-col items-stretch gap-5">
@@ -89,50 +73,46 @@ const EmptyState: FC<{
           <Sparkle className="size-7 fill-[#c96442] text-[#c96442]" />
           <span>How can I help you today?</span>
         </h1>
-        <Composer model={model} onModelChange={onModelChange} onSend={onSend} />
+        <Composer onSend={onSend} />
         <ModeTabs />
       </div>
     </div>
   );
 };
 
-const Composer: FC<{
-  model?: string;
-  onModelChange?: (model: string) => void;
-  onSend?: () => void;
-}> = ({ model, onModelChange, onSend }) => {
+const Composer: FC<{ onSend?: () => void }> = ({ onSend }) => {
+  const { activeMode } = useChatMode();
+  const { onAttachmentError } = useChatSession();
+  const placeholder =
+    activeMode?.composerPlaceholder ?? "How can I help you today?";
+
   return (
     <ComposerPrimitive.Root
       className="flex w-full flex-col gap-2 rounded-2xl border border-[#E5E0D6] bg-white px-3.5 pt-3 pb-2.5 dark:border-[#3d3a35] dark:bg-[#1f1e1b]"
       onSubmit={onSend}
     >
-      <ComposerPrimitive.Input
-        placeholder="How can I help you today?"
-        rows={1}
-        className="block max-h-72 min-h-6 w-full resize-none bg-transparent text-[#1a1a18] outline-none placeholder:text-[#9a9893] dark:text-[#eee] dark:placeholder:text-[#9a9893]"
-      />
+      <ComposerPrimitive.AttachmentDropzone asChild>
+        <div className="flex w-full flex-col gap-2">
+          <ClaudeComposerAttachments />
+          <ComposerPrimitive.Input
+            placeholder={placeholder}
+            rows={1}
+            className="block max-h-72 min-h-6 w-full resize-none bg-transparent text-[#1a1a18] outline-none placeholder:text-[#9a9893] dark:text-[#eee] dark:placeholder:text-[#9a9893]"
+          />
 
-      <div className="flex w-full items-center gap-2">
-        <ComposerPrimitive.AddAttachment
-          aria-label="Add attachment"
-          className="flex size-8 shrink-0 items-center justify-center rounded-md text-[#5b5950] transition-colors hover:bg-[#1a1a18]/5 hover:text-[#1a1a18] dark:text-[#a3a098] dark:hover:bg-white/5 dark:hover:text-[#eee]"
-        >
-          <PlusIcon width={16} height={16} />
-        </ComposerPrimitive.AddAttachment>
+          <div className="flex w-full items-center gap-2">
+            <ClaudeComposerAddAttachment
+              onError={onAttachmentError}
+              className="flex size-8 shrink-0 items-center justify-center rounded-md text-[#5b5950] transition-colors hover:bg-[#1a1a18]/5 hover:text-[#1a1a18] dark:text-[#a3a098] dark:hover:bg-white/5 dark:hover:text-[#eee]"
+            />
 
-        <div className="ml-auto flex items-center gap-1">
-          <ClaudeModelPicker model={model} onModelChange={onModelChange} />
-          <ComposerPrimaryAction />
+            <div className="ml-auto flex items-center gap-1">
+              <ClaudeModelPicker />
+              <ComposerPrimaryAction />
+            </div>
+          </div>
         </div>
-      </div>
-
-      <AuiIf condition={(s) => s.composer.attachments.length > 0}>
-        <div className="-mx-1 -mb-1 flex flex-row gap-2 overflow-x-auto pt-1">
-          <ComposerPrimitive.Attachments>
-            {() => <ClaudeAttachment />}
-          </ComposerPrimitive.Attachments>
-        </div>
-      </AuiIf>
+      </ComposerPrimitive.AttachmentDropzone>
     </ComposerPrimitive.Root>
   );
 };
@@ -188,51 +168,21 @@ const ComposerPrimaryAction: FC = () => {
   );
 };
 
-const CLAUDE_MODELS = [
-  {
-    id: "claude-sonnet-4-6",
-    name: "Sonnet 4.6",
-    description: "Smart, fast, everyday tasks",
-  },
-  {
-    id: "claude-opus-4-7",
-    name: "Opus 4.7",
-    description: "Anthropic's most capable model",
-  },
-  {
-    id: "claude-haiku-4-5-20251001",
-    name: "Haiku 4.5",
-    description: "Fastest, most affordable",
-  },
-];
-
-const ClaudeModelPicker: FC<{
-  model?: string;
-  onModelChange?: (model: string) => void;
-}> = ({ model: controlledModel, onModelChange }) => {
-  const [internalModel, setInternalModel] = useState(CLAUDE_MODELS[0]!.id);
-  const model = controlledModel ?? internalModel;
-
-  const selectModel = (id: string) => {
-    onModelChange?.(id);
-    if (controlledModel === undefined) {
-      setInternalModel(id);
-    }
-  };
+const ClaudeModelPicker: FC = () => {
+  const { model, setModel } = useChatModel();
+  const current = getChatModel(model);
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="flex h-8 items-center gap-1 whitespace-nowrap rounded-md px-2.5 text-[#1a1a18] text-sm transition hover:bg-[#1a1a18]/5 dark:text-[#eee] dark:hover:bg-white/5">
-        <span className="font-serif">
-          {CLAUDE_MODELS.find((m) => m.id === model)?.name}
-        </span>
+        <span className="font-serif">{current?.name ?? model}</span>
         <ChevronDownIcon width={16} height={16} className="opacity-60" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-64">
-        {CLAUDE_MODELS.map((m) => (
+        {CHAT_MODELS.map((m) => (
           <DropdownMenuItem
             key={m.id}
-            onSelect={() => selectModel(m.id)}
+            onSelect={() => setModel(m.id)}
             className="flex items-start gap-3"
           >
             <span className="mt-0.5 flex size-4 items-center justify-center text-[#c96442]">
@@ -248,39 +198,8 @@ const ClaudeModelPicker: FC<{
             </span>
           </DropdownMenuItem>
         ))}
-        <DropdownMenuSeparator />
-        <DropdownMenuItem className="text-muted-foreground text-sm">
-          More options
-        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
-};
-
-const ModeTabs: FC = () => {
-  const tabs = [
-    { label: "Write", Icon: PenLine },
-    { label: "Learn", Icon: GraduationCap },
-    { label: "Code", Icon: CodeIcon },
-    { label: "From Drive", Icon: FolderOpen },
-    { label: "From Calendar", Icon: CalendarIcon },
-  ];
-
-  return (
-    <div className="flex flex-wrap items-center justify-center gap-2">
-      {tabs.map(({ label, Icon }) => (
-        <button
-          key={label}
-          type="button"
-          aria-hidden="true"
-          tabIndex={-1}
-          className="flex h-8 items-center gap-1.5 whitespace-nowrap rounded-lg border border-[#E5E0D6] bg-transparent px-3 text-[#3d3a35] text-sm transition-colors hover:bg-white/60 dark:border-[#3d3a35] dark:text-[#cdc9be] dark:hover:bg-[#1f1e1b]/60"
-        >
-          <Icon className="size-3.5 text-[#8a8780] dark:text-[#a3a098]" />
-          <span className="font-serif">{label}</span>
-        </button>
-      ))}
-    </div>
   );
 };
 
@@ -288,8 +207,9 @@ const ChatMessage: FC = () => {
   return (
     <MessagePrimitive.Root className="group/message relative mx-auto flex w-full max-w-3xl flex-col py-2">
       <AuiIf condition={(s) => s.message.role === "user"}>
-        <div className="flex flex-col items-end gap-1">
-          <div className="wrap-break-word max-w-[80%] whitespace-pre-wrap rounded-2xl bg-[#E5E0D6] px-4 py-2.5 text-[#1a1a18] dark:bg-[#393937] dark:text-[#eee]">
+        <div className="flex max-w-[80%] flex-col items-end gap-1.5">
+          <UserMessageAttachments />
+          <div className="wrap-break-word w-full whitespace-pre-wrap rounded-2xl bg-[#E5E0D6] px-4 py-2.5 text-[#1a1a18] empty:hidden dark:bg-[#393937] dark:text-[#eee]">
             <MessagePrimitive.Parts>
               {({ part }) => {
                 if (part.type === "text") return <MarkdownText />;
@@ -357,73 +277,5 @@ const ChatMessage: FC = () => {
         </div>
       </AuiIf>
     </MessagePrimitive.Root>
-  );
-};
-
-const useFileSrc = (file: File | undefined) => {
-  const [src, setSrc] = useState<string | undefined>(undefined);
-
-  useEffect(() => {
-    if (!file) {
-      setSrc(undefined);
-      return;
-    }
-
-    const objectUrl = URL.createObjectURL(file);
-    setSrc(objectUrl);
-
-    return () => {
-      URL.revokeObjectURL(objectUrl);
-    };
-  }, [file]);
-
-  return src;
-};
-
-const useAttachmentSrc = () => {
-  const { file, src } = useAuiState(
-    useShallow((s): { file?: File; src?: string } => {
-      if (s.attachment.type !== "image") return {};
-      if (s.attachment.file) return { file: s.attachment.file };
-      const src = s.attachment.content?.filter((c) => c.type === "image")[0]
-        ?.image;
-      if (!src) return {};
-      return { src };
-    }),
-  );
-
-  return useFileSrc(file) ?? src;
-};
-
-const ClaudeAttachment: FC = () => {
-  const isImage = useAuiState((s) => s.attachment.type === "image");
-  const src = useAttachmentSrc();
-
-  return (
-    <AttachmentPrimitive.Root className="group/thumbnail relative">
-      <div
-        className="overflow-hidden rounded-lg border border-[#E5E0D6] dark:border-[#3d3a35]"
-        style={{ width: "80px", height: "80px" }}
-      >
-        {isImage && src ? (
-          // biome-ignore lint/performance/noImgElement: example component
-          <img
-            className="h-full w-full object-cover"
-            alt="Attachment"
-            src={src}
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center bg-white text-[#5b5950] dark:bg-[#2b2a27] dark:text-[#a3a098]">
-            <AttachmentPrimitive.unstable_Thumb className="text-xs" />
-          </div>
-        )}
-      </div>
-      <AttachmentPrimitive.Remove
-        className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full bg-[#1a1a18] text-white opacity-0 transition-opacity hover:bg-[#3d3a35] group-focus-within/thumbnail:opacity-100 group-hover/thumbnail:opacity-100 dark:bg-white dark:text-[#1a1a18] dark:hover:bg-[#cdc9be]"
-        aria-label="Remove attachment"
-      >
-        <Cross2Icon width={12} height={12} />
-      </AttachmentPrimitive.Remove>
-    </AttachmentPrimitive.Root>
   );
 };

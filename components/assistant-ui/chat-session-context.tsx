@@ -9,6 +9,7 @@ import {
 
 type ChatSessionContextValue = {
   onComposerSubmit?: () => void;
+  onAttachmentError?: (message: string) => void;
 };
 
 const ChatSessionContext = createContext<ChatSessionContextValue>({});
@@ -16,8 +17,9 @@ const ChatSessionContext = createContext<ChatSessionContextValue>({});
 export const ChatSessionProvider: FC<{
   children: ReactNode;
   onComposerSubmit?: () => void;
-}> = ({ children, onComposerSubmit }) => (
-  <ChatSessionContext.Provider value={{ onComposerSubmit }}>
+  onAttachmentError?: (message: string) => void;
+}> = ({ children, onComposerSubmit, onAttachmentError }) => (
+  <ChatSessionContext.Provider value={{ onComposerSubmit, onAttachmentError }}>
     {children}
   </ChatSessionContext.Provider>
 );

@@ -13,38 +13,50 @@ import {
   TrashIcon,
 } from "lucide-react";
 import type { FC } from "react";
+import { cn } from "@/lib/utils";
 
-export const ThreadList: FC = () => {
+type ThreadListVariant = "default" | "claude";
+
+export const ThreadList: FC<{ variant?: ThreadListVariant }> = ({
+  variant = "default",
+}) => {
   return (
     <ThreadListPrimitive.Root className="aui-root aui-thread-list-root flex flex-col gap-1">
-      <ThreadListNew />
+      <ThreadListNew variant={variant} />
       <AuiIf condition={(s) => s.threads.isLoading}>
-        <ThreadListSkeleton />
+        <ThreadListSkeleton variant={variant} />
       </AuiIf>
       <AuiIf condition={(s) => !s.threads.isLoading}>
         <ThreadListPrimitive.Items>
-          {() => <ThreadListItem />}
+          {() => <ThreadListItem variant={variant} />}
         </ThreadListPrimitive.Items>
       </AuiIf>
     </ThreadListPrimitive.Root>
   );
 };
 
-const ThreadListNew: FC = () => {
+const ThreadListNew: FC<{ variant: ThreadListVariant }> = ({ variant }) => {
+  const isClaude = variant === "claude";
+
   return (
     <ThreadListPrimitive.New asChild>
       <Button
         variant="outline"
-        className="aui-thread-list-new h-9 justify-start gap-2 rounded-lg px-3 text-sm hover:bg-muted data-active:bg-muted"
+        className={cn(
+          "aui-thread-list-new h-9 justify-start gap-2 rounded-lg px-3 text-sm",
+          isClaude
+            ? "border-[#E5E0D6] bg-transparent font-serif text-[#3d3a35] hover:bg-white/60 dark:border-[#3d3a35] dark:text-[#cdc9be] dark:hover:bg-[#1f1e1b]/60"
+            : "hover:bg-muted data-active:bg-muted",
+        )}
       >
         <PlusIcon className="size-4" />
-        New Thread
+        {isClaude ? "New chat" : "New Thread"}
       </Button>
     </ThreadListPrimitive.New>
   );
 };
 
-const ThreadListSkeleton: FC = () => {
+const ThreadListSkeleton: FC<{ variant: ThreadListVariant }> = () => {
   return (
     <div className="flex flex-col gap-1">
       {Array.from({ length: 5 }, (_, i) => (
@@ -61,10 +73,24 @@ const ThreadListSkeleton: FC = () => {
   );
 };
 
-const ThreadListItem: FC = () => {
+const ThreadListItem: FC<{ variant: ThreadListVariant }> = ({ variant }) => {
+  const isClaude = variant === "claude";
+
   return (
-    <ThreadListItemPrimitive.Root className="aui-thread-list-item group flex h-9 items-center gap-2 rounded-lg transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none data-active:bg-muted">
-      <ThreadListItemPrimitive.Trigger className="aui-thread-list-item-trigger flex h-full min-w-0 flex-1 items-center px-3 text-start text-sm">
+    <ThreadListItemPrimitive.Root
+      className={cn(
+        "aui-thread-list-item group flex h-9 items-center gap-2 rounded-lg transition-colors focus-visible:outline-none",
+        isClaude
+          ? "font-serif hover:bg-[#E5E0D6]/70 focus-visible:bg-[#E5E0D6]/70 data-active:bg-[#E5E0D6] dark:hover:bg-[#393937]/70 dark:focus-visible:bg-[#393937]/70 dark:data-active:bg-[#393937]"
+          : "hover:bg-muted focus-visible:bg-muted data-active:bg-muted",
+      )}
+    >
+      <ThreadListItemPrimitive.Trigger
+        className={cn(
+          "aui-thread-list-item-trigger flex h-full min-w-0 flex-1 items-center px-3 text-start text-sm",
+          isClaude && "text-[#3d3a35] dark:text-[#cdc9be]",
+        )}
+      >
         <span className="aui-thread-list-item-title min-w-0 flex-1 truncate">
           <ThreadListItemPrimitive.Title fallback="New Chat" />
         </span>

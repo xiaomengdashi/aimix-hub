@@ -1,7 +1,12 @@
 "use client";
 
-import { type PropsWithChildren, useEffect, useState, type FC } from "react";
-import { XIcon, PlusIcon, FileText } from "lucide-react";
+import {
+  type PropsWithChildren,
+  useEffect,
+  useState,
+  type FC,
+} from "react";
+import { ExternalLink, Loader2, PlusIcon, XIcon, FileText } from "lucide-react";
 import {
   AttachmentPrimitive,
   ComposerPrimitive,
@@ -22,8 +27,15 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
+import {
+  type AttachmentPreview,
+  resolveAttachmentPreview,
+} from "@/lib/attachment-preview";
 import { cn } from "@/lib/utils";
+
+const TEXT_PREVIEW_MAX_CHARS = 512_000;
 
 const useFileSrc = (file: File | undefined) => {
   const [src, setSrc] = useState<string | undefined>(undefined);
@@ -60,11 +72,25 @@ const useAttachmentSrc = () => {
   return useFileSrc(file) ?? src;
 };
 
-type AttachmentPreviewProps = {
-  src: string;
-};
+const useAttachmentSnapshot = () =>
+  useAuiState(
+    useShallow((s) => ({
+      id: s.attachment.id,
+      type: s.attachment.type,
+      name: s.attachment.name,
+      content: s.attachment.content,
+      file: s.attachment.file,
+      contentType: s.attachment.contentType,
+    })),
+  );
 
-const AttachmentPreview: FC<AttachmentPreviewProps> = ({ src }) => {
+type PreviewLoadState =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "ready"; preview: AttachmentPreview }
+  | { status: "error"; message: string };
+
+const AttachmentImagePreview: FC<{ src: string }> = ({ src }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   return (
     <img
@@ -81,26 +107,120 @@ const AttachmentPreview: FC<AttachmentPreviewProps> = ({ src }) => {
   );
 };
 
-const AttachmentPreviewDialog: FC<PropsWithChildren> = ({ children }) => {
-  const src = useAttachmentSrc();
+const AttachmentPreviewBody: FC<{ preview: AttachmentPreview }> = ({
+  preview,
+}) => {
+  switch (preview.kind) {
+    case "image":
+      return (
+        <div className="aui-attachment-preview relative mx-auto flex max-h-[80dvh] w-full items-center justify-center overflow-hidden bg-background">
+          <AttachmentImagePreview src={preview.src} />
+        </div>
+      );
+    case "text":
+      return (
+        <div className="aui-attachment-preview-text flex max-h-[80dvh] min-h-[12rem] flex-col gap-2">
+          {preview.truncated ? (
+            <p className="text-muted-foreground text-xs">
+              文件较大，仅显示前 {TEXT_PREVIEW_MAX_CHARS.toLocaleString()} 个字符。
+            </p>
+          ) : null}
+          <pre className="min-h-0 flex-1 overflow-auto rounded-md border bg-muted/40 p-4 font-mono text-sm leading-relaxed whitespace-pre-wrap">
+            {preview.text}
+          </pre>
+        </div>
+      );
+    case "pdf":
+      return (
+        <iframe
+          title={preview.filename}
+          src={preview.src}
+          className="aui-attachment-preview-pdf h-[80dvh] w-full rounded-md border bg-muted/20"
+        />
+      );
+    case "binary":
+      return (
+        <div className="aui-attachment-preview-binary flex flex-col items-center gap-4 py-10 text-center">
+          <FileText className="size-12 text-muted-foreground" />
+          <p className="text-muted-foreground text-sm">
+            无法在应用内预览此文件类型（{preview.mimeType || "未知类型"}）
+          </p>
+          <Button asChild variant="outline" size="sm">
+            <a href={preview.src} download={preview.filename} target="_blank" rel="noreferrer">
+              <ExternalLink className="size-4" />
+              在新标签页打开 / 下载
+            </a>
+          </Button>
+        </div>
+      );
+  }
+};
 
-  if (!src) return children;
+const AttachmentPreviewDialog: FC<PropsWithChildren> = ({ children }) => {
+  const [open, setOpen] = useState(false);
+  const attachment = useAttachmentSnapshot();
+  const [loadState, setLoadState] = useState<PreviewLoadState>({
+    status: "idle",
+  });
+
+  useEffect(() => {
+    if (!open) {
+      setLoadState({ status: "idle" });
+      return;
+    }
+
+    let cancelled = false;
+    setLoadState({ status: "loading" });
+
+    resolveAttachmentPreview(attachment)
+      .then((preview) => {
+        if (!cancelled) setLoadState({ status: "ready", preview });
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) {
+          setLoadState({
+            status: "error",
+            message:
+              error instanceof Error ? error.message : "无法加载附件预览",
+          });
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [open, attachment]);
+
+  const dialogTitle =
+    loadState.status === "ready"
+      ? loadState.preview.filename
+      : attachment.name;
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         className="aui-attachment-preview-trigger cursor-pointer transition-colors hover:bg-accent/50"
         asChild
       >
         {children}
       </DialogTrigger>
-      <DialogContent className="aui-attachment-preview-dialog-content p-2 sm:max-w-3xl [&>button]:rounded-full [&>button]:bg-foreground/60 [&>button]:p-1 [&>button]:opacity-100 [&>button]:ring-0! [&_svg]:text-background [&>button]:hover:[&_svg]:text-destructive">
-        <DialogTitle className="aui-sr-only sr-only">
-          Image Attachment Preview
+      <DialogContent className="aui-attachment-preview-dialog-content flex max-h-[90dvh] flex-col gap-3 p-4 sm:max-w-3xl [&>button]:rounded-full [&>button]:bg-foreground/60 [&>button]:p-1 [&>button]:opacity-100 [&>button]:ring-0! [&_svg]:text-background [&>button]:hover:[&_svg]:text-destructive">
+        <DialogTitle className="aui-attachment-preview-title truncate pe-8 text-base font-medium">
+          {dialogTitle}
         </DialogTitle>
-        <div className="aui-attachment-preview relative mx-auto flex max-h-[80dvh] w-full items-center justify-center overflow-hidden bg-background">
-          <AttachmentPreview src={src} />
-        </div>
+        {loadState.status === "loading" ? (
+          <div className="flex min-h-[12rem] items-center justify-center">
+            <Loader2 className="size-8 animate-spin text-muted-foreground" />
+          </div>
+        ) : null}
+        {loadState.status === "error" ? (
+          <p className="py-8 text-center text-destructive text-sm">
+            {loadState.message}
+          </p>
+        ) : null}
+        {loadState.status === "ready" ? (
+          <AttachmentPreviewBody preview={loadState.preview} />
+        ) : null}
       </DialogContent>
     </Dialog>
   );
@@ -156,7 +276,7 @@ const AttachmentUI: FC = () => {
               className="aui-attachment-tile size-14 cursor-pointer overflow-hidden rounded-[calc(var(--composer-radius)-var(--composer-padding))] border bg-muted transition-opacity hover:opacity-75"
               role="button"
               tabIndex={0}
-              aria-label={`${typeLabel} attachment`}
+              aria-label={`${typeLabel} attachment，点击预览`}
             >
               <AttachmentThumb />
             </div>

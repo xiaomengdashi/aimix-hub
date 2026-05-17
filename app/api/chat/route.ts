@@ -5,6 +5,8 @@ import {
   DEFAULT_CHAT_MODEL_ID,
   parseChatModelId,
 } from "@/lib/chat-models";
+import { getChatMode, parseChatModeId } from "@/lib/chat-modes";
+import { expandTextFilePartsForModel } from "@/lib/expand-message-file-parts";
 
 export async function POST(req: Request) {
   const user = await requireUser();
@@ -16,7 +18,7 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json();
-  const { messages, model } = body;
+  const { messages, model, mode } = body;
 
   if (!messages || !Array.isArray(messages)) {
     return new Response(JSON.stringify({ error: "Invalid messages format" }), {
@@ -32,11 +34,23 @@ export async function POST(req: Request) {
     });
   }
 
+  if (mode !== undefined && mode !== null && parseChatModeId(mode) === null) {
+    return new Response(JSON.stringify({ error: "Invalid mode" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   const modelId = parseChatModelId(model) ?? DEFAULT_CHAT_MODEL_ID;
+  const modeId = parseChatModeId(mode);
+  const system = modeId ? getChatMode(modeId)?.systemPrompt : undefined;
 
   const result = streamText({
     model: anthropic(modelId),
-    messages: await convertToModelMessages(messages as UIMessage[]),
+    ...(system ? { system } : {}),
+    messages: await convertToModelMessages(
+      expandTextFilePartsForModel(messages as UIMessage[]),
+    ),
   });
 
   return result.toUIMessageStreamResponse();

@@ -11,6 +11,7 @@ import {
 } from "@assistant-ui/react-ai-sdk";
 import type { ChatTransport } from "ai";
 import { useCallback, useEffect, useMemo, useRef } from "react";
+import { chatAttachmentAdapter } from "@/lib/chat-attachment-adapter";
 
 export type UseStableChatRuntimeOptions<
   UI_MESSAGE extends UIMessage = UIMessage,
@@ -66,7 +67,10 @@ const useChatThreadRuntime = <UI_MESSAGE extends UIMessage = UIMessage>(
   });
 
   const runtime = useAISDKRuntime(chat, {
-    adapters,
+    adapters: {
+      attachments: chatAttachmentAdapter,
+      ...adapters,
+    },
     ...(toCreateMessage && { toCreateMessage }),
     ...(onResume && { onResume }),
     ...(suggestions && { suggestions }),
