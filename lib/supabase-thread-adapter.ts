@@ -19,6 +19,7 @@ import { useAui } from "@assistant-ui/store";
 import { RuntimeAdapterProvider } from "@assistant-ui/core/react";
 import { createFormattedPersistence } from "@/lib/formatted-message-persistence";
 import { SupabaseMessagePersistence } from "@/lib/supabase-message-persistence";
+import type { ChatAiProvider } from "@/lib/chat-ai-provider";
 import { generateAITitle } from "@/lib/thread-title";
 
 type ThreadRow = {
@@ -26,6 +27,7 @@ type ThreadRow = {
   title: string | null;
   is_archived: boolean;
   external_id: string | null;
+  provider: ChatAiProvider;
 };
 
 class SupabaseHistoryAdapter implements ThreadHistoryAdapter {
@@ -92,6 +94,7 @@ const createHistoryProvider = (
 
 export function createSupabaseThreadListAdapter(
   supabase: SupabaseClient,
+  provider: ChatAiProvider,
 ): RemoteThreadListAdapter {
   const requireUserId = async (): Promise<string> => {
     const {
@@ -116,8 +119,9 @@ export function createSupabaseThreadListAdapter(
       const userId = await requireUserId();
       const { data, error } = await supabase
         .from("threads")
-        .select("id, title, is_archived, external_id")
+        .select("id, title, is_archived, external_id, provider")
         .eq("user_id", userId)
+        .eq("provider", provider)
         .order("last_message_at", { ascending: false });
 
       if (error) throw error;
@@ -137,6 +141,7 @@ export function createSupabaseThreadListAdapter(
         .from("threads")
         .insert({
           user_id: userId,
+          provider,
           last_message_at: now,
         })
         .select("id")
@@ -191,9 +196,10 @@ export function createSupabaseThreadListAdapter(
       const userId = await requireUserId();
       const { data, error } = await supabase
         .from("threads")
-        .select("id, title, is_archived, external_id")
+        .select("id, title, is_archived, external_id, provider")
         .eq("id", threadId)
         .eq("user_id", userId)
+        .eq("provider", provider)
         .maybeSingle();
 
       if (error) throw error;

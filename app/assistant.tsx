@@ -8,24 +8,18 @@ import { ChatActiveThreadTracker } from "@/components/assistant-ui/chat-active-t
 import { ChatThreadListOrderSync } from "@/components/assistant-ui/chat-thread-list-order-sync";
 import { ChatModeProvider } from "@/components/assistant-ui/chat-mode-context";
 import { ChatModelProvider } from "@/components/assistant-ui/chat-model-context";
+import { ComposerToolProvider } from "@/components/assistant-ui/composer-tool-context";
 import { ChatSessionProvider } from "@/components/assistant-ui/chat-session-context";
-import { ChatUiThemeProvider, useChatUiTheme } from "@/components/assistant-ui/chat-ui-theme-context";
-import { Claude } from "@/components/assistant-ui/claude";
-import { ClaudeChatLayout } from "@/components/assistant-ui/claude-chat-layout";
-import { Thread } from "@/components/assistant-ui/thread";
-import { ContextUsageIndicator } from "@/components/assistant-ui/context-usage-indicator";
-import { ModelPicker } from "@/components/assistant-ui/model-picker";
-import { ThreadListSidebar } from "@/components/assistant-ui/threadlist-sidebar";
 import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+  ChatAiProviderProvider,
+  useChatAiProvider,
+} from "@/components/assistant-ui/chat-ui-theme-context";
+import { getProviderUI } from "@/components/assistant-ui/providers/registry";
+import { type ChatAiProvider } from "@/lib/chat-ai-provider";
 import { useStableChatRuntime } from "@/hooks/use-stable-chat-runtime";
 import { getLastActiveThreadId } from "@/lib/chat-session-storage";
 import { chatTransport } from "@/lib/chat-transport";
 import { createClient } from "@/lib/supabase/client";
-import { UserMenu } from "@/components/auth/user-menu";
 import { getDisplayUsername } from "@/lib/auth/username";
 import { createSupabaseThreadListAdapter } from "@/lib/supabase-thread-adapter";
 
@@ -34,9 +28,16 @@ const ChatShellContent: FC<{
   threadListAdapter: RemoteThreadListAdapter;
   initialThreadId?: string;
   displayUsername: string;
-}> = ({ userId, threadListAdapter, initialThreadId, displayUsername }) => {
-  const { theme } = useChatUiTheme();
+  provider: ChatAiProvider;
+}> = ({
+  userId,
+  threadListAdapter,
+  initialThreadId,
+  displayUsername,
+  provider,
+}) => {
   const [chatError, setChatError] = useState<string | null>(null);
+  const { Layout, Thread } = getProviderUI(provider);
 
   const runtime = useStableChatRuntime({
     threadListAdapter,
@@ -52,69 +53,63 @@ const ChatShellContent: FC<{
 
   return (
     <ChatModeProvider>
-      <ChatModelProvider>
-        <ChatSessionProvider
-          onComposerSubmit={() => setChatError(null)}
-          onAttachmentError={(message) => setChatError(message)}
-        >
-        <AssistantRuntimeProvider runtime={runtime}>
-          <ChatActiveThreadTracker userId={userId} />
-          <ChatThreadListOrderSync />
-          {theme === "claude" ? (
-            <ClaudeChatLayout
-              displayUsername={displayUsername}
-              chatError={chatError}
-            >
-              <Claude />
-            </ClaudeChatLayout>
-          ) : (
-            <SidebarProvider>
-              <div className="flex h-dvh w-full pr-0.5">
-                <ThreadListSidebar />
-                <SidebarInset>
-                  <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
-                    <SidebarTrigger />
-                    <ModelPicker />
-                    <ContextUsageIndicator
-                      variant="shadcn"
-                      className="ms-auto hidden min-w-0 max-w-xs md:flex"
-                    />
-                    <UserMenu displayName={displayUsername} />
-                  </header>
-                  {chatError ? (
-                    <div
-                      role="alert"
-                      className="mx-4 mt-2 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2 text-destructive text-sm"
-                    >
-                      {chatError}
-                    </div>
-                  ) : null}
-                  <div className="flex-1 overflow-hidden">
-                    <Thread />
-                  </div>
-                </SidebarInset>
-              </div>
-            </SidebarProvider>
-          )}
-        </AssistantRuntimeProvider>
-        </ChatSessionProvider>
+      <ChatModelProvider uiProvider={provider}>
+        <ComposerToolProvider uiProvider={provider}>
+          <ChatSessionProvider
+            onComposerSubmit={() => setChatError(null)}
+            onAttachmentError={(message) => setChatError(message)}
+          >
+            <AssistantRuntimeProvider runtime={runtime}>
+              <ChatActiveThreadTracker userId={userId} provider={provider} />
+              <ChatThreadListOrderSync />
+              <Layout displayUsername={displayUsername} chatError={chatError}>
+                <Thread />
+              </Layout>
+            </AssistantRuntimeProvider>
+          </ChatSessionProvider>
+        </ComposerToolProvider>
       </ChatModelProvider>
     </ChatModeProvider>
   );
 };
 
+const ChatShellInner: FC<{
+  userId: string;
+  displayUsername: string;
+}> = ({ userId, displayUsername }) => {
+  const { provider } = useChatAiProvider();
+  const supabase = useMemo(() => createClient(), []);
+
+  const threadListAdapter = useMemo(
+    () => createSupabaseThreadListAdapter(supabase, provider),
+    [supabase, provider],
+  );
+
+  return (
+    <ChatShellContent
+      key={provider}
+      userId={userId}
+      threadListAdapter={threadListAdapter}
+      initialThreadId={getLastActiveThreadId(userId, provider)}
+      displayUsername={displayUsername}
+      provider={provider}
+    />
+  );
+};
+
 const ChatShell: FC<{
   userId: string;
-  threadListAdapter: RemoteThreadListAdapter;
-  initialThreadId?: string;
   displayUsername: string;
-}> = (props) => (
-  <ChatUiThemeProvider>
-    <ChatShellContent {...props} />
-  </ChatUiThemeProvider>
+  initialProvider: ChatAiProvider;
+}> = ({ initialProvider, ...props }) => (
+  <ChatAiProviderProvider initialProvider={initialProvider}>
+    <ChatShellInner {...props} />
+  </ChatAiProviderProvider>
 );
 
-export const Assistant: FC = () => {
+export const Assistant: FC<{ initialProvider: ChatAiProvider }> = ({
+  initialProvider,
+}) => {
   const [user, setUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(false);
   const supabase = useMemo(() => createClient(), []);
@@ -133,11 +128,6 @@ export const Assistant: FC = () => {
     return () => subscription.unsubscribe();
   }, [supabase]);
 
-  const threadListAdapter = useMemo(
-    () => createSupabaseThreadListAdapter(supabase),
-    [supabase],
-  );
-
   if (!authReady) {
     return (
       <div className="flex h-dvh items-center justify-center text-muted-foreground text-sm">
@@ -153,9 +143,8 @@ export const Assistant: FC = () => {
   return (
     <ChatShell
       userId={user.id}
-      threadListAdapter={threadListAdapter}
-      initialThreadId={getLastActiveThreadId(user.id)}
       displayUsername={getDisplayUsername(user)}
+      initialProvider={initialProvider}
     />
   );
 };

@@ -4,14 +4,33 @@ import {
   type UIMessage,
 } from "ai";
 import type { ChatUsageMetadata } from "@/lib/chat-context-usage";
-import { anthropic } from "@/lib/anthropic";
 import { requireUser } from "@/lib/auth/require-user";
 import {
-  DEFAULT_CHAT_MODEL_ID,
-  parseChatModelId,
+  getDefaultModelIdForProviderAsync,
+  parseChatModelIdAsync,
 } from "@/lib/chat-models";
+import {
+  DEFAULT_CHAT_AI_PROVIDER,
+  isChatAiProvider,
+  type ChatAiProvider,
+} from "@/lib/chat-ai-provider";
+import { resolveLanguageModel } from "@/lib/resolve-language-model";
 import { getChatMode, parseChatModeId } from "@/lib/chat-modes";
+import {
+  getComposerTool,
+  mergeSystemPrompts,
+  parseComposerToolId,
+} from "@/lib/composer-tools";
 import { expandTextFilePartsForModel } from "@/lib/expand-message-file-parts";
+import {
+  createImageErrorStreamResponse,
+  handleImageGenerationChat,
+} from "@/lib/handle-image-generation-chat";
+import { isImageGenerationModel } from "@/lib/image-generation-models";
+import { normalizeModelId } from "@/lib/normalize-model-id";
+
+/** 文生图可能需 1–2 分钟 */
+export const maxDuration = 300;
 
 export async function POST(req: Request) {
   const user = await requireUser();
@@ -23,7 +42,7 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json();
-  const { messages, model, mode } = body;
+  const { messages, model, mode, tool } = body;
 
   if (!messages || !Array.isArray(messages)) {
     return new Response(JSON.stringify({ error: "Invalid messages format" }), {
@@ -32,11 +51,17 @@ export async function POST(req: Request) {
     });
   }
 
-  if (model !== undefined && model !== null && parseChatModelId(model) === null) {
-    return new Response(JSON.stringify({ error: "Invalid model" }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
+  const normalizedModel =
+    typeof model === "string" ? normalizeModelId(model) : model;
+
+  if (normalizedModel !== undefined && normalizedModel !== null) {
+    const parsed = await parseChatModelIdAsync(normalizedModel);
+    if (parsed === null && !isImageGenerationModel(String(normalizedModel))) {
+      return new Response(JSON.stringify({ error: "Invalid model" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
   }
 
   if (mode !== undefined && mode !== null && parseChatModeId(mode) === null) {
@@ -46,12 +71,58 @@ export async function POST(req: Request) {
     });
   }
 
-  const modelId = parseChatModelId(model) ?? DEFAULT_CHAT_MODEL_ID;
+  if (tool !== undefined && tool !== null && parseComposerToolId(tool) === null) {
+    return new Response(JSON.stringify({ error: "Invalid tool" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const uiProvider: ChatAiProvider =
+    typeof body.uiProvider === "string" && isChatAiProvider(body.uiProvider)
+      ? body.uiProvider
+      : DEFAULT_CHAT_AI_PROVIDER;
+  const modelId =
+    (await parseChatModelIdAsync(normalizedModel)) ??
+    (isImageGenerationModel(String(normalizedModel))
+      ? normalizeModelId(String(normalizedModel))
+      : null) ??
+    (await getDefaultModelIdForProviderAsync(uiProvider));
   const modeId = parseChatModeId(mode);
-  const system = modeId ? getChatMode(modeId)?.systemPrompt : undefined;
+  const toolId = parseComposerToolId(tool);
+  const system = mergeSystemPrompts(
+    modeId ? getChatMode(modeId)?.systemPrompt : undefined,
+    toolId ? getComposerTool(toolId).systemPrompt : undefined,
+  );
+
+  if (isImageGenerationModel(modelId)) {
+    try {
+      return await handleImageGenerationChat(
+        req,
+        messages as UIMessage[],
+        modelId,
+      );
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "图像生成失败";
+      return createImageErrorStreamResponse(messages as UIMessage[], message);
+    }
+  }
+
+  let languageModel;
+  try {
+    languageModel = resolveLanguageModel(modelId);
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "模型配置错误";
+    return new Response(JSON.stringify({ error: message }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
   const result = streamText({
-    model: anthropic(modelId),
+    model: languageModel,
     ...(system ? { system } : {}),
     messages: await convertToModelMessages(
       expandTextFilePartsForModel(messages as UIMessage[]),
