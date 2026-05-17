@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { DEFAULT_CHAT_AI_PROVIDER } from "@/lib/chat-ai-provider";
-import { providerPath } from "@/lib/chat-provider-routes";
+import { DEFAULT_CHAT_AI_PROVIDER } from "@/lib/chat/provider";
+import { providerPath } from "@/lib/chat/routes";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 
 export async function updateSession(request: NextRequest) {

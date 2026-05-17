@@ -1,8 +1,8 @@
 "use client";
 
 import type { FC } from "react";
-import { useChatAiProvider } from "@/components/assistant-ui/chat-ui-theme-context";
-import { CHAT_AI_PROVIDER_OPTIONS } from "@/lib/chat-ai-provider";
+import { useChatAiProvider } from "@/components/assistant-ui/contexts/chat-ui-theme-context";
+import { CHAT_AI_PROVIDER_OPTIONS } from "@/lib/chat/provider";
 import {
   providerSwitchButtonClass,
   providerSwitchRootClass,

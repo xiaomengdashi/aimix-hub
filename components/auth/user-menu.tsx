@@ -1,6 +1,6 @@
 "use client";
 
-import { ArchivedThreadsDialog } from "@/components/assistant-ui/archived-threads-dialog";
+import { ArchivedThreadsDialog } from "@/components/assistant-ui/shell/archived-threads-dialog";
 import { ChevronDownIcon, LogOutIcon, UserIcon, ArchiveIcon } from "lucide-react";
 import Link from "next/link";
 import { useState, type FC } from "react";

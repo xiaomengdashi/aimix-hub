@@ -4,24 +4,24 @@ import { AssistantRuntimeProvider } from "@assistant-ui/react";
 import type { RemoteThreadListAdapter } from "@assistant-ui/core";
 import type { User } from "@supabase/supabase-js";
 import { useEffect, useMemo, useState, type FC } from "react";
-import { ChatActiveThreadTracker } from "@/components/assistant-ui/chat-active-thread-tracker";
-import { ChatThreadListOrderSync } from "@/components/assistant-ui/chat-thread-list-order-sync";
-import { ChatModeProvider } from "@/components/assistant-ui/chat-mode-context";
-import { ChatModelProvider } from "@/components/assistant-ui/chat-model-context";
-import { ComposerToolProvider } from "@/components/assistant-ui/composer-tool-context";
-import { ChatSessionProvider } from "@/components/assistant-ui/chat-session-context";
+import { ChatActiveThreadTracker } from "@/components/assistant-ui/shell/chat-active-thread-tracker";
+import { ChatThreadListOrderSync } from "@/components/assistant-ui/shell/chat-thread-list-order-sync";
+import { ChatModeProvider } from "@/components/assistant-ui/contexts/chat-mode-context";
+import { ChatModelProvider } from "@/components/assistant-ui/contexts/chat-model-context";
+import { ComposerToolProvider } from "@/components/assistant-ui/contexts/composer-tool-context";
+import { ChatSessionProvider } from "@/components/assistant-ui/contexts/chat-session-context";
 import {
   ChatAiProviderProvider,
   useChatAiProvider,
-} from "@/components/assistant-ui/chat-ui-theme-context";
+} from "@/components/assistant-ui/contexts/chat-ui-theme-context";
 import { getProviderUI } from "@/components/assistant-ui/providers/registry";
-import { type ChatAiProvider } from "@/lib/chat-ai-provider";
+import { type ChatAiProvider } from "@/lib/chat/provider";
 import { useStableChatRuntime } from "@/hooks/use-stable-chat-runtime";
-import { getLastActiveThreadId } from "@/lib/chat-session-storage";
-import { chatTransport } from "@/lib/chat-transport";
+import { getLastActiveThreadId } from "@/lib/chat/session-storage";
+import { chatTransport } from "@/lib/chat/transport";
 import { createClient } from "@/lib/supabase/client";
 import { getDisplayUsername } from "@/lib/auth/username";
-import { createSupabaseThreadListAdapter } from "@/lib/supabase-thread-adapter";
+import { createSupabaseThreadListAdapter } from "@/lib/supabase/thread-adapter";
 
 const ChatShellContent: FC<{
   userId: string;

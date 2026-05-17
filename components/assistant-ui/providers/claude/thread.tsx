@@ -20,12 +20,12 @@ import {
   ClaudeComposerAddAttachment,
   ClaudeComposerAttachments,
 } from "@/components/assistant-ui/providers/claude/composer-attachment";
-import { useChatMode } from "@/components/assistant-ui/chat-mode-context";
-import { useChatSession } from "@/components/assistant-ui/chat-session-context";
-import { UserMessageAttachments } from "@/components/assistant-ui/attachment";
-import { ContextUsageIndicator } from "@/components/assistant-ui/context-usage-indicator";
-import { ModeTabs } from "@/components/assistant-ui/mode-tabs";
-import { MarkdownText } from "@/components/assistant-ui/markdown-text";
+import { useChatMode } from "@/components/assistant-ui/contexts/chat-mode-context";
+import { useChatSession } from "@/components/assistant-ui/contexts/chat-session-context";
+import { UserMessageAttachments } from "@/components/assistant-ui/message/attachment";
+import { ContextUsageIndicator } from "@/components/assistant-ui/shell/context-usage-indicator";
+import { ModeTabs } from "@/components/assistant-ui/shell/mode-tabs";
+import { MarkdownText } from "@/components/assistant-ui/message/markdown-text";
 import { ProviderModelPicker } from "@/components/assistant-ui/providers/shared/model-picker";
 
 const messageActionButtonClassName =

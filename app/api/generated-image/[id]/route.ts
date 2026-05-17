@@ -1,4 +1,4 @@
-import { getGeneratedImage } from "@/lib/generated-image-cache";
+import { getGeneratedImage } from "@/lib/image-generation/cache";
 
 export const dynamic = "force-dynamic";
 

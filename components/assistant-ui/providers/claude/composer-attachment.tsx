@@ -3,7 +3,7 @@
 import { PlusIcon } from "@radix-ui/react-icons";
 import { useCallback, useRef, type ChangeEvent, type FC } from "react";
 import { useAui } from "@assistant-ui/store";
-import { ComposerAttachments } from "@/components/assistant-ui/attachment";
+import { ComposerAttachments } from "@/components/assistant-ui/message/attachment";
 
 const FILE_ACCEPT =
   "image/*,.pdf,.txt,.md,.markdown,.doc,.docx,.csv,.json,.html,.xml,.ts,.tsx,.js,.jsx,.css";

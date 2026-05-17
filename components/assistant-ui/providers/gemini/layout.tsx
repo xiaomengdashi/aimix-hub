@@ -28,5 +28,6 @@ export const GeminiLayout: FC<{
     headerButtonClassName="text-[#444746] hover:bg-[#444746]/8 dark:text-[#c4c7c5] dark:hover:bg-[#c4c7c5]/8"
     alertClassName="border border-[#dadce0] bg-[#fce8e6] text-[#c5221f] dark:border-[#3c4043] dark:bg-[#3c2020] dark:text-[#f28b82]"
     footerBorderClassName="border-[#dadce0] dark:border-[#3c4043]"
+    contextUsageClassName="text-[#70757a] dark:text-[#9aa0a6]"
   />
 );

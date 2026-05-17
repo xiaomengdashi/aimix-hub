@@ -34,14 +34,15 @@ import {
 } from "lucide-react";
 import { type FC, useCallback, useEffect, useState } from "react";
 import { useShallow } from "zustand/shallow";
-import { MarkdownText } from "@/components/assistant-ui/markdown-text";
-import { useComposerTool } from "@/components/assistant-ui/composer-tool-context";
+import { MarkdownText } from "@/components/assistant-ui/message/markdown-text";
+import { useComposerTool } from "@/components/assistant-ui/contexts/composer-tool-context";
 import { ComposerToolsMenu } from "@/components/assistant-ui/providers/shared/composer-tools-menu";
 import { ProviderModelPicker } from "@/components/assistant-ui/providers/shared/model-picker";
+import { ContextUsageIndicator } from "@/components/assistant-ui/shell/context-usage-indicator";
 import {
   GEMINI_COMPOSER_TOOL_IDS,
   type ComposerToolId,
-} from "@/lib/composer-tools";
+} from "@/lib/chat/composer-tools";
 import { useAui } from "@assistant-ui/react";
 
 const GEMINI_TOOLS_MENU = GEMINI_COMPOSER_TOOL_IDS.map((id) => {
@@ -73,6 +74,10 @@ export const GeminiThread: FC = () => {
             </p>
           </div>
           <Composer />
+          <ContextUsageIndicator
+            variant="shadcn"
+            className="mx-auto mt-2 w-full max-w-3xl justify-center text-[#70757a] md:hidden dark:text-[#9aa0a6]"
+          />
           <div className="mx-auto mt-4 flex w-full max-w-3xl flex-wrap justify-center gap-2">
             <SuggestionChip toolId="image" icon={<ImageIcon width={16} height={16} />}>
               Create image
@@ -102,6 +107,10 @@ export const GeminiThread: FC = () => {
         </ThreadPrimitive.Viewport>
         <div className="space-y-2 px-4 pb-4">
           <Composer />
+          <ContextUsageIndicator
+            variant="shadcn"
+            className="mx-auto w-full max-w-3xl justify-center text-[#70757a] md:hidden dark:text-[#9aa0a6]"
+          />
           <p className="text-center text-[#70757a] text-xs dark:text-[#9aa0a6]">
             Gemini may display inaccurate info, including about people, so
             double-check its responses.

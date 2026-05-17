@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { chatAttachmentAdapter } from "../lib/chat-attachment-adapter.ts";
+import { chatAttachmentAdapter } from "../lib/chat/attachment-adapter.ts";
 
 async function main() {
   const blob = readFileSync(new URL("../README.md", import.meta.url));

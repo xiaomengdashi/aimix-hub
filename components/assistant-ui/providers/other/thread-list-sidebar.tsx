@@ -1,7 +1,7 @@
 "use client";
 
 import type * as React from "react";
-import { useChatModel } from "@/components/assistant-ui/chat-model-context";
+import { useChatModel } from "@/components/assistant-ui/contexts/chat-model-context";
 import { ModelBrandIcon } from "@/components/assistant-ui/providers/shared/model-brand-icon";
 import {
   Sidebar,
@@ -15,8 +15,8 @@ import {
 } from "@/components/ui/sidebar";
 import { ProviderSwitch } from "@/components/assistant-ui/providers/shared/provider-switch";
 import { OtherThreadList } from "@/components/assistant-ui/providers/other/thread-list";
-import { useChatAiProvider } from "@/components/assistant-ui/chat-ui-theme-context";
-import { getProviderDisplayName } from "@/lib/chat-ai-provider";
+import { useChatAiProvider } from "@/components/assistant-ui/contexts/chat-ui-theme-context";
+import { getProviderDisplayName } from "@/lib/chat/provider";
 
 export function OtherThreadListSidebar({
   ...props

@@ -24,9 +24,9 @@ import {
   ReloadIcon,
 } from "@radix-ui/react-icons";
 import { useEffect, useState, type FC } from "react";
-import { AssistantFilePart } from "@/components/assistant-ui/assistant-file-part";
-import { MarkdownText } from "@/components/assistant-ui/markdown-text";
-import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
+import { AssistantFilePart } from "@/components/assistant-ui/message/assistant-file-part";
+import { MarkdownText } from "@/components/assistant-ui/message/markdown-text";
+import { TooltipIconButton } from "@/components/assistant-ui/message/tooltip-icon-button";
 import { useShallow } from "zustand/shallow";
 import {
   AudioLines,
@@ -43,10 +43,11 @@ import {
   ThumbsUp,
   Volume2,
 } from "lucide-react";
-import { useComposerTool } from "@/components/assistant-ui/composer-tool-context";
-import { CHATGPT_COMPOSER_TOOL_IDS } from "@/lib/composer-tools";
+import { useComposerTool } from "@/components/assistant-ui/contexts/composer-tool-context";
+import { CHATGPT_COMPOSER_TOOL_IDS } from "@/lib/chat/composer-tools";
 import { ComposerToolsMenu } from "@/components/assistant-ui/providers/shared/composer-tools-menu";
 import { ProviderModelPicker } from "@/components/assistant-ui/providers/shared/model-picker";
+import { ContextUsageIndicator } from "@/components/assistant-ui/shell/context-usage-indicator";
 
 const CHATGPT_TOOLS_MENU = CHATGPT_COMPOSER_TOOL_IDS.map((id) => {
   const icons = {
@@ -92,6 +93,10 @@ export const ChatGPTThread: FC = () => {
           <ThreadPrimitive.ViewportFooter className="sticky bottom-0 mx-auto mt-auto flex w-full max-w-3xl flex-col gap-2 overflow-visible rounded-t-3xl bg-white pb-2 dark:bg-[#212121]">
             <ThreadScrollToBottom />
             <Composer placeholder="Ask anything" />
+            <ContextUsageIndicator
+              variant="shadcn"
+              className="justify-center text-[#5d5d5d] md:hidden dark:text-[#a8a8a8]"
+            />
             <p className="text-center text-[#5d5d5d] text-xs dark:text-[#a8a8a8]">
               ChatGPT can make mistakes. Check important info.
             </p>
@@ -110,6 +115,10 @@ const EmptyState: FC = () => {
           Where should we begin?
         </h1>
         <Composer placeholder="Ask anything" />
+        <ContextUsageIndicator
+          variant="shadcn"
+          className="justify-center text-[#5d5d5d] md:hidden dark:text-[#a8a8a8]"
+        />
       </div>
     </div>
   );

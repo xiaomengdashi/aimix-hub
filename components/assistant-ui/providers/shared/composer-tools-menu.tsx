@@ -5,8 +5,8 @@ import type { LucideIcon } from "lucide-react";
 import { SlidersHorizontal } from "lucide-react";
 import { MixerHorizontalIcon } from "@radix-ui/react-icons";
 import type { FC } from "react";
-import { useComposerTool } from "@/components/assistant-ui/composer-tool-context";
-import { useChatModel } from "@/components/assistant-ui/chat-model-context";
+import { useComposerTool } from "@/components/assistant-ui/contexts/composer-tool-context";
+import { useChatModel } from "@/components/assistant-ui/contexts/chat-model-context";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,7 +16,7 @@ import {
 import {
   getComposerTool,
   type ComposerToolId,
-} from "@/lib/composer-tools";
+} from "@/lib/chat/composer-tools";
 import { cn } from "@/lib/utils";
 
 export type ComposerToolsMenuItem = {

@@ -4,8 +4,8 @@ import {
   DEFAULT_CHAT_AI_PROVIDER,
   isChatAiProvider,
   type ChatAiProvider,
-} from "@/lib/chat-ai-provider";
-import { providerPath } from "@/lib/chat-provider-routes";
+} from "@/lib/chat/provider";
+import { providerPath } from "@/lib/chat/routes";
 
 export const dynamic = "force-dynamic";
 

@@ -2,7 +2,7 @@
 
 import type { FC, ReactNode } from "react";
 import { OtherThreadListSidebar } from "@/components/assistant-ui/providers/other/thread-list-sidebar";
-import { ContextUsageIndicator } from "@/components/assistant-ui/context-usage-indicator";
+import { ContextUsageIndicator } from "@/components/assistant-ui/shell/context-usage-indicator";
 import { ModelPicker } from "@/components/assistant-ui/model-picker";
 import {
   SidebarInset,

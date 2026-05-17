@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getStoredChatAiProvider } from "@/lib/chat-ai-provider";
-import { providerPath } from "@/lib/chat-provider-routes";
+import { getStoredChatAiProvider } from "@/lib/chat/provider";
+import { providerPath } from "@/lib/chat/routes";
 
 export default function Home() {
   const router = useRouter();

@@ -1,7 +1,7 @@
 import { generateText } from "ai";
-import { anthropic } from "@/lib/anthropic";
+import { anthropic } from "@/lib/ai-gateway/anthropic";
 import { requireUser } from "@/lib/auth/require-user";
-import type { ThreadTitleMessage } from "@/lib/thread-title";
+import type { ThreadTitleMessage } from "@/lib/supabase/thread-title";
 
 const TITLE_MODEL_ID = "claude-haiku-4-5-20251001";
 

@@ -1,5 +1,5 @@
 import type { FC, ReactNode } from "react";
-import type { ChatAiProvider } from "@/lib/chat-ai-provider";
+import type { ChatAiProvider } from "@/lib/chat/provider";
 import { ClaudeLayout, ClaudeThread } from "@/components/assistant-ui/providers/claude";
 import { ChatGPTLayout, ChatGPTThread } from "@/components/assistant-ui/providers/chatgpt";
 import { GeminiLayout, GeminiThread } from "@/components/assistant-ui/providers/gemini";

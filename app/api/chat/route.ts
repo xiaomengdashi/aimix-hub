@@ -3,31 +3,31 @@ import {
   convertToModelMessages,
   type UIMessage,
 } from "ai";
-import type { ChatUsageMetadata } from "@/lib/chat-context-usage";
+import type { ChatUsageMetadata } from "@/lib/chat/context-usage";
 import { requireUser } from "@/lib/auth/require-user";
 import {
   getDefaultModelIdForProviderAsync,
   parseChatModelIdAsync,
-} from "@/lib/chat-models";
+} from "@/lib/chat/models";
 import {
   DEFAULT_CHAT_AI_PROVIDER,
   isChatAiProvider,
   type ChatAiProvider,
-} from "@/lib/chat-ai-provider";
-import { resolveLanguageModel } from "@/lib/resolve-language-model";
-import { getChatMode, parseChatModeId } from "@/lib/chat-modes";
+} from "@/lib/chat/provider";
+import { resolveLanguageModel } from "@/lib/ai-gateway/resolve-language-model";
+import { getChatMode, parseChatModeId } from "@/lib/chat/modes";
 import {
   getComposerTool,
   mergeSystemPrompts,
   parseComposerToolId,
-} from "@/lib/composer-tools";
-import { expandTextFilePartsForModel } from "@/lib/expand-message-file-parts";
+} from "@/lib/chat/composer-tools";
+import { expandTextFilePartsForModel } from "@/lib/attachments/expand-message-file-parts";
 import {
   createImageErrorStreamResponse,
   handleImageGenerationChat,
-} from "@/lib/handle-image-generation-chat";
-import { isImageGenerationModel } from "@/lib/image-generation-models";
-import { normalizeModelId } from "@/lib/normalize-model-id";
+} from "@/lib/image-generation/handle-chat";
+import { isImageGenerationModel } from "@/lib/image-generation/models";
+import { normalizeModelId } from "@/lib/ai-gateway/normalize-model-id";
 
 /** 文生图可能需 1–2 分钟 */
 export const maxDuration = 300;

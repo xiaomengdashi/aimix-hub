@@ -2,24 +2,24 @@ import {
   ComposerAddAttachment,
   ComposerAttachments,
   UserMessageAttachments,
-} from "@/components/assistant-ui/attachment";
-import { MarkdownText } from "@/components/assistant-ui/markdown-text";
+} from "@/components/assistant-ui/message/attachment";
+import { MarkdownText } from "@/components/assistant-ui/message/markdown-text";
 import {
   Reasoning,
   ReasoningContent,
   ReasoningRoot,
   ReasoningText,
   ReasoningTrigger,
-} from "@/components/assistant-ui/reasoning";
+} from "@/components/assistant-ui/message/reasoning";
 import {
   ToolGroupContent,
   ToolGroupRoot,
   ToolGroupTrigger,
-} from "@/components/assistant-ui/tool-group";
-import { ToolFallback } from "@/components/assistant-ui/tool-fallback";
-import { ContextUsageIndicator } from "@/components/assistant-ui/context-usage-indicator";
-import { useChatSession } from "@/components/assistant-ui/chat-session-context";
-import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
+} from "@/components/assistant-ui/message/tool-group";
+import { ToolFallback } from "@/components/assistant-ui/message/tool-fallback";
+import { ContextUsageIndicator } from "@/components/assistant-ui/shell/context-usage-indicator";
+import { useChatSession } from "@/components/assistant-ui/contexts/chat-session-context";
+import { TooltipIconButton } from "@/components/assistant-ui/message/tooltip-icon-button";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {

@@ -4,6 +4,7 @@ import { PanelLeft } from "lucide-react";
 import { useEffect, useState, type FC, type ReactNode } from "react";
 import { ProviderSwitch } from "@/components/assistant-ui/providers/shared/provider-switch";
 import type { ProviderSwitchVariant } from "@/components/assistant-ui/providers/shared/provider-switch-styles";
+import { ContextUsageIndicator } from "@/components/assistant-ui/shell/context-usage-indicator";
 import { UserMenu } from "@/components/auth/user-menu";
 import {
   Sheet,
@@ -29,6 +30,7 @@ export type CollapsibleSidebarLayoutProps = {
   headerButtonClassName: string;
   alertClassName: string;
   footerBorderClassName: string;
+  contextUsageClassName?: string;
 };
 
 export const CollapsibleSidebarLayout: FC<CollapsibleSidebarLayoutProps> = ({
@@ -45,6 +47,7 @@ export const CollapsibleSidebarLayout: FC<CollapsibleSidebarLayoutProps> = ({
   headerButtonClassName,
   alertClassName,
   footerBorderClassName,
+  contextUsageClassName,
 }) => {
   const isMobile = useIsMobile();
   const [desktopOpen, setDesktopOpen] = useState(true);
@@ -125,6 +128,13 @@ export const CollapsibleSidebarLayout: FC<CollapsibleSidebarLayoutProps> = ({
           >
             <PanelLeft className="size-4" />
           </button>
+          <ContextUsageIndicator
+            variant="shadcn"
+            className={cn(
+              "ms-auto hidden min-w-0 max-w-xs md:flex",
+              contextUsageClassName,
+            )}
+          />
           <UserMenu displayName={displayUsername} />
         </header>
         {chatError ? (

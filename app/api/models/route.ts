@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import type { ChatAiProvider } from "@/lib/chat-ai-provider";
-import type { ChatModel } from "@/lib/chat-models";
-import { FALLBACK_CHAT_MODELS } from "@/lib/chat-models";
-import { buildChatModelsFromGateway, getModelsUrl } from "@/lib/gateway-models";
-import { applyModelDisplayList } from "@/lib/model-display";
+import type { ChatAiProvider } from "@/lib/chat/provider";
+import type { ChatModel } from "@/lib/chat/models";
+import { FALLBACK_CHAT_MODELS } from "@/lib/chat/models";
+import { buildChatModelsFromGateway, getModelsUrl } from "@/lib/ai-gateway/gateway-models";
+import { applyModelDisplayList } from "@/lib/ai-gateway/model-display";
 
 export const dynamic = "force-dynamic";
 

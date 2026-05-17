@@ -28,5 +28,6 @@ export const ChatGPTLayout: FC<{
     headerButtonClassName="text-[#5d5d5d] hover:bg-[#0d0d0d]/5 hover:text-[#0d0d0d] dark:text-[#cdcdcd] dark:hover:bg-white/10 dark:hover:text-white"
     alertClassName="border border-destructive/30 bg-destructive/10 text-destructive"
     footerBorderClassName="border-[#e5e5e5] dark:border-[#303030]"
+    contextUsageClassName="text-[#5d5d5d] dark:text-[#a8a8a8]"
   />
 );

@@ -1,8 +1,8 @@
 "use client";
 
 import type { ComponentType, SVGProps } from "react";
-import type { ChatAiProvider } from "@/lib/chat-ai-provider";
-import { resolveModelVendor, type ModelVendor } from "@/lib/model-vendor";
+import type { ChatAiProvider } from "@/lib/chat/provider";
+import { resolveModelVendor, type ModelVendor } from "@/lib/ai-gateway/model-vendor";
 import { ClaudeIcon } from "@/components/assistant-ui/providers/claude/icon";
 import { OpenAIIcon } from "@/components/assistant-ui/providers/chatgpt/icon";
 import { GeminiIcon } from "@/components/assistant-ui/providers/gemini/icon";

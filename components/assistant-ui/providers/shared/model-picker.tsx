@@ -2,14 +2,14 @@
 
 import { CheckIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 import type { FC } from "react";
-import { useChatModel } from "@/components/assistant-ui/chat-model-context";
+import { useChatModel } from "@/components/assistant-ui/contexts/chat-model-context";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/shared/dropdown-menu";
-import { getChatModel } from "@/lib/chat-models";
+import { getChatModel } from "@/lib/chat/models";
 import { cn } from "@/lib/utils";
 
 export type ProviderModelPickerVariant = "claude" | "chatgpt" | "gemini" | "default";

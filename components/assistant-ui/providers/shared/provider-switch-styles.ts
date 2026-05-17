@@ -1,4 +1,4 @@
-import type { ChatAiProvider } from "@/lib/chat-ai-provider";
+import type { ChatAiProvider } from "@/lib/chat/provider";
 import { cn } from "@/lib/utils";
 
 export type ProviderSwitchVariant = "default" | "claude" | "chatgpt" | "gemini";

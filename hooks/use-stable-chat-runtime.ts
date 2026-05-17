@@ -11,7 +11,7 @@ import {
 } from "@assistant-ui/react-ai-sdk";
 import type { ChatTransport } from "ai";
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { chatAttachmentAdapter } from "@/lib/chat-attachment-adapter";
+import { chatAttachmentAdapter } from "@/lib/chat/attachment-adapter";
 
 export type UseStableChatRuntimeOptions<
   UI_MESSAGE extends UIMessage = UIMessage,
