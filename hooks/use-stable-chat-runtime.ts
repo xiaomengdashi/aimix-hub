@@ -1,37 +1,22 @@
 "use client";
 
 import { useChat, type UIMessage } from "@ai-sdk/react";
-import type { AssistantRuntime } from "@assistant-ui/core";
-import type { RemoteThreadListAdapter } from "@assistant-ui/core";
-import {
-  InMemoryThreadListAdapter,
-  useRemoteThreadListRuntime,
-} from "@assistant-ui/react";
+import type { AssistantRuntime, RemoteThreadListAdapter } from "@assistant-ui/core";
+import { useRemoteThreadListRuntime } from "@assistant-ui/react";
 import { useAui, useAuiState } from "@assistant-ui/store";
 import {
   useAISDKRuntime,
   type UseChatRuntimeOptions,
   AssistantChatTransport,
 } from "@assistant-ui/react-ai-sdk";
-import type { ThreadMessage } from "@assistant-ui/core";
 import type { ChatTransport } from "ai";
-import { createAssistantStream } from "assistant-stream";
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { generateAITitle } from "@/lib/thread-title";
 
-const threadListAdapter = new InMemoryThreadListAdapter();
-threadListAdapter.initialize = async (threadId: string) => ({
-  remoteId: threadId,
-  externalId: undefined,
-});
-(threadListAdapter as RemoteThreadListAdapter).generateTitle = async (
-  _remoteId: string,
-  messages: readonly ThreadMessage[],
-) => {
-  const title = await generateAITitle(messages);
-  return createAssistantStream((controller) => {
-    if (title) controller.appendText(title);
-  });
+export type UseStableChatRuntimeOptions<
+  UI_MESSAGE extends UIMessage = UIMessage,
+> = UseChatRuntimeOptions<UI_MESSAGE> & {
+  threadListAdapter: RemoteThreadListAdapter;
+  initialThreadId?: string | undefined;
 };
 
 const useDynamicChatTransport = <UI_MESSAGE extends UIMessage = UIMessage>(
@@ -98,10 +83,11 @@ const useChatThreadRuntime = <UI_MESSAGE extends UIMessage = UIMessage>(
 };
 
 export const useStableChatRuntime = <UI_MESSAGE extends UIMessage = UIMessage>(
-  options?: UseChatRuntimeOptions<UI_MESSAGE>,
+  options: UseStableChatRuntimeOptions<UI_MESSAGE>,
 ): AssistantRuntime => {
-  const optionsRef = useRef(options);
-  optionsRef.current = options;
+  const { threadListAdapter, initialThreadId, ...chatOptions } = options;
+  const optionsRef = useRef(chatOptions);
+  optionsRef.current = chatOptions;
 
   const runtimeHook = useCallback(() => {
     return useChatThreadRuntime(optionsRef.current);
@@ -110,6 +96,7 @@ export const useStableChatRuntime = <UI_MESSAGE extends UIMessage = UIMessage>(
   return useRemoteThreadListRuntime({
     runtimeHook,
     adapter: threadListAdapter,
+    initialThreadId,
     allowNesting: true,
   });
 };

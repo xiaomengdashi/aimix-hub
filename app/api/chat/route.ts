@@ -1,11 +1,20 @@
 import { streamText, convertToModelMessages, type UIMessage } from "ai";
 import { anthropic } from "@/lib/anthropic";
+import { requireUser } from "@/lib/auth/require-user";
 import {
   DEFAULT_CHAT_MODEL_ID,
   parseChatModelId,
 } from "@/lib/chat-models";
 
 export async function POST(req: Request) {
+  const user = await requireUser();
+  if (!user) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   const body = await req.json();
   const { messages, model } = body;
 

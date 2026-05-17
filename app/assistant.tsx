@@ -1,7 +1,10 @@
 "use client";
 
 import { AssistantRuntimeProvider } from "@assistant-ui/react";
-import { useState, type FC } from "react";
+import type { RemoteThreadListAdapter } from "@assistant-ui/core";
+import type { User } from "@supabase/supabase-js";
+import { useEffect, useMemo, useState, type FC } from "react";
+import { ChatActiveThreadTracker } from "@/components/assistant-ui/chat-active-thread-tracker";
 import { ChatModelProvider } from "@/components/assistant-ui/chat-model-context";
 import { ChatSessionProvider } from "@/components/assistant-ui/chat-session-context";
 import { Thread } from "@/components/assistant-ui/thread";
@@ -13,12 +16,24 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { useStableChatRuntime } from "@/hooks/use-stable-chat-runtime";
+import { getLastActiveThreadId } from "@/lib/chat-session-storage";
 import { chatTransport } from "@/lib/chat-transport";
+import { createClient } from "@/lib/supabase/client";
+import { UserMenu } from "@/components/auth/user-menu";
+import { getDisplayUsername } from "@/lib/auth/username";
+import { createSupabaseThreadListAdapter } from "@/lib/supabase-thread-adapter";
 
-export const Assistant: FC = () => {
+const ChatShell: FC<{
+  userId: string;
+  threadListAdapter: RemoteThreadListAdapter;
+  initialThreadId?: string;
+  displayUsername: string;
+}> = ({ userId, threadListAdapter, initialThreadId, displayUsername }) => {
   const [chatError, setChatError] = useState<string | null>(null);
 
   const runtime = useStableChatRuntime({
+    threadListAdapter,
+    initialThreadId,
     transport: chatTransport,
     onError: (error) => {
       setChatError(error.message || "发送失败，请稍后重试");
@@ -31,31 +46,79 @@ export const Assistant: FC = () => {
   return (
     <ChatModelProvider>
       <ChatSessionProvider onComposerSubmit={() => setChatError(null)}>
-      <AssistantRuntimeProvider runtime={runtime}>
-        <SidebarProvider>
-          <div className="flex h-dvh w-full pr-0.5">
-            <ThreadListSidebar />
-            <SidebarInset>
-              <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
-                <SidebarTrigger />
-                <ModelPicker />
-              </header>
-              {chatError ? (
-                <div
-                  role="alert"
-                  className="mx-4 mt-2 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2 text-destructive text-sm"
-                >
-                  {chatError}
+        <AssistantRuntimeProvider runtime={runtime}>
+          <ChatActiveThreadTracker userId={userId} />
+          <SidebarProvider>
+            <div className="flex h-dvh w-full pr-0.5">
+              <ThreadListSidebar />
+              <SidebarInset>
+                <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
+                  <SidebarTrigger />
+                  <ModelPicker />
+                  <UserMenu displayName={displayUsername} />
+                </header>
+                {chatError ? (
+                  <div
+                    role="alert"
+                    className="mx-4 mt-2 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2 text-destructive text-sm"
+                  >
+                    {chatError}
+                  </div>
+                ) : null}
+                <div className="flex-1 overflow-hidden">
+                  <Thread />
                 </div>
-              ) : null}
-              <div className="flex-1 overflow-hidden">
-                <Thread />
-              </div>
-            </SidebarInset>
-          </div>
-        </SidebarProvider>
-      </AssistantRuntimeProvider>
+              </SidebarInset>
+            </div>
+          </SidebarProvider>
+        </AssistantRuntimeProvider>
       </ChatSessionProvider>
     </ChatModelProvider>
+  );
+};
+
+export const Assistant: FC = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [authReady, setAuthReady] = useState(false);
+  const supabase = useMemo(() => createClient(), []);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user: currentUser } }) => {
+      setUser(currentUser);
+      setAuthReady(true);
+    });
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setAuthReady(true);
+    });
+    return () => subscription.unsubscribe();
+  }, [supabase]);
+
+  const threadListAdapter = useMemo(
+    () => createSupabaseThreadListAdapter(supabase),
+    [supabase],
+  );
+
+  if (!authReady) {
+    return (
+      <div className="flex h-dvh items-center justify-center text-muted-foreground text-sm">
+        加载中…
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
+  return (
+    <ChatShell
+      userId={user.id}
+      threadListAdapter={threadListAdapter}
+      initialThreadId={getLastActiveThreadId(user.id)}
+      displayUsername={getDisplayUsername(user)}
+    />
   );
 };

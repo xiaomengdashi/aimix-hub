@@ -1,5 +1,6 @@
 import { generateText } from "ai";
 import { anthropic } from "@/lib/anthropic";
+import { requireUser } from "@/lib/auth/require-user";
 import type { ThreadTitleMessage } from "@/lib/thread-title";
 
 const TITLE_MODEL_ID = "claude-haiku-4-5-20251001";
@@ -11,6 +12,11 @@ function formatConversation(messages: ThreadTitleMessage[]): string {
 }
 
 export async function POST(req: Request) {
+  const user = await requireUser();
+  if (!user) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   let body: { messages?: ThreadTitleMessage[] };
   try {
     body = await req.json();
