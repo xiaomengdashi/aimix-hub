@@ -1,4 +1,5 @@
 import type { ChatAiProvider } from "@/lib/chat/provider";
+import type { ModelUiScope } from "@/lib/chat/models";
 import type { ChatModel } from "@/lib/chat/models";
 
 type ModelDisplay = { name: string; description: string };
@@ -139,7 +140,7 @@ function formatClaudeName(id: string): string {
   return id.replace(/^claude-/i, "").replace(/-/g, " ");
 }
 
-function defaultDescription(uiProvider: ChatAiProvider): string {
+function defaultDescription(uiProvider: ModelUiScope): string {
   switch (uiProvider) {
     case "chatgpt":
       return "OpenAI 对话模型";
@@ -147,6 +148,8 @@ function defaultDescription(uiProvider: ChatAiProvider): string {
       return "Anthropic 对话模型";
     case "gemini":
       return "Google 对话模型";
+    case "image":
+      return "文生图，输入描述即可生成图像";
     default:
       return "通用对话模型";
   }
@@ -154,7 +157,7 @@ function defaultDescription(uiProvider: ChatAiProvider): string {
 
 export function resolveModelDisplay(
   id: string,
-  uiProvider: ChatAiProvider,
+  uiProvider: ModelUiScope,
 ): ModelDisplay {
   const known = KNOWN[id];
   if (known) return known;

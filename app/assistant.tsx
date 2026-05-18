@@ -12,10 +12,11 @@ import { ComposerToolProvider } from "@/components/assistant-ui/contexts/compose
 import { ChatSessionProvider } from "@/components/assistant-ui/contexts/chat-session-context";
 import {
   ChatAiProviderProvider,
-  useChatAiProvider,
+  useAppNav,
 } from "@/components/assistant-ui/contexts/chat-ui-theme-context";
-import { getProviderUI } from "@/components/assistant-ui/providers/registry";
-import { type ChatAiProvider } from "@/lib/chat/provider";
+import { getAppUI } from "@/components/assistant-ui/providers/registry";
+import type { AppId } from "@/lib/chat/app-id";
+import { isImageApp } from "@/lib/chat/app-id";
 import { useStableChatRuntime } from "@/hooks/use-stable-chat-runtime";
 import { getLastActiveThreadId } from "@/lib/chat/session-storage";
 import { chatTransport } from "@/lib/chat/transport";
@@ -28,16 +29,16 @@ const ChatShellContent: FC<{
   threadListAdapter: RemoteThreadListAdapter;
   initialThreadId?: string;
   displayUsername: string;
-  provider: ChatAiProvider;
+  appId: AppId;
 }> = ({
   userId,
   threadListAdapter,
   initialThreadId,
   displayUsername,
-  provider,
+  appId,
 }) => {
   const [chatError, setChatError] = useState<string | null>(null);
-  const { Layout, Thread } = getProviderUI(provider);
+  const { Layout, Thread } = getAppUI(appId);
 
   const runtime = useStableChatRuntime({
     threadListAdapter,
@@ -51,24 +52,39 @@ const ChatShellContent: FC<{
     },
   });
 
+  const shell = (
+    <ChatModelProvider uiScope={appId}>
+      <AssistantRuntimeProvider runtime={runtime}>
+        <ChatActiveThreadTracker userId={userId} appId={appId} />
+        <ChatThreadListOrderSync />
+        <Layout displayUsername={displayUsername} chatError={chatError}>
+          <Thread />
+        </Layout>
+      </AssistantRuntimeProvider>
+    </ChatModelProvider>
+  );
+
+  if (isImageApp(appId)) {
+    return (
+      <ChatSessionProvider
+        onComposerSubmit={() => setChatError(null)}
+        onAttachmentError={(message) => setChatError(message)}
+      >
+        {shell}
+      </ChatSessionProvider>
+    );
+  }
+
   return (
     <ChatModeProvider>
-      <ChatModelProvider uiProvider={provider}>
-        <ComposerToolProvider uiProvider={provider}>
-          <ChatSessionProvider
-            onComposerSubmit={() => setChatError(null)}
-            onAttachmentError={(message) => setChatError(message)}
-          >
-            <AssistantRuntimeProvider runtime={runtime}>
-              <ChatActiveThreadTracker userId={userId} provider={provider} />
-              <ChatThreadListOrderSync />
-              <Layout displayUsername={displayUsername} chatError={chatError}>
-                <Thread />
-              </Layout>
-            </AssistantRuntimeProvider>
-          </ChatSessionProvider>
-        </ComposerToolProvider>
-      </ChatModelProvider>
+      <ComposerToolProvider uiProvider={appId}>
+        <ChatSessionProvider
+          onComposerSubmit={() => setChatError(null)}
+          onAttachmentError={(message) => setChatError(message)}
+        >
+          {shell}
+        </ChatSessionProvider>
+      </ComposerToolProvider>
     </ChatModeProvider>
   );
 };
@@ -77,22 +93,22 @@ const ChatShellInner: FC<{
   userId: string;
   displayUsername: string;
 }> = ({ userId, displayUsername }) => {
-  const { provider } = useChatAiProvider();
+  const { appId } = useAppNav();
   const supabase = useMemo(() => createClient(), []);
 
   const threadListAdapter = useMemo(
-    () => createSupabaseThreadListAdapter(supabase, provider),
-    [supabase, provider],
+    () => createSupabaseThreadListAdapter(supabase, appId),
+    [supabase, appId],
   );
 
   return (
     <ChatShellContent
-      key={provider}
+      key={appId}
       userId={userId}
       threadListAdapter={threadListAdapter}
-      initialThreadId={getLastActiveThreadId(userId, provider)}
+      initialThreadId={getLastActiveThreadId(userId, appId)}
       displayUsername={displayUsername}
-      provider={provider}
+      appId={appId}
     />
   );
 };
@@ -100,16 +116,14 @@ const ChatShellInner: FC<{
 const ChatShell: FC<{
   userId: string;
   displayUsername: string;
-  initialProvider: ChatAiProvider;
-}> = ({ initialProvider, ...props }) => (
-  <ChatAiProviderProvider initialProvider={initialProvider}>
+  initialAppId: AppId;
+}> = ({ initialAppId, ...props }) => (
+  <ChatAiProviderProvider initialProvider={initialAppId}>
     <ChatShellInner {...props} />
   </ChatAiProviderProvider>
 );
 
-export const Assistant: FC<{ initialProvider: ChatAiProvider }> = ({
-  initialProvider,
-}) => {
+export const Assistant: FC<{ initialAppId: AppId }> = ({ initialAppId }) => {
   const [user, setUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(false);
   const supabase = useMemo(() => createClient(), []);
@@ -144,7 +158,7 @@ export const Assistant: FC<{ initialProvider: ChatAiProvider }> = ({
     <ChatShell
       userId={user.id}
       displayUsername={getDisplayUsername(user)}
-      initialProvider={initialProvider}
+      initialAppId={initialAppId}
     />
   );
 };

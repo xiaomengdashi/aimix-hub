@@ -27,7 +27,6 @@ import { TooltipIconButton } from "@/components/assistant-ui/message/tooltip-ico
 import { useShallow } from "zustand/shallow";
 import {
   Globe,
-  ImageIcon,
   Lightbulb,
   Mic,
   PlusIcon,
@@ -44,7 +43,6 @@ import { ContextUsageIndicator } from "@/components/assistant-ui/shell/context-u
 const CHATGPT_TOOLS_MENU = CHATGPT_COMPOSER_TOOL_IDS.map((id) => {
   const icons = {
     search: Globe,
-    image: ImageIcon,
     research: Telescope,
     think: Lightbulb,
     study: Sparkles,
@@ -54,13 +52,11 @@ const CHATGPT_TOOLS_MENU = CHATGPT_COMPOSER_TOOL_IDS.map((id) => {
     label:
       id === "search"
         ? "Search the web"
-        : id === "image"
-          ? "Create an image"
-          : id === "research"
-            ? "Run deep research"
-            : id === "think"
-              ? "Think longer"
-              : "Study and learn",
+        : id === "research"
+          ? "Run deep research"
+          : id === "think"
+            ? "Think longer"
+            : "Study and learn",
     Icon: icons[id],
   };
 });

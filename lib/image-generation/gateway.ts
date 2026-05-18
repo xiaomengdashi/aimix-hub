@@ -66,7 +66,7 @@ function parseGenerationsResponse(
 export async function generateGatewayImage(options: {
   model: string;
   prompt: string;
-  size?: "1024x1024" | "512x512" | "256x256";
+  size?: string;
   quality?: "low" | "medium" | "high" | "auto";
   format?: "jpeg" | "png" | "webp";
   abortSignal?: AbortSignal;
@@ -80,6 +80,8 @@ export async function generateGatewayImage(options: {
   const mediaType = mediaTypeFromFormat(format);
   const url = `${normalizeBaseUrl(process.env.ANTHROPIC_BASE_URL)}/images/generations`;
 
+  const apiSize = options.size ?? "auto";
+
   const res = await fetch(url, {
     method: "POST",
     headers: {
@@ -91,8 +93,8 @@ export async function generateGatewayImage(options: {
       model: options.model,
       prompt: options.prompt,
       n: 1,
-      size: options.size ?? "1024x1024",
-      quality: options.quality ?? "low",
+      size: apiSize,
+      quality: options.quality ?? "auto",
       format,
     }),
     signal: options.abortSignal,

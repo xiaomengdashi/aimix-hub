@@ -39,7 +39,7 @@ export function getStoredChatAiProvider(): ChatAiProvider {
   const stored =
     localStorage.getItem(CHAT_AI_PROVIDER_STORAGE_KEY) ??
     localStorage.getItem(LEGACY_CHAT_UI_THEME_STORAGE_KEY);
-  if (!stored) return DEFAULT_CHAT_AI_PROVIDER;
+  if (!stored || stored === "image") return DEFAULT_CHAT_AI_PROVIDER;
   return migrateLegacyStoredValue(stored) ?? DEFAULT_CHAT_AI_PROVIDER;
 }
 

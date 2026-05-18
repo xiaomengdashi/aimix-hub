@@ -16,6 +16,10 @@ type ProviderPageProps = {
 export default async function ProviderPage({ params }: ProviderPageProps) {
   const { provider: providerParam } = await params;
 
+  if (providerParam === "image") {
+    redirect("/image");
+  }
+
   if (!isChatAiProvider(providerParam)) {
     redirect(providerPath(DEFAULT_CHAT_AI_PROVIDER));
   }
@@ -24,7 +28,7 @@ export default async function ProviderPage({ params }: ProviderPageProps) {
 
   return (
     <main className="h-dvh">
-      <Assistant initialProvider={provider} />
+      <Assistant initialAppId={provider} />
     </main>
   );
 }

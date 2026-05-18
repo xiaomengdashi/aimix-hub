@@ -16,14 +16,14 @@ import {
 import { ProviderSwitch } from "@/components/assistant-ui/providers/shared/provider-switch";
 import { OtherThreadList } from "@/components/assistant-ui/providers/other/thread-list";
 import { useChatAiProvider } from "@/components/assistant-ui/contexts/chat-ui-theme-context";
-import { getProviderDisplayName } from "@/lib/chat/provider";
+import { getAppDisplayName } from "@/lib/chat/app-id";
 
 export function OtherThreadListSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
   const { provider } = useChatAiProvider();
   const { model } = useChatModel();
-  const providerLabel = getProviderDisplayName(provider);
+  const providerLabel = getAppDisplayName(provider);
 
   return (
     <Sidebar {...props}>

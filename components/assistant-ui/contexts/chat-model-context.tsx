@@ -10,21 +10,22 @@ import {
   type FC,
   type ReactNode,
 } from "react";
-import type { ChatAiProvider } from "@/lib/chat/provider";
 import {
   FALLBACK_CHAT_MODELS,
-  getDefaultModelIdForProvider,
+  getDefaultModelIdForScope,
   setClientChatModels,
   type ChatModel,
+  type ModelUiScope,
 } from "@/lib/chat/models";
 import {
   resolveInitialModelId,
-  setStoredModelForProvider,
+  setStoredModelForScope,
 } from "@/lib/chat/model-storage";
 import {
   selectedChatModel,
   selectedChatUiProvider,
 } from "@/lib/chat/transport";
+import { IMAGE_GENERATION_MODEL_ID } from "@/lib/image-generation/constants";
 
 type ModelsApiResponse = {
   models: ChatModel[];
@@ -35,7 +36,9 @@ type ModelsApiResponse = {
 type ChatModelContextValue = {
   model: string;
   setModel: (model: string) => void;
-  uiProvider: ChatAiProvider;
+  uiScope: ModelUiScope;
+  /** @deprecated 使用 uiScope */
+  uiProvider: ModelUiScope;
   models: ChatModel[];
   modelsLoading: boolean;
   modelsSource: "gateway" | "fallback" | "pending";
@@ -44,36 +47,37 @@ type ChatModelContextValue = {
 const ChatModelContext = createContext<ChatModelContextValue | null>(null);
 
 function pickInitialModel(
-  uiProvider: ChatAiProvider,
+  uiScope: ModelUiScope,
   models: ChatModel[],
   preferId?: string,
 ): string {
+  if (uiScope === "image") return IMAGE_GENERATION_MODEL_ID;
   const allowed = new Set(
-    models.filter((m) => m.uiProvider === uiProvider).map((m) => m.id),
+    models.filter((m) => m.uiProvider === uiScope).map((m) => m.id),
   );
   if (preferId && allowed.has(preferId)) return preferId;
-  const stored = resolveInitialModelId(uiProvider);
+  const stored = resolveInitialModelId(uiScope);
   if (stored && allowed.has(stored)) return stored;
-  const first = models.find((m) => m.uiProvider === uiProvider)?.id;
-  return first ?? getDefaultModelIdForProvider(uiProvider);
+  const first = models.find((m) => m.uiProvider === uiScope)?.id;
+  return first ?? getDefaultModelIdForScope(uiScope);
 }
 
 export const ChatModelProvider: FC<{
-  uiProvider: ChatAiProvider;
+  uiScope: ModelUiScope;
   children: ReactNode;
-}> = ({ uiProvider, children }) => {
+}> = ({ uiScope, children }) => {
   const [models, setModels] = useState<ChatModel[]>(FALLBACK_CHAT_MODELS);
   const [modelsLoading, setModelsLoading] = useState(true);
   const [modelsSource, setModelsSource] = useState<
     "gateway" | "fallback" | "pending"
   >("pending");
   const [model, setModelState] = useState(() =>
-    pickInitialModel(uiProvider, FALLBACK_CHAT_MODELS),
+    pickInitialModel(uiScope, FALLBACK_CHAT_MODELS),
   );
 
   useEffect(() => {
-    selectedChatUiProvider.value = uiProvider;
-  }, [uiProvider]);
+    selectedChatUiProvider.value = uiScope;
+  }, [uiScope]);
 
   useEffect(() => {
     selectedChatModel.value = model;
@@ -96,7 +100,7 @@ export const ChatModelProvider: FC<{
         setModels(nextModels);
         setModelsSource(data.source === "gateway" ? "gateway" : "fallback");
 
-        const initial = pickInitialModel(uiProvider, nextModels, model);
+        const initial = pickInitialModel(uiScope, nextModels, model);
         selectedChatModel.value = initial;
         setModelState(initial);
       } catch {
@@ -104,7 +108,7 @@ export const ChatModelProvider: FC<{
         setClientChatModels(FALLBACK_CHAT_MODELS);
         setModels(FALLBACK_CHAT_MODELS);
         setModelsSource("fallback");
-        const initial = pickInitialModel(uiProvider, FALLBACK_CHAT_MODELS, model);
+        const initial = pickInitialModel(uiScope, FALLBACK_CHAT_MODELS, model);
         selectedChatModel.value = initial;
         setModelState(initial);
       } finally {
@@ -116,31 +120,40 @@ export const ChatModelProvider: FC<{
     return () => {
       cancelled = true;
     };
-  }, [uiProvider]);
+  }, [uiScope]);
+
+  useEffect(() => {
+    if (uiScope !== "image") return;
+    if (model === IMAGE_GENERATION_MODEL_ID) return;
+    selectedChatModel.value = IMAGE_GENERATION_MODEL_ID;
+    setModelState(IMAGE_GENERATION_MODEL_ID);
+  }, [uiScope, model]);
 
   const setModel = useCallback(
     (next: string) => {
+      if (uiScope === "image") return;
       const allowed = models.some(
-        (m) => m.uiProvider === uiProvider && m.id === next,
+        (m) => m.uiProvider === uiScope && m.id === next,
       );
       if (!allowed) return;
       selectedChatModel.value = next;
-      setStoredModelForProvider(uiProvider, next);
+      setStoredModelForScope(uiScope, next);
       setModelState(next);
     },
-    [uiProvider, models],
+    [uiScope, models],
   );
 
   const value = useMemo(
     () => ({
       model,
       setModel,
-      uiProvider,
-      models: models.filter((m) => m.uiProvider === uiProvider),
+      uiScope,
+      uiProvider: uiScope,
+      models: models.filter((m) => m.uiProvider === uiScope),
       modelsLoading,
       modelsSource,
     }),
-    [model, setModel, uiProvider, models, modelsLoading, modelsSource],
+    [model, setModel, uiScope, models, modelsLoading, modelsSource],
   );
 
   return (

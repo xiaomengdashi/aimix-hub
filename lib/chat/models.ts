@@ -1,4 +1,8 @@
 import type { ChatAiProvider } from "@/lib/chat/provider";
+import { IMAGE_GENERATION_MODEL_ID } from "@/lib/image-generation/constants";
+
+/** 模型在 UI 中的归属（含独立绘图应用） */
+export type ModelUiScope = ChatAiProvider | "image";
 import { getGatewayChatModels } from "@/lib/ai-gateway/gateway-models";
 import { normalizeModelId } from "@/lib/ai-gateway/normalize-model-id";
 
@@ -9,7 +13,7 @@ export type ChatModel = {
   name: string;
   description: string;
   contextWindow: number;
-  uiProvider: ChatAiProvider;
+  uiProvider: ModelUiScope;
   backend: ModelBackend;
   apiModel: string;
 };
@@ -71,13 +75,13 @@ export const FALLBACK_CHAT_MODELS: ChatModel[] = [
     apiModel: "gpt-4o",
   },
   {
-    id: "gpt-image-2",
+    id: IMAGE_GENERATION_MODEL_ID,
     name: "GPT Image 2",
-    description: "文生图，快速高质量图像生成",
+    description: "文生图，输入描述即可生成图像",
     contextWindow: 0,
-    uiProvider: "chatgpt",
+    uiProvider: "image",
     backend: "anthropic",
-    apiModel: "gpt-image-2",
+    apiModel: IMAGE_GENERATION_MODEL_ID,
   },
   {
     id: "claude-sonnet-4-6",
@@ -257,24 +261,42 @@ function modelMap(models: ChatModel[]): Map<string, ChatModel> {
   return new Map(models.map((m) => [m.id, m]));
 }
 
-export function getModelsForProvider(uiProvider: ChatAiProvider): ChatModel[] {
-  return getClientChatModels().filter((m) => m.uiProvider === uiProvider);
+export function getModelsForScope(uiScope: ModelUiScope): ChatModel[] {
+  return getClientChatModels().filter((m) => m.uiProvider === uiScope);
 }
 
-export function getDefaultModelIdForProvider(
-  uiProvider: ChatAiProvider,
-): string {
-  const list = getModelsForProvider(uiProvider);
-  const fallback = FALLBACK_CHAT_MODELS.find((m) => m.uiProvider === uiProvider);
+/** @deprecated 使用 getModelsForScope */
+export function getModelsForProvider(uiProvider: ChatAiProvider): ChatModel[] {
+  return getModelsForScope(uiProvider);
+}
+
+export function getDefaultModelIdForScope(uiScope: ModelUiScope): string {
+  if (uiScope === "image") return IMAGE_GENERATION_MODEL_ID;
+  const list = getModelsForScope(uiScope);
+  const fallback = FALLBACK_CHAT_MODELS.find((m) => m.uiProvider === uiScope);
   return list[0]?.id ?? fallback?.id ?? FALLBACK_CHAT_MODELS[0]!.id;
 }
 
+/** @deprecated 使用 getDefaultModelIdForScope */
+export function getDefaultModelIdForProvider(
+  uiProvider: ChatAiProvider,
+): string {
+  return getDefaultModelIdForScope(uiProvider);
+}
+
+export async function getDefaultModelIdForScopeAsync(
+  uiScope: ModelUiScope,
+): Promise<string> {
+  const models = await resolveAllowedModels();
+  const match = models.find((m) => m.uiProvider === uiScope);
+  return match?.id ?? getDefaultModelIdForScope(uiScope);
+}
+
+/** @deprecated 使用 getDefaultModelIdForScopeAsync */
 export async function getDefaultModelIdForProviderAsync(
   uiProvider: ChatAiProvider,
 ): Promise<string> {
-  const models = await resolveAllowedModels();
-  const match = models.find((m) => m.uiProvider === uiProvider);
-  return match?.id ?? getDefaultModelIdForProvider(uiProvider);
+  return getDefaultModelIdForScopeAsync(uiProvider);
 }
 
 export const DEFAULT_CHAT_MODEL_ID = getDefaultModelIdForProvider("chatgpt");

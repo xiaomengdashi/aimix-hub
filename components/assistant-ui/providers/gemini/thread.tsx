@@ -18,7 +18,6 @@ import {
 import {
   CopyIcon,
   Globe,
-  ImageIcon,
   Lightbulb,
   Mic,
   Music,
@@ -46,13 +45,11 @@ import { useAui } from "@assistant-ui/react";
 const GEMINI_TOOLS_MENU = GEMINI_COMPOSER_TOOL_IDS.map((id) => {
   const icons = {
     research: Telescope,
-    image: ImageIcon,
     search: Globe,
     study: Lightbulb,
   } as const;
   const labels: Record<ComposerToolId, string> = {
     search: "Search the web",
-    image: "Create image",
     research: "Deep Research",
     think: "Think longer",
     study: "Help me learn",
@@ -77,9 +74,6 @@ export const GeminiThread: FC = () => {
             className="mx-auto mt-2 w-full max-w-3xl justify-center text-[#70757a] md:hidden dark:text-[#9aa0a6]"
           />
           <div className="mx-auto mt-4 flex w-full max-w-3xl flex-wrap justify-center gap-2">
-            <SuggestionChip toolId="image" icon={<ImageIcon width={16} height={16} />}>
-              Create image
-            </SuggestionChip>
             <SuggestionChip icon={<Music width={16} height={16} />}>
               Make music
             </SuggestionChip>

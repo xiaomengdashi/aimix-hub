@@ -15,9 +15,6 @@ type GatewayModelRow = {
 const EXCLUDE_ID =
   /tts|audio|image|realtime|transcribe|vision|embedding|gizmo|whisper|dall-e|flux|midjourney|suno|video|ocr|moderation|search-api|\*/i;
 
-/** ChatGPT 选择器中显式展示的图像生成模型 */
-const ALLOW_IMAGE_MODEL_IDS = new Set(["gpt-image-2"]);
-
 const PREFERRED: Record<ChatAiProvider, readonly string[]> = {
   chatgpt: [
     "gpt-5.5",
@@ -25,7 +22,6 @@ const PREFERRED: Record<ChatAiProvider, readonly string[]> = {
     "gpt-5.4-mini",
     "gpt-5.3-chat",
     "gpt-5.2-chat",
-    "gpt-image-2",
     "gpt-4o",
     "o4-mini",
     "gpt-5-mini",
@@ -83,7 +79,6 @@ function uiProviderForId(id: string): ChatAiProvider {
 function isChatCandidate(row: GatewayModelRow): boolean {
   const id = row.id;
   if (!id) return false;
-  if (ALLOW_IMAGE_MODEL_IDS.has(id)) return true;
   if (EXCLUDE_ID.test(id)) return false;
   if (row.model_type) {
     const t = row.model_type.toLowerCase();
@@ -168,11 +163,61 @@ export async function fetchGatewayModelRows(): Promise<GatewayModelRow[]> {
   return json.data ?? [];
 }
 
+function isGatewayImageModel(row: GatewayModelRow): boolean {
+  const id = row.id;
+  if (!id) return false;
+  if (/^gpt-image/i.test(id)) return true;
+  if (/dall-e|flux|midjourney|stable-diffusion|sdxl|ideogram/i.test(id)) {
+    return !EXCLUDE_ID.test(id);
+  }
+  const t = row.model_type?.toLowerCase() ?? "";
+  return t.includes("图") || t.includes("image");
+}
+
+function pickImageModels(rows: GatewayModelRow[]): ChatModel[] {
+  const candidates = rows.filter(isGatewayImageModel);
+  const preferred = ["gpt-image-2", "dall-e-3", "flux-dev"];
+  const picked: ChatModel[] = [];
+  const used = new Set<string>();
+
+  for (const id of preferred) {
+    const row = candidates.find((r) => r.id === id);
+    if (!row || used.has(id)) continue;
+    used.add(id);
+    picked.push({
+      id: row.id,
+      name: row.id,
+      description: "",
+      contextWindow: 0,
+      uiProvider: "image",
+      backend: "anthropic",
+      apiModel: row.id,
+    });
+  }
+
+  for (const row of candidates) {
+    if (used.has(row.id) || picked.length >= 8) break;
+    used.add(row.id);
+    picked.push({
+      id: row.id,
+      name: row.id,
+      description: "",
+      contextWindow: 0,
+      uiProvider: "image",
+      backend: "anthropic",
+      apiModel: row.id,
+    });
+  }
+
+  return applyModelDisplayList(picked);
+}
+
 export async function buildChatModelsFromGateway(): Promise<ChatModel[]> {
   const rows = await fetchGatewayModelRows();
   const providers: ChatAiProvider[] = ["chatgpt", "claude", "gemini", "other"];
   const picked = providers.flatMap((p) => pickForProvider(rows, p));
-  return applyModelDisplayList(picked);
+  const imageModels = pickImageModels(rows);
+  return applyModelDisplayList([...picked, ...imageModels]);
 }
 
 export async function getGatewayChatModels(): Promise<ChatModel[]> {

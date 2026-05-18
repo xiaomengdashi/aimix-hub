@@ -2,14 +2,14 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getStoredChatAiProvider } from "@/lib/chat/provider";
-import { providerPath } from "@/lib/chat/routes";
+import { getStoredAppId } from "@/lib/chat/app-id";
+import { appPath } from "@/lib/chat/routes";
 
 export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace(providerPath(getStoredChatAiProvider()));
+    router.replace(appPath(getStoredAppId()));
   }, [router]);
 
   return (

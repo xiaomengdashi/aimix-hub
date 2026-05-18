@@ -19,7 +19,7 @@ import { useAui } from "@assistant-ui/store";
 import { RuntimeAdapterProvider } from "@assistant-ui/core/react";
 import { createFormattedPersistence } from "@/lib/supabase/formatted-persistence";
 import { SupabaseMessagePersistence } from "@/lib/supabase/message-persistence";
-import type { ChatAiProvider } from "@/lib/chat/provider";
+import type { AppId } from "@/lib/chat/app-id";
 import { generateAITitle } from "@/lib/supabase/thread-title";
 
 type ThreadRow = {
@@ -27,7 +27,7 @@ type ThreadRow = {
   title: string | null;
   is_archived: boolean;
   external_id: string | null;
-  provider: ChatAiProvider;
+  provider: AppId;
 };
 
 class SupabaseHistoryAdapter implements ThreadHistoryAdapter {
@@ -94,7 +94,7 @@ const createHistoryProvider = (
 
 export function createSupabaseThreadListAdapter(
   supabase: SupabaseClient,
-  provider: ChatAiProvider,
+  provider: AppId,
 ): RemoteThreadListAdapter {
   const requireUserId = async (): Promise<string> => {
     const {

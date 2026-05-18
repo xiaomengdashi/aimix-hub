@@ -1,6 +1,5 @@
 export type ComposerToolId =
   | "search"
-  | "image"
   | "research"
   | "think"
   | "study";
@@ -21,12 +20,6 @@ export const COMPOSER_TOOLS: Record<ComposerToolId, ComposerTool> = {
     systemPrompt: `You help the user research topics thoroughly. Organize findings with clear headings, cite uncertainties, and distinguish facts from speculation. If you cannot access live web results, say so briefly and answer from general knowledge while suggesting what the user could verify online.`,
     integrationNote: "尚未连接实时网页搜索，将基于模型知识作答。",
   },
-  image: {
-    id: "image",
-    composerPlaceholder: "描述你想生成的图像…",
-    systemPrompt: "",
-    modelId: "gpt-image-2",
-  },
   research: {
     id: "research",
     composerPlaceholder: "你想深入研究什么主题？",
@@ -46,7 +39,6 @@ export const COMPOSER_TOOLS: Record<ComposerToolId, ComposerTool> = {
 
 export const CHATGPT_COMPOSER_TOOL_IDS: ComposerToolId[] = [
   "search",
-  "image",
   "research",
   "think",
   "study",
@@ -54,7 +46,6 @@ export const CHATGPT_COMPOSER_TOOL_IDS: ComposerToolId[] = [
 
 export const GEMINI_COMPOSER_TOOL_IDS: ComposerToolId[] = [
   "research",
-  "image",
   "search",
   "study",
 ];

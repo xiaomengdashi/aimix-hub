@@ -47,11 +47,33 @@ ANTHROPIC_BASE_URL=https://yunwu.ai/v1`}
       <section className="space-y-3 rounded-xl border bg-card p-5 text-sm">
         <h2 className="font-medium">3. 执行数据库迁移</h2>
         <p className="text-muted-foreground">
-          在 Supabase → SQL Editor 中运行仓库文件{" "}
-          <code className="rounded bg-muted px-1">
-            supabase/migrations/001_chat_threads.sql
-          </code>
-          （创建 threads / messages 表与 RLS）。
+          在 Supabase → SQL Editor 中<strong>按顺序</strong>运行：
+        </p>
+        <ol className="list-inside list-decimal space-y-1 text-muted-foreground">
+          <li>
+            <code className="rounded bg-muted px-1">
+              supabase/migrations/001_chat_threads.sql
+            </code>{" "}
+            — 表与 RLS
+          </li>
+          <li>
+            <code className="rounded bg-muted px-1">
+              supabase/migrations/002_thread_ai_provider.sql
+            </code>{" "}
+            — 多应用 provider 列
+          </li>
+          <li>
+            <code className="rounded bg-muted px-1">
+              supabase/migrations/003_thread_provider_image.sql
+            </code>{" "}
+            — 绘图应用（<code className="rounded bg-muted px-1">image</code>
+            ）
+          </li>
+        </ol>
+        <p className="text-muted-foreground text-xs">
+          若使用绘图功能时报{" "}
+          <code className="rounded bg-muted px-1">threads_provider_check</code>
+          ，说明缺少第 3 步。
         </p>
       </section>
 

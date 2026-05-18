@@ -2,10 +2,11 @@
 
 import { CheckIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 import type { ComponentType, FC, SVGProps } from "react";
-import { useChatAiProvider } from "@/components/assistant-ui/contexts/chat-ui-theme-context";
+import { useAppNav } from "@/components/assistant-ui/contexts/chat-ui-theme-context";
 import { ClaudeIcon } from "@/components/assistant-ui/providers/claude/icon";
 import { OpenAIIcon } from "@/components/assistant-ui/providers/chatgpt/icon";
 import { GeminiIcon } from "@/components/assistant-ui/providers/gemini/icon";
+import { ImageAppIcon } from "@/components/assistant-ui/providers/image/icon";
 import { GenericModelIcon } from "@/components/assistant-ui/providers/shared/vendor-icons";
 import {
   DropdownMenu,
@@ -13,34 +14,28 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/shared/dropdown-menu";
-import {
-  CHAT_AI_PROVIDER_OPTIONS,
-  getProviderDisplayName,
-  type ChatAiProvider,
-} from "@/lib/chat/provider";
+import { APP_NAV_OPTIONS, getAppDisplayName, type AppId } from "@/lib/chat/app-id";
 import { cn } from "@/lib/utils";
 import {
   providerSwitchCheckClass,
   providerSwitchTriggerClass,
-  providerSwitchVariantForProvider,
+  providerSwitchVariantForApp,
   type ProviderSwitchVariant,
 } from "./provider-switch-styles";
 
-const PROVIDER_ICONS: Record<
-  ChatAiProvider,
-  ComponentType<SVGProps<SVGSVGElement>>
-> = {
+const APP_ICONS: Record<AppId, ComponentType<SVGProps<SVGSVGElement>>> = {
   chatgpt: OpenAIIcon,
   claude: ClaudeIcon,
   gemini: GeminiIcon,
+  image: ImageAppIcon,
   other: GenericModelIcon,
 };
 
-const ProviderOptionIcon: FC<{
-  provider: ChatAiProvider;
+const AppOptionIcon: FC<{
+  appId: AppId;
   className?: string;
-}> = ({ provider, className }) => {
-  const Icon = PROVIDER_ICONS[provider];
+}> = ({ appId, className }) => {
+  const Icon = APP_ICONS[appId];
   return <Icon className={cn("size-4 shrink-0", className)} aria-hidden />;
 };
 
@@ -49,9 +44,9 @@ export const ProviderSwitch: FC<{
   variant?: ProviderSwitchVariant;
   fullWidth?: boolean;
 }> = ({ className, variant: variantProp, fullWidth = false }) => {
-  const { provider, setProvider } = useChatAiProvider();
-  const variant = variantProp ?? providerSwitchVariantForProvider(provider);
-  const currentLabel = getProviderDisplayName(provider);
+  const { appId, setAppId } = useAppNav();
+  const variant = variantProp ?? providerSwitchVariantForApp(appId);
+  const currentLabel = getAppDisplayName(appId);
 
   return (
     <DropdownMenu>
@@ -60,7 +55,7 @@ export const ProviderSwitch: FC<{
         aria-label={`AI 服务：${currentLabel}`}
       >
         <span className="flex min-w-0 items-center gap-2">
-          <ProviderOptionIcon provider={provider} />
+          <AppOptionIcon appId={appId} />
           <span
             className={cn(
               "truncate",
@@ -77,10 +72,10 @@ export const ProviderSwitch: FC<{
         align="start"
         className={cn(fullWidth && "min-w-[var(--radix-dropdown-menu-trigger-width)]")}
       >
-        {CHAT_AI_PROVIDER_OPTIONS.map(({ id, label }) => (
+        {APP_NAV_OPTIONS.map(({ id, label }) => (
           <DropdownMenuItem
             key={id}
-            onSelect={() => setProvider(id)}
+            onSelect={() => setAppId(id)}
             className="flex cursor-pointer items-center gap-2.5"
             icon={
               <span
@@ -89,11 +84,11 @@ export const ProviderSwitch: FC<{
                   providerSwitchCheckClass(variant),
                 )}
               >
-                {provider === id ? <CheckIcon /> : null}
+                {appId === id ? <CheckIcon /> : null}
               </span>
             }
           >
-            <ProviderOptionIcon provider={id} />
+            <AppOptionIcon appId={id} />
             <span className={cn(variant === "claude" && "font-serif")}>
               {label}
             </span>

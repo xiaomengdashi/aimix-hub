@@ -6,12 +6,12 @@ import {
 import type { ChatUsageMetadata } from "@/lib/chat/context-usage";
 import { requireUser } from "@/lib/auth/require-user";
 import {
-  getDefaultModelIdForProviderAsync,
+  getDefaultModelIdForScopeAsync,
   parseChatModelIdAsync,
 } from "@/lib/chat/models";
+import { isAppId, type AppId } from "@/lib/chat/app-id";
 import {
   DEFAULT_CHAT_AI_PROVIDER,
-  isChatAiProvider,
   type ChatAiProvider,
 } from "@/lib/chat/provider";
 import { resolveLanguageModel } from "@/lib/ai-gateway/resolve-language-model";
@@ -78,16 +78,18 @@ export async function POST(req: Request) {
     });
   }
 
-  const uiProvider: ChatAiProvider =
-    typeof body.uiProvider === "string" && isChatAiProvider(body.uiProvider)
+  const uiScope: AppId =
+    typeof body.uiProvider === "string" && isAppId(body.uiProvider)
       ? body.uiProvider
       : DEFAULT_CHAT_AI_PROVIDER;
+  const uiProvider: ChatAiProvider =
+    uiScope === "image" ? "chatgpt" : uiScope;
   const modelId =
     (await parseChatModelIdAsync(normalizedModel)) ??
     (isImageGenerationModel(String(normalizedModel))
       ? normalizeModelId(String(normalizedModel))
       : null) ??
-    (await getDefaultModelIdForProviderAsync(uiProvider));
+    (await getDefaultModelIdForScopeAsync(uiScope));
   const modeId = parseChatModeId(mode);
   const toolId = parseComposerToolId(tool);
   const system = mergeSystemPrompts(
