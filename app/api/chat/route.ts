@@ -103,6 +103,7 @@ export async function POST(req: Request) {
         req,
         messages as UIMessage[],
         modelId,
+        user.id,
       );
     } catch (error) {
       const message =

@@ -18,6 +18,7 @@ export type ImageSessionContent = {
   format: ImageFormat;
   status: ImageSessionStatus;
   imageUrl?: string;
+  storagePath?: string;
   mediaType?: string;
   error?: string;
   createdAt: string;
@@ -34,6 +35,7 @@ export type ImageSessionSummary = {
   format: ImageFormat;
   status: ImageSessionStatus;
   imageUrl?: string;
+  storagePath?: string;
   mediaType?: string;
   error?: string;
   createdAt: string;

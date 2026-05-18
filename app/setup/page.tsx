@@ -69,6 +69,12 @@ ANTHROPIC_BASE_URL=https://yunwu.ai/v1`}
             — 绘图应用（<code className="rounded bg-muted px-1">image</code>
             ）
           </li>
+          <li>
+            <code className="rounded bg-muted px-1">
+              supabase/migrations/004_generated_images_storage.sql
+            </code>{" "}
+            — 绘图文件 Storage 策略
+          </li>
         </ol>
         <p className="text-muted-foreground text-xs">
           若使用绘图功能时报{" "}
@@ -78,7 +84,18 @@ ANTHROPIC_BASE_URL=https://yunwu.ai/v1`}
       </section>
 
       <section className="space-y-3 rounded-xl border bg-card p-5 text-sm">
-        <h2 className="font-medium">4. 配置 Authentication（用户名密码）</h2>
+        <h2 className="font-medium">4. Storage 桶（永久保存图片）</h2>
+        <ul className="list-inside list-disc space-y-1 text-muted-foreground">
+          <li>
+            Storage → 新建 bucket：<code className="rounded bg-muted px-1">generated-images</code>
+          </li>
+          <li>建议开启 <strong>Public bucket</strong>（便于前端直接展示 URL）</li>
+          <li>执行上一步第 4 条 SQL 迁移以配置上传/读取策略</li>
+        </ul>
+      </section>
+
+      <section className="space-y-3 rounded-xl border bg-card p-5 text-sm">
+        <h2 className="font-medium">5. 配置 Authentication（用户名密码）</h2>
         <ul className="list-inside list-disc space-y-1 text-muted-foreground">
           <li>启用 Email 提供商，并打开「Email + Password」</li>
           <li>关闭「Confirm email」（本地开发建议关闭，否则注册后无法立即登录）</li>

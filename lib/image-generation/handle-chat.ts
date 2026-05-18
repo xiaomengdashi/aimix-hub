@@ -4,16 +4,12 @@ import {
   type UIMessage,
 } from "ai";
 import { extractImagePromptFromMessages } from "@/lib/image-generation/extract-prompt";
-import { storeGeneratedImage } from "@/lib/image-generation/cache";
 import { generateGatewayImage } from "@/lib/image-generation/gateway";
 import { resolveImageGenerationModelId } from "@/lib/image-generation/models";
+import { persistGeneratedImage } from "@/lib/image-generation/persist-image";
+import { createClient } from "@/lib/supabase/server";
 
 const STATUS_TEXT_ID = "image-gen-status";
-
-function imagePublicUrl(req: Request, imageId: string): string {
-  const origin = new URL(req.url).origin;
-  return `${origin}/api/generated-image/${imageId}`;
-}
 
 export function createImageErrorStreamResponse(
   messages: UIMessage[],
@@ -40,6 +36,7 @@ export async function handleImageGenerationChat(
   req: Request,
   messages: UIMessage[],
   modelId: string,
+  userId: string,
 ): Promise<Response> {
   const apiModel = resolveImageGenerationModelId(modelId);
 
@@ -72,8 +69,14 @@ export async function handleImageGenerationChat(
         abortSignal: req.signal,
       });
 
-      const imageId = storeGeneratedImage(image.bytes, image.mediaType);
-      const publicUrl = imagePublicUrl(req, imageId);
+      const supabase = await createClient();
+      const persisted = await persistGeneratedImage(
+        supabase,
+        userId,
+        image.bytes,
+        image.mediaType,
+      );
+      const publicUrl = persisted.imageUrl;
 
       writer.write({
         type: "text-delta",

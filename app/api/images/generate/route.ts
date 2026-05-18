@@ -27,11 +27,9 @@ export async function POST(req: Request) {
   }
 
   const modelMeta = getChatModel(parsed.model);
-  const origin = new URL(req.url).origin;
   const result = await generateImageSession(
     user.id,
     parsed,
-    origin,
     modelMeta?.name,
   );
 

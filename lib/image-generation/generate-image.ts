@@ -17,13 +17,9 @@ import {
   type ImageSessionSummary,
   truncatePromptTitle,
 } from "@/lib/image-generation/session";
-import { storeGeneratedImage } from "@/lib/image-generation/cache";
+import { persistGeneratedImage } from "@/lib/image-generation/persist-image";
 import { createClient } from "@/lib/supabase/server";
 import { formatThreadsProviderError } from "@/lib/supabase/thread-provider-errors";
-
-function imagePublicUrl(origin: string, imageId: string): string {
-  return `${origin}/api/generated-image/${imageId}`;
-}
 
 export function parseImageGenerationBody(
   body: unknown,
@@ -56,7 +52,6 @@ export function parseImageGenerationBody(
 export async function generateImageSession(
   userId: string,
   params: ImageGenerationParams,
-  origin: string,
   modelName?: string,
 ): Promise<{ session: ImageSessionSummary } | { error: string }> {
   const supabase = await createClient();
@@ -113,13 +108,18 @@ export async function generateImageSession(
       format: params.format,
     });
 
-    const imageId = storeGeneratedImage(image.bytes, image.mediaType);
-    const imageUrl = imagePublicUrl(origin, imageId);
+    const persisted = await persistGeneratedImage(
+      supabase,
+      userId,
+      image.bytes,
+      image.mediaType,
+    );
 
     const completedContent: ImageSessionContent = {
       ...pendingContent,
       status: "completed",
-      imageUrl,
+      imageUrl: persisted.imageUrl,
+      storagePath: persisted.storagePath,
       mediaType: image.mediaType,
     };
 
@@ -149,7 +149,8 @@ export async function generateImageSession(
         quality: params.quality,
         format: params.format,
         status: "completed",
-        imageUrl,
+        imageUrl: persisted.imageUrl,
+        storagePath: persisted.storagePath,
         mediaType: image.mediaType,
         createdAt: now,
         updatedAt: new Date().toISOString(),
