@@ -7,6 +7,13 @@ import { ImageStudioCanvas } from "@/components/image-studio/image-studio-canvas
 import { ImageStudioControlPanel } from "@/components/image-studio/image-studio-control-panel";
 import { ImageStudioHeader } from "@/components/image-studio/image-studio-header";
 import { ImageStudioSidebar } from "@/components/image-studio/image-studio-sidebar";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { getDisplayUsername } from "@/lib/auth/username";
 import {
   FALLBACK_CHAT_MODELS,
@@ -16,8 +23,31 @@ import {
 import type { ImageGenerationParams } from "@/lib/image-generation/settings";
 import type { ImageSessionSummary } from "@/lib/image-generation/session";
 import { createClient } from "@/lib/supabase/client";
+import { useIsMobile } from "@/hooks/use-mobile";
+
+const sidebarProps = (
+  sessions: ImageSessionSummary[],
+  activeId: string | null,
+  composeMode: boolean,
+  sessionsLoading: boolean,
+  onSelect: (id: string) => void,
+  onCompose: () => void,
+  onDelete: (id: string) => void,
+  onNavigate?: () => void,
+) => ({
+  sessions,
+  activeId,
+  composeMode,
+  loading: sessionsLoading,
+  onSelect,
+  onCompose,
+  onDelete,
+  onNavigate,
+});
 
 const ImageStudioApp: FC = () => {
+  const isMobile = useIsMobile();
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(false);
   const [sessions, setSessions] = useState<ImageSessionSummary[]>([]);
@@ -34,6 +64,14 @@ const ImageStudioApp: FC = () => {
   const [draftPrompt, setDraftPrompt] = useState("");
   const promptInputRef = useRef<HTMLTextAreaElement>(null);
   const supabase = useMemo(() => createClient(), []);
+
+  const closeMobileSidebar = useCallback(() => {
+    setMobileSidebarOpen(false);
+  }, []);
+
+  useEffect(() => {
+    if (!isMobile) setMobileSidebarOpen(false);
+  }, [isMobile]);
 
   const fillPrompt = useCallback((text: string) => {
     setDraftPrompt(text);
@@ -141,6 +179,16 @@ const ImageStudioApp: FC = () => {
     }
   };
 
+  const sidebarCommon = sidebarProps(
+    sessions,
+    activeId,
+    composeMode,
+    sessionsLoading,
+    handleSelect,
+    handleCompose,
+    handleDelete,
+  );
+
   if (!authReady) {
     return (
       <main className="flex h-dvh items-center justify-center text-muted-foreground text-sm">
@@ -153,23 +201,47 @@ const ImageStudioApp: FC = () => {
 
   return (
     <main className="flex h-dvh flex-col bg-[#f7faff] dark:bg-[#0a0e14]">
-      <ImageStudioHeader displayName={getDisplayUsername(user)} />
+      <ImageStudioHeader
+        displayName={getDisplayUsername(user)}
+        showSidebarToggle
+        onToggleSidebar={() => setMobileSidebarOpen((open) => !open)}
+      />
+
       <section className="flex min-h-0 flex-1">
-        <ImageStudioSidebar
-          sessions={sessions}
-          activeId={activeId}
-          composeMode={composeMode}
-          loading={sessionsLoading}
-          onSelect={handleSelect}
-          onCompose={handleCompose}
-          onDelete={handleDelete}
-        />
-        <section className="flex min-w-0 flex-1 flex-col lg:flex-row">
-          <section className="relative flex min-h-0 min-w-0 flex-1 flex-col">
+        {/* 桌面端：固定侧边栏 */}
+        <aside className="hidden h-full w-[260px] shrink-0 flex-col border-r border-[#d4e4ff]/80 md:flex dark:border-[#2a3a52]">
+          <ImageStudioSidebar {...sidebarCommon} />
+        </aside>
+
+        {/* 移动端：抽屉侧边栏 */}
+        <Sheet
+          open={isMobile && mobileSidebarOpen}
+          onOpenChange={(open) => {
+            if (isMobile) setMobileSidebarOpen(open);
+          }}
+        >
+          <SheetContent
+            side="left"
+            className="flex h-full w-[min(100vw,280px)] flex-col border-[#d4e4ff] bg-[#f0f6ff] p-0 dark:border-[#2a3a52] dark:bg-[#0c1018] [&>button]:hidden"
+          >
+            <SheetHeader className="sr-only">
+              <SheetTitle>历史作品</SheetTitle>
+              <SheetDescription>浏览与切换绘图会话</SheetDescription>
+            </SheetHeader>
+            <ImageStudioSidebar
+              {...sidebarCommon}
+              onNavigate={closeMobileSidebar}
+            />
+          </SheetContent>
+        </Sheet>
+
+        {/* 主区域：画布 + 控制面板 */}
+        <section className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden lg:flex-row">
+          <section className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
             {error ? (
               <p
                 role="alert"
-                className="absolute top-2 right-2 left-2 z-10 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-destructive text-sm"
+                className="absolute top-2 right-2 left-2 z-20 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-destructive text-sm"
               >
                 {error}
               </p>
@@ -181,7 +253,7 @@ const ImageStudioApp: FC = () => {
               onSelectSuggestion={composeMode ? fillPrompt : undefined}
             />
           </section>
-          <section className="h-[min(48dvh,520px)] w-full shrink-0 lg:h-auto lg:w-[min(400px,36vw)]">
+          <section className="relative z-10 flex h-[min(52dvh,520px)] min-h-[280px] w-full shrink-0 flex-col overflow-hidden border-t border-[#d4e4ff]/80 shadow-[0_-6px_20px_rgba(13,59,140,0.08)] lg:h-auto lg:min-h-0 lg:w-[min(400px,36vw)] lg:border-t-0 lg:shadow-none dark:border-[#2a3a52] dark:shadow-[0_-6px_20px_rgba(0,0,0,0.25)]">
             <ImageStudioControlPanel
               models={models}
               modelsLoading={modelsLoading}

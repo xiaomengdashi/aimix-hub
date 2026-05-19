@@ -69,7 +69,7 @@ export const ChatGPTThread: FC = () => {
       </AuiIf>
 
       <AuiIf condition={(s) => !s.thread.isEmpty}>
-        <ThreadPrimitive.Viewport className="flex grow flex-col gap-8 overflow-y-scroll pt-16">
+        <ThreadPrimitive.Viewport className="flex grow flex-col gap-8 overflow-x-hidden overflow-y-scroll scroll-pb-52 pt-16">
           <ThreadPrimitive.Messages>
             {({ message }) => {
               if (message.composer.isEditing) return <EditComposer />;

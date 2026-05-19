@@ -15,6 +15,8 @@ type ImageStudioSidebarProps = {
   onSelect: (id: string) => void;
   onCompose: () => void;
   onDelete: (id: string) => void;
+  className?: string;
+  onNavigate?: () => void;
 };
 
 export const ImageStudioSidebar: FC<ImageStudioSidebarProps> = ({
@@ -25,14 +27,27 @@ export const ImageStudioSidebar: FC<ImageStudioSidebarProps> = ({
   onSelect,
   onCompose,
   onDelete,
-}) => (
-  <aside className="flex w-[260px] shrink-0 flex-col border-r border-[#d4e4ff]/80 bg-[#f0f6ff]/80 dark:border-[#2a3a52] dark:bg-[#0c1018]/90">
+  className,
+  onNavigate,
+}) => {
+  const handleCompose = () => {
+    onCompose();
+    onNavigate?.();
+  };
+
+  const handleSelect = (id: string) => {
+    onSelect(id);
+    onNavigate?.();
+  };
+
+  return (
+  <div className={cn("flex h-full min-h-0 w-full flex-col bg-[#f0f6ff]/80 dark:bg-[#0c1018]/90", className)}>
     <section className="p-3">
       <Button
         type="button"
         variant="outline"
         className="w-full justify-start gap-2 border-[#d4e4ff] bg-white dark:border-[#3d4f6f] dark:bg-[#1a2332]"
-        onClick={onCompose}
+        onClick={handleCompose}
       >
         <Plus className="size-4" />
         新建创作
@@ -51,7 +66,7 @@ export const ImageStudioSidebar: FC<ImageStudioSidebarProps> = ({
               <section className="group flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => onSelect(s.id)}
+                  onClick={() => handleSelect(s.id)}
                   className={cn(
                     "flex min-w-0 flex-1 flex-col gap-0.5 rounded-lg px-3 py-2 text-left text-sm transition-colors",
                     !composeMode && activeId === s.id
@@ -96,5 +111,6 @@ export const ImageStudioSidebar: FC<ImageStudioSidebarProps> = ({
     <footer className="border-t border-[#d4e4ff]/60 p-3 dark:border-[#2a3a52]">
       <ProviderSwitch variant="image" fullWidth />
     </footer>
-  </aside>
-);
+  </div>
+  );
+};

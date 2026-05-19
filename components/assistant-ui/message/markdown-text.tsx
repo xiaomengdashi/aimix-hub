@@ -1,6 +1,7 @@
 "use client";
 
 import "@assistant-ui/react-markdown/styles/dot.css";
+import "katex/dist/katex.min.css";
 
 import {
   type CodeHeaderProps,
@@ -9,6 +10,8 @@ import {
   useIsMarkdownCodeBlock,
 } from "@assistant-ui/react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
 import { type FC, memo, useState } from "react";
 import { CheckIcon, CopyIcon } from "lucide-react";
 
@@ -17,10 +20,26 @@ import { SyntaxHighlighter } from "@/components/assistant-ui/message/shiki-highl
 import { TooltipIconButton } from "@/components/assistant-ui/message/tooltip-icon-button";
 import { cn } from "@/lib/utils";
 
+/** @assistant-ui 在无语言围栏时会传入占位符 "unknown"，不应展示给用户 */
+function isDisplayableCodeLanguage(language: string | undefined): language is string {
+  const value = language?.trim().toLowerCase();
+  return Boolean(value && value !== "unknown");
+}
+
 const MarkdownTextImpl = () => {
   return (
     <MarkdownTextPrimitive
-      remarkPlugins={[remarkGfm]}
+      remarkPlugins={[remarkGfm, remarkMath]}
+      rehypePlugins={[
+        [
+          rehypeKatex,
+          {
+            throwOnError: false,
+            strict: "ignore",
+            trust: true,
+          },
+        ],
+      ]}
       className="aui-md"
       components={defaultComponents}
       componentsByLanguage={{
@@ -36,16 +55,24 @@ export const MarkdownText = memo(MarkdownTextImpl);
 
 const CodeHeader: FC<CodeHeaderProps> = ({ language, code }) => {
   const { isCopied, copyToClipboard } = useCopyToClipboard();
+  const showLanguage = isDisplayableCodeLanguage(language);
   const onCopy = () => {
     if (!code || isCopied) return;
     copyToClipboard(code);
   };
 
   return (
-    <div className="aui-code-header-root mt-2.5 flex items-center justify-between rounded-t-lg border border-border/50 border-b-0 bg-muted/50 px-3 py-1.5 text-xs">
-      <span className="aui-code-header-language font-medium text-muted-foreground lowercase">
-        {language}
-      </span>
+    <div
+      className={cn(
+        "aui-code-header-root mt-2.5 flex items-center rounded-t-lg border border-border/50 border-b-0 bg-muted/50 px-3 py-1.5 text-xs",
+        showLanguage ? "justify-between" : "justify-end",
+      )}
+    >
+      {showLanguage ? (
+        <span className="aui-code-header-language font-medium text-muted-foreground lowercase">
+          {language}
+        </span>
+      ) : null}
       <TooltipIconButton tooltip="Copy" onClick={onCopy}>
         {!isCopied && <CopyIcon />}
         {isCopied && <CheckIcon />}
@@ -228,7 +255,7 @@ const defaultComponents = memoizeMarkdownComponents({
   pre: ({ className, ...props }) => (
     <pre
       className={cn(
-        "aui-md-pre overflow-x-auto rounded-t-none rounded-b-lg border border-border/50 border-t-0 bg-muted/30 p-3 text-xs leading-relaxed",
+        "aui-md-pre isolate overflow-x-auto rounded-t-none rounded-b-lg border border-border/50 border-t-0 bg-muted/30 p-3 text-xs leading-relaxed",
         className,
       )}
       {...props}

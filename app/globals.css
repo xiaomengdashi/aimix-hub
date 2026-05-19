@@ -122,6 +122,26 @@
   --sidebar-ring: oklch(0.552 0.016 285.938);
 }
 
+/* KaTeX in assistant markdown (all providers share .aui-md) */
+.aui-md .katex-display {
+  margin: 0.75rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.125rem 0;
+}
+
+.aui-md .katex-display > .katex {
+  white-space: normal;
+}
+
+.aui-md .katex {
+  font-size: 1.05em;
+}
+
+.dark .aui-md .katex {
+  color: var(--foreground);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

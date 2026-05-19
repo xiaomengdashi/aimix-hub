@@ -46,7 +46,7 @@ export const ClaudeThread: FC = () => {
       </AuiIf>
 
       <AuiIf condition={(s) => !s.thread.isEmpty}>
-        <ThreadPrimitive.Viewport className="flex grow flex-col overflow-y-auto px-4 pt-12">
+        <ThreadPrimitive.Viewport className="flex grow flex-col overflow-x-hidden overflow-y-auto px-4 pt-12 scroll-pb-52">
           <ThreadPrimitive.Messages
             components={{
               UserMessage: ClaudeUserMessage,

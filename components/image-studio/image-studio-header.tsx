@@ -13,15 +13,32 @@ import {
 } from "@/components/shared/dropdown-menu";
 import { useSignOut } from "@/hooks/use-sign-out";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
+import { PanelLeft } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-export const ImageStudioHeader: FC<{ displayName: string }> = ({
-  displayName,
-}) => {
+export const ImageStudioHeader: FC<{
+  displayName: string;
+  onToggleSidebar?: () => void;
+  showSidebarToggle?: boolean;
+}> = ({ displayName, onToggleSidebar, showSidebarToggle }) => {
   const initial = displayName.slice(0, 1).toUpperCase();
   const { signOut, loading } = useSignOut();
 
   return (
-    <header className="flex h-14 shrink-0 items-center gap-3 border-b border-[#d4e4ff]/80 bg-white/80 px-4 backdrop-blur-md dark:border-[#2a3a52] dark:bg-[#0f1419]/80">
+    <header className="flex h-14 shrink-0 items-center gap-2 border-b border-[#d4e4ff]/80 bg-white/80 px-3 backdrop-blur-md sm:gap-3 sm:px-4 dark:border-[#2a3a52] dark:bg-[#0f1419]/80">
+      {showSidebarToggle ? (
+        <button
+          type="button"
+          onClick={onToggleSidebar}
+          className={cn(
+            "flex size-9 shrink-0 items-center justify-center rounded-lg text-[#3d5a8c] transition-colors md:hidden",
+            "hover:bg-[#e6efff] dark:text-[#8ab4f8] dark:hover:bg-[#243044]",
+          )}
+          aria-label="打开会话列表"
+        >
+          <PanelLeft className="size-4" />
+        </button>
+      ) : null}
       <div className="flex min-w-0 items-center gap-2.5">
         <ImageAppLogo variant="icon" />
         <div className="min-w-0">

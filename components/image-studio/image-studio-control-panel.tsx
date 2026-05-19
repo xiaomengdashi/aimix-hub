@@ -146,7 +146,7 @@ export const ImageStudioControlPanel: FC<ImageStudioControlPanelProps> = ({
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex h-full flex-col border-l border-[#d4e4ff]/80 bg-white/90 dark:border-[#2a3a52] dark:bg-[#121820]/95"
+      className="flex h-full min-h-0 flex-col bg-white/90 lg:border-l lg:border-[#d4e4ff]/80 dark:bg-[#121820]/95 dark:lg:border-[#2a3a52]"
     >
       <header className="border-b border-[#d4e4ff]/60 px-4 py-3 dark:border-[#2a3a52]">
         <h2 className="font-semibold text-[#0d3b8c] text-sm dark:text-[#b8d4ff]">
