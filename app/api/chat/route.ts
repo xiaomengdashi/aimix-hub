@@ -28,6 +28,11 @@ import {
 } from "@/lib/image-generation/handle-chat";
 import { isImageGenerationModel } from "@/lib/image-generation/models";
 import { normalizeModelId } from "@/lib/ai-gateway/normalize-model-id";
+import { isTavilyConfigured } from "@/lib/tavily/env";
+import {
+  prefetchTavilySearchContext,
+  getPrefetchSearchSystemPrompt,
+} from "@/lib/tavily/prefetch-search";
 
 /** 文生图可能需 1–2 分钟 */
 export const maxDuration = 300;
@@ -92,10 +97,20 @@ export async function POST(req: Request) {
     (await getDefaultModelIdForScopeAsync(uiScope));
   const modeId = parseChatModeId(mode);
   const toolId = parseComposerToolId(tool);
-  const system = mergeSystemPrompts(
-    modeId ? getChatMode(modeId)?.systemPrompt : undefined,
-    toolId ? getComposerTool(toolId).systemPrompt : undefined,
-  );
+  const isSearchMode = toolId === "search";
+
+  if (isSearchMode && !isTavilyConfigured()) {
+    return new Response(
+      JSON.stringify({
+        error:
+          "搜索模式需要 Tavily：请在 .env.local 中配置 TAVILY_API_KEY（可选 TAVILY_BASE_URL）",
+      }),
+      {
+        status: 503,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
+  }
 
   if (isImageGenerationModel(modelId)) {
     try {
@@ -124,11 +139,34 @@ export async function POST(req: Request) {
     });
   }
 
+  const uiMessages = messages as UIMessage[];
+  let searchPrefetchPrompt: string | undefined;
+
+  if (isSearchMode) {
+    try {
+      const searchContext = await prefetchTavilySearchContext(uiMessages);
+      searchPrefetchPrompt = getPrefetchSearchSystemPrompt(searchContext);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "网页搜索失败";
+      return new Response(JSON.stringify({ error: message }), {
+        status: 502,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }
+
+  const system = mergeSystemPrompts(
+    modeId ? getChatMode(modeId)?.systemPrompt : undefined,
+    toolId ? getComposerTool(toolId).systemPrompt : undefined,
+    searchPrefetchPrompt,
+  );
+
   const result = streamText({
     model: languageModel,
     ...(system ? { system } : {}),
     messages: await convertToModelMessages(
-      expandTextFilePartsForModel(messages as UIMessage[]),
+      expandTextFilePartsForModel(uiMessages),
     ),
   });
 

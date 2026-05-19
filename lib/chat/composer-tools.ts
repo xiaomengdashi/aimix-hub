@@ -17,8 +17,8 @@ export const COMPOSER_TOOLS: Record<ComposerToolId, ComposerTool> = {
   search: {
     id: "search",
     composerPlaceholder: "你想搜索什么？",
-    systemPrompt: `You help the user research topics thoroughly. Organize findings with clear headings, cite uncertainties, and distinguish facts from speculation. If you cannot access live web results, say so briefly and answer from general knowledge while suggesting what the user could verify online.`,
-    integrationNote: "尚未连接实时网页搜索，将基于模型知识作答。",
+    systemPrompt: `You help the user research topics using the web search results already provided in your instructions. Organize findings with clear headings, cite source URLs, and distinguish facts from speculation. Do not claim you are still searching—the search has already been done.`,
+    integrationNote: "已启用 Tavily 实时网页搜索。",
   },
   research: {
     id: "research",

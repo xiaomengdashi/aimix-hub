@@ -25,41 +25,13 @@ import { AssistantFilePart } from "@/components/assistant-ui/message/assistant-f
 import { MarkdownText } from "@/components/assistant-ui/message/markdown-text";
 import { TooltipIconButton } from "@/components/assistant-ui/message/tooltip-icon-button";
 import { useShallow } from "zustand/shallow";
-import {
-  Globe,
-  Lightbulb,
-  Mic,
-  PlusIcon,
-  Sparkles,
-  Telescope,
-} from "lucide-react";
+import { Mic, PlusIcon } from "lucide-react";
 import { useComposerTool } from "@/components/assistant-ui/contexts/composer-tool-context";
-import { CHATGPT_COMPOSER_TOOL_IDS } from "@/lib/chat/composer-tools";
 import { ComposerToolsMenu } from "@/components/assistant-ui/providers/shared/composer-tools-menu";
+import { CHATGPT_TOOLS_MENU } from "@/components/assistant-ui/providers/shared/composer-tools-menu-items";
 import { AssistantMessageActionBar } from "@/components/assistant-ui/providers/shared/assistant-message-action-bar";
 import { VoicePlaceholderButton } from "@/components/assistant-ui/providers/shared/voice-ui-placeholder";
 import { ContextUsageIndicator } from "@/components/assistant-ui/shell/context-usage-indicator";
-
-const CHATGPT_TOOLS_MENU = CHATGPT_COMPOSER_TOOL_IDS.map((id) => {
-  const icons = {
-    search: Globe,
-    research: Telescope,
-    think: Lightbulb,
-    study: Sparkles,
-  } as const;
-  return {
-    id,
-    label:
-      id === "search"
-        ? "Search the web"
-        : id === "research"
-          ? "Run deep research"
-          : id === "think"
-            ? "Think longer"
-            : "Study and learn",
-    Icon: icons[id],
-  };
-});
 
 export const ChatGPTThread: FC = () => {
   return (

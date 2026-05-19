@@ -21,6 +21,9 @@ import { AssistantMessageActionBar } from "@/components/assistant-ui/providers/s
 import { VoicePlaceholderButton } from "@/components/assistant-ui/providers/shared/voice-ui-placeholder";
 import { ContextUsageIndicator } from "@/components/assistant-ui/shell/context-usage-indicator";
 import { useChatSession } from "@/components/assistant-ui/contexts/chat-session-context";
+import { useComposerTool } from "@/components/assistant-ui/contexts/composer-tool-context";
+import { ComposerToolsMenu } from "@/components/assistant-ui/providers/shared/composer-tools-menu";
+import { OTHER_TOOLS_MENU } from "@/components/assistant-ui/providers/shared/composer-tools-menu-items";
 import { TooltipIconButton } from "@/components/assistant-ui/message/tooltip-icon-button";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -153,36 +156,51 @@ const ThreadSuggestionItem: FC = () => {
 
 const Composer: FC = () => {
   const { onComposerSubmit } = useChatSession();
+  const { composerPlaceholder, integrationNote } = useComposerTool();
 
   return (
-    <ComposerPrimitive.Root
-      className="aui-composer-root relative flex w-full flex-col"
-      onSubmit={onComposerSubmit}
-    >
-      <ComposerPrimitive.AttachmentDropzone asChild>
-        <div
-          data-slot="aui_composer-shell"
-          className="flex w-full flex-col gap-2 rounded-(--composer-radius) border bg-background p-(--composer-padding) transition-shadow focus-within:border-ring/75 focus-within:ring-2 focus-within:ring-ring/20 data-[dragging=true]:border-ring data-[dragging=true]:border-dashed data-[dragging=true]:bg-accent/50"
-        >
-          <ComposerAttachments />
-          <ComposerPrimitive.Input
-            placeholder="Send a message..."
-            className="aui-composer-input max-h-32 min-h-10 w-full resize-none bg-transparent px-1.75 py-1 text-sm outline-none placeholder:text-muted-foreground/80"
-            rows={1}
-            autoFocus
-            aria-label="Message input"
-          />
-          <ComposerAction />
-        </div>
-      </ComposerPrimitive.AttachmentDropzone>
-    </ComposerPrimitive.Root>
+    <div className="flex w-full flex-col gap-1">
+      <ComposerPrimitive.Root
+        className="aui-composer-root relative flex w-full flex-col"
+        onSubmit={onComposerSubmit}
+      >
+        <ComposerPrimitive.AttachmentDropzone asChild>
+          <div
+            data-slot="aui_composer-shell"
+            className="flex w-full flex-col gap-2 rounded-(--composer-radius) border bg-background p-(--composer-padding) transition-shadow focus-within:border-ring/75 focus-within:ring-2 focus-within:ring-ring/20 data-[dragging=true]:border-ring data-[dragging=true]:border-dashed data-[dragging=true]:bg-accent/50"
+          >
+            <ComposerAttachments />
+            <ComposerPrimitive.Input
+              placeholder={composerPlaceholder ?? "Send a message..."}
+              className="aui-composer-input max-h-32 min-h-10 w-full resize-none bg-transparent px-1.75 py-1 text-sm outline-none placeholder:text-muted-foreground/80"
+              rows={1}
+              autoFocus
+              aria-label="Message input"
+            />
+            <ComposerAction />
+          </div>
+        </ComposerPrimitive.AttachmentDropzone>
+      </ComposerPrimitive.Root>
+      {integrationNote ? (
+        <p className="px-(--composer-padding) text-center text-muted-foreground text-xs">
+          {integrationNote}
+        </p>
+      ) : null}
+    </div>
   );
 };
 
 const ComposerAction: FC = () => {
   return (
     <div className="aui-composer-action-wrapper relative flex items-center justify-between">
-      <ComposerAddAttachment />
+      <div className="flex min-w-0 items-center gap-1">
+        <ComposerAddAttachment />
+        <ComposerToolsMenu
+          variant="other"
+          tools={OTHER_TOOLS_MENU}
+          align="start"
+        />
+      </div>
       <div className="flex items-center gap-1">
         <AuiIf condition={(s) => s.thread.isRunning}>
           <ComposerPrimitive.Cancel asChild>

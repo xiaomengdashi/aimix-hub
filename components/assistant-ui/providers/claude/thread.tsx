@@ -21,7 +21,10 @@ import {
   ClaudeComposerAttachments,
 } from "@/components/assistant-ui/providers/claude/composer-attachment";
 import { useChatMode } from "@/components/assistant-ui/contexts/chat-mode-context";
+import { useComposerTool } from "@/components/assistant-ui/contexts/composer-tool-context";
 import { useChatSession } from "@/components/assistant-ui/contexts/chat-session-context";
+import { ComposerToolsMenu } from "@/components/assistant-ui/providers/shared/composer-tools-menu";
+import { CLAUDE_TOOLS_MENU } from "@/components/assistant-ui/providers/shared/composer-tools-menu-items";
 import { UserMessageAttachments } from "@/components/assistant-ui/message/attachment";
 import { ContextUsageIndicator } from "@/components/assistant-ui/shell/context-usage-indicator";
 import { ModeTabs } from "@/components/assistant-ui/shell/mode-tabs";
@@ -92,10 +95,15 @@ const EmptyState: FC<{ onSend?: () => void }> = ({ onSend }) => {
 const Composer: FC<{ onSend?: () => void }> = ({ onSend }) => {
   const { activeMode } = useChatMode();
   const { onAttachmentError } = useChatSession();
-  const placeholder =
-    activeMode?.composerPlaceholder ?? "How can I help you today?";
+  const { tool, composerPlaceholder, integrationNote } = useComposerTool();
+  const placeholder = tool
+    ? composerPlaceholder
+    : (activeMode?.composerPlaceholder ??
+      composerPlaceholder ??
+      "How can I help you today?");
 
   return (
+    <div className="flex w-full flex-col gap-1">
     <ComposerPrimitive.Root
       className="flex w-full flex-col gap-2 rounded-2xl border border-[#E5E0D6] bg-white px-3.5 pt-3 pb-2.5 dark:border-[#3d3a35] dark:bg-[#1f1e1b]"
       onSubmit={onSend}
@@ -114,6 +122,11 @@ const Composer: FC<{ onSend?: () => void }> = ({ onSend }) => {
               onError={onAttachmentError}
               className="flex size-8 shrink-0 items-center justify-center rounded-md text-[#5b5950] transition-colors hover:bg-[#1a1a18]/5 hover:text-[#1a1a18] dark:text-[#a3a098] dark:hover:bg-white/5 dark:hover:text-[#eee]"
             />
+            <ComposerToolsMenu
+              variant="claude"
+              tools={CLAUDE_TOOLS_MENU}
+              align="start"
+            />
             <ContextUsageIndicator
               variant="claude"
               className="hidden min-w-0 flex-1 sm:flex"
@@ -127,6 +140,12 @@ const Composer: FC<{ onSend?: () => void }> = ({ onSend }) => {
         </div>
       </ComposerPrimitive.AttachmentDropzone>
     </ComposerPrimitive.Root>
+    {integrationNote ? (
+      <p className="px-2 text-center text-[#8a8780] text-xs dark:text-[#a3a098]">
+        {integrationNote}
+      </p>
+    ) : null}
+    </div>
   );
 };
 

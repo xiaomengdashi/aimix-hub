@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "deploy:app": "bash deploy/scripts/deploy-app.sh",
+    "deploy:smoke": "bash deploy/scripts/smoke-test.sh"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.77",
@@ -20,6 +22,7 @@
     "@radix-ui/react-slot": "^1.2.4",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.105.4",
+    "@tavily/ai-sdk": "^0.5.0",
     "ai": "^6.0.175",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

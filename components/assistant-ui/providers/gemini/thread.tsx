@@ -17,7 +17,6 @@ import {
 } from "@radix-ui/react-icons";
 import {
   CopyIcon,
-  Globe,
   Lightbulb,
   Mic,
   Music,
@@ -25,7 +24,6 @@ import {
   SendHorizonal,
   Sparkles,
   Square,
-  Telescope,
 } from "lucide-react";
 import { type FC, useCallback, useEffect, useState } from "react";
 import { useShallow } from "zustand/shallow";
@@ -33,29 +31,12 @@ import { MarkdownText } from "@/components/assistant-ui/message/markdown-text";
 import { useComposerTool } from "@/components/assistant-ui/contexts/composer-tool-context";
 import { AssistantMessageActionBar } from "@/components/assistant-ui/providers/shared/assistant-message-action-bar";
 import { ComposerToolsMenu } from "@/components/assistant-ui/providers/shared/composer-tools-menu";
+import { GEMINI_TOOLS_MENU } from "@/components/assistant-ui/providers/shared/composer-tools-menu-items";
 import { ProviderModelPicker } from "@/components/assistant-ui/providers/shared/model-picker";
 import { VoicePlaceholderButton } from "@/components/assistant-ui/providers/shared/voice-ui-placeholder";
 import { ContextUsageIndicator } from "@/components/assistant-ui/shell/context-usage-indicator";
-import {
-  GEMINI_COMPOSER_TOOL_IDS,
-  type ComposerToolId,
-} from "@/lib/chat/composer-tools";
+import type { ComposerToolId } from "@/lib/chat/composer-tools";
 import { useAui } from "@assistant-ui/react";
-
-const GEMINI_TOOLS_MENU = GEMINI_COMPOSER_TOOL_IDS.map((id) => {
-  const icons = {
-    research: Telescope,
-    search: Globe,
-    study: Lightbulb,
-  } as const;
-  const labels: Record<ComposerToolId, string> = {
-    search: "Search the web",
-    research: "Deep Research",
-    think: "Think longer",
-    study: "Help me learn",
-  };
-  return { id, label: labels[id], Icon: icons[id as keyof typeof icons] ?? Lightbulb };
-});
 
 export const GeminiThread: FC = () => {
   return (
