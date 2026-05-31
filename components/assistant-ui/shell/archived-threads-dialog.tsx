@@ -14,9 +14,11 @@ import {
   ThreadListPrimitive,
 } from "@assistant-ui/react";
 import { useAuiState } from "@assistant-ui/store";
-import { ArchiveRestoreIcon } from "lucide-react";
-import type { FC } from "react";
+import { ArchiveRestoreIcon, PenLineIcon } from "lucide-react";
+import { useState, type FC } from "react";
 import { cn } from "@/lib/utils";
+import { ThreadRenameDialog } from "@/components/assistant-ui/shell/thread-rename-dialog";
+import { useThreadListNavigation } from "@/components/assistant-ui/shell/thread-list-navigation";
 
 type ArchivedThreadsDialogProps = {
   open: boolean;
@@ -74,30 +76,54 @@ export const ArchivedThreadsDialog: FC<ArchivedThreadsDialogProps> = ({
 const ArchivedThreadListItem: FC<{ onSelect: () => void }> = ({
   onSelect,
 }) => {
+  const [renameOpen, setRenameOpen] = useState(false);
+  const { navigateToThread } = useThreadListNavigation();
+  const remoteId = useAuiState((s) => s.threadListItem.remoteId);
+
   return (
-    <ThreadListItemPrimitive.Root className="group flex items-center gap-1 rounded-lg hover:bg-muted focus-visible:bg-muted">
-      <ThreadListItemPrimitive.Trigger
-        className="flex min-w-0 flex-1 items-center rounded-lg px-3 py-2 text-start text-sm outline-none"
-        onClick={onSelect}
-      >
-        <span className="min-w-0 flex-1 truncate">
-          <ThreadListItemPrimitive.Title fallback="未命名会话" />
-        </span>
-      </ThreadListItemPrimitive.Trigger>
-      <ThreadListItemPrimitive.Unarchive asChild>
+    <>
+      <ThreadListItemPrimitive.Root className="group flex items-center gap-1 rounded-lg hover:bg-muted focus-visible:bg-muted">
+        <button
+          type="button"
+          className="flex min-w-0 flex-1 items-center rounded-lg px-3 py-2 text-start text-sm outline-none"
+          onClick={() => {
+            if (remoteId) navigateToThread(remoteId);
+            onSelect();
+          }}
+        >
+          <span className="min-w-0 flex-1 truncate">
+            <ThreadListItemPrimitive.Title fallback="未命名会话" />
+          </span>
+        </button>
         <Button
           type="button"
           variant="ghost"
           size="sm"
           className={cn(
-            "me-1 h-8 shrink-0 gap-1.5 px-2 text-xs",
+            "h-8 shrink-0 gap-1.5 px-2 text-xs",
             "opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100",
           )}
+          onClick={() => setRenameOpen(true)}
         >
-          <ArchiveRestoreIcon className="size-3.5" />
-          恢复
+          <PenLineIcon className="size-3.5" />
+          重命名
         </Button>
-      </ThreadListItemPrimitive.Unarchive>
-    </ThreadListItemPrimitive.Root>
+        <ThreadListItemPrimitive.Unarchive asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className={cn(
+              "me-1 h-8 shrink-0 gap-1.5 px-2 text-xs",
+              "opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100",
+            )}
+          >
+            <ArchiveRestoreIcon className="size-3.5" />
+            恢复
+          </Button>
+        </ThreadListItemPrimitive.Unarchive>
+      </ThreadListItemPrimitive.Root>
+      <ThreadRenameDialog open={renameOpen} onOpenChange={setRenameOpen} />
+    </>
   );
 };

@@ -13,7 +13,7 @@ const TRIGGER_CLASS: Record<ProviderSwitchVariant, string> = {
   default:
     "border-border bg-muted/40 text-foreground hover:bg-muted/60",
   claude:
-    "border-[#E5E0D6] bg-[#F0ECE0]/80 font-serif text-[#1a1a18] hover:bg-[#F0ECE0] dark:border-[#3d3a35] dark:bg-[#2b2a27]/80 dark:text-[#eee] dark:hover:bg-[#2b2a27]",
+    "border-[#E5E0D6] bg-[#F0ECE0]/80 text-[#1a1a18] hover:bg-[#F0ECE0] dark:border-[#3d3a35] dark:bg-[#2b2a27]/80 dark:text-[#eee] dark:hover:bg-[#2b2a27]",
   chatgpt:
     "border-[#e5e5e5] bg-[#f7f7f7] text-[#0d0d0d] hover:bg-[#efefef] dark:border-transparent dark:bg-[#303030] dark:text-[#ececec] dark:hover:bg-[#3a3a3a]",
   gemini:

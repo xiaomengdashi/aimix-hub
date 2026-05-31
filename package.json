@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
+    "dev": "NODE_OPTIONS='--disable-warning=DEP0205' next dev --turbopack",
+    "build": "NODE_OPTIONS='--disable-warning=DEP0205' next build",
     "start": "next start",
     "deploy:app": "bash deploy/scripts/deploy-app.sh",
     "deploy:smoke": "bash deploy/scripts/smoke-test.sh"

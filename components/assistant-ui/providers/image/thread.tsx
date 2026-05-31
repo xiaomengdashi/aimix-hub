@@ -20,9 +20,10 @@ import {
 import { useCallback, type FC, type ReactNode } from "react";
 import { ImageAppLogo } from "@/components/assistant-ui/providers/image/icon";
 import { AssistantFilePart } from "@/components/assistant-ui/message/assistant-file-part";
-import { MarkdownText } from "@/components/assistant-ui/message/markdown-text";
+import { ArtifactAssistantMarkdown } from "@/components/assistant-ui/artifacts/artifact-assistant-markdown";
 import { TooltipIconButton } from "@/components/assistant-ui/message/tooltip-icon-button";
 import { AssistantMessageActionBar } from "@/components/assistant-ui/providers/shared/assistant-message-action-bar";
+import { userMessageActionBarRootClass } from "@/components/assistant-ui/providers/shared/message-action-bar-styles";
 import { cn } from "@/lib/utils";
 
 const SUGGESTIONS = [
@@ -156,9 +157,12 @@ const ThreadScrollToBottom: FC = () => (
 );
 
 const UserMessage: FC = () => (
-  <MessagePrimitive.Root className="relative mx-auto flex w-full max-w-3xl flex-col items-end gap-1">
+  <MessagePrimitive.Root className="group/message relative mx-auto flex w-full max-w-3xl flex-col items-end gap-1">
     <div className="flex items-start gap-4">
-      <ActionBarPrimitive.Root hideWhenRunning autohide="not-last" className="mt-2">
+      <ActionBarPrimitive.Root
+        hideWhenRunning
+        className={cn("mt-2", userMessageActionBarRootClass)}
+      >
         <ActionBarPrimitive.Edit asChild>
           <TooltipIconButton tooltip="编辑" className="text-muted-foreground">
             <Pencil1Icon />
@@ -188,10 +192,10 @@ const EditComposer: FC = () => (
 );
 
 const AssistantMessage: FC = () => (
-  <MessagePrimitive.Root className="relative mx-auto flex w-full max-w-3xl flex-col">
+  <MessagePrimitive.Root className="group/message relative mx-auto flex w-full max-w-3xl flex-col">
     <div className="text-[#0d3b8c] dark:text-[#b8d4ff]">
       <MessagePrimitive.Parts
-        components={{ Text: MarkdownText, File: AssistantFilePart }}
+        components={{ Text: ArtifactAssistantMarkdown, File: AssistantFilePart }}
         unstable_showEmptyOnNonTextEnd={false}
       />
     </div>

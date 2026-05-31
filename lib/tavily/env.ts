@@ -1,17 +1,22 @@
-/** Tavily 客户端选项（来自环境变量） */
+/** Tavily 客户端选项（来自后台 integration_settings） */
 export type TavilyClientConfig = {
   apiKey: string;
   apiBaseURL?: string;
 };
 
-export function getTavilyClientConfig(): TavilyClientConfig | null {
-  const apiKey = process.env.TAVILY_API_KEY?.trim();
-  if (!apiKey) return null;
+export async function getTavilyClientConfig(): Promise<TavilyClientConfig | null> {
+  const { getServerIntegrationSettings } = await import(
+    "@/lib/admin/server-integration-settings"
+  );
+  const settings = await getServerIntegrationSettings();
+  if (!settings?.tavilyApiKey) return null;
 
-  const apiBaseURL = process.env.TAVILY_BASE_URL?.trim();
-  return apiBaseURL ? { apiKey, apiBaseURL } : { apiKey };
+  return settings.tavilyBaseUrl
+    ? { apiKey: settings.tavilyApiKey, apiBaseURL: settings.tavilyBaseUrl }
+    : { apiKey: settings.tavilyApiKey };
 }
 
-export function isTavilyConfigured(): boolean {
-  return getTavilyClientConfig() !== null;
+export async function isTavilyConfigured(): Promise<boolean> {
+  const config = await getTavilyClientConfig();
+  return config !== null;
 }

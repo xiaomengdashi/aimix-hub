@@ -2,16 +2,16 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   AuiIf,
-  ThreadListItemMorePrimitive,
   ThreadListItemPrimitive,
   ThreadListPrimitive,
 } from "@assistant-ui/react";
+import { PlusIcon } from "lucide-react";
+import { ThreadListItemMoreMenu } from "@/components/assistant-ui/shell/thread-list-item-more-menu";
+import { ThreadListItemTitle } from "@/components/assistant-ui/shell/thread-list-item-title";
 import {
-  ArchiveIcon,
-  MoreHorizontalIcon,
-  PlusIcon,
-  TrashIcon,
-} from "lucide-react";
+  ThreadListItemNavTrigger,
+  useThreadListNewClickHandler,
+} from "@/components/assistant-ui/shell/thread-list-navigation";
 import type { FC } from "react";
 import { cn } from "@/lib/utils";
 
@@ -41,15 +41,17 @@ export const ThreadList: FC<{ variant?: ThreadListVariant }> = ({
 
 const ThreadListNew: FC<{ variant: ThreadListVariant }> = ({ variant }) => {
   const isClaude = variant === "claude";
+  const onNewClick = useThreadListNewClickHandler();
 
   return (
     <ThreadListPrimitive.New asChild>
       <Button
         variant="outline"
+        onClick={onNewClick}
         className={cn(
           "aui-thread-list-new h-9 justify-start gap-2 rounded-lg px-3 text-sm",
           isClaude
-            ? "border-[#E5E0D6] bg-transparent font-serif text-[#3d3a35] hover:bg-white/60 dark:border-[#3d3a35] dark:text-[#cdc9be] dark:hover:bg-[#1f1e1b]/60"
+            ? "border-[#E5E0D6] bg-transparent text-[#3d3a35] hover:bg-white/60 dark:border-[#3d3a35] dark:text-[#cdc9be] dark:hover:bg-[#1f1e1b]/60"
             : "hover:bg-muted data-active:bg-muted",
         )}
       >
@@ -85,56 +87,20 @@ const ThreadListItem: FC<{ variant: ThreadListVariant }> = ({ variant }) => {
       className={cn(
         "aui-thread-list-item group flex h-9 items-center gap-2 rounded-lg transition-colors focus-visible:outline-none",
         isClaude
-          ? "font-serif hover:bg-[#E5E0D6]/70 focus-visible:bg-[#E5E0D6]/70 data-active:bg-[#E5E0D6] dark:hover:bg-[#393937]/70 dark:focus-visible:bg-[#393937]/70 dark:data-active:bg-[#393937]"
+          ? "hover:bg-[#E5E0D6]/70 focus-visible:bg-[#E5E0D6]/70 data-active:bg-[#E5E0D6] dark:hover:bg-[#393937]/70 dark:focus-visible:bg-[#393937]/70 dark:data-active:bg-[#393937]"
           : "hover:bg-muted focus-visible:bg-muted data-active:bg-muted",
       )}
     >
-      <ThreadListItemPrimitive.Trigger
+      <ThreadListItemNavTrigger
         className={cn(
           "aui-thread-list-item-trigger flex h-full min-w-0 flex-1 items-center px-3 text-start text-sm",
           isClaude && "text-[#3d3a35] dark:text-[#cdc9be]",
         )}
       >
-        <span className="aui-thread-list-item-title min-w-0 flex-1 truncate">
-          <ThreadListItemPrimitive.Title fallback="New Chat" />
-        </span>
-      </ThreadListItemPrimitive.Trigger>
-      <ThreadListItemMore />
+        <ThreadListItemTitle />
+      </ThreadListItemNavTrigger>
+      <ThreadListItemMoreMenu />
     </ThreadListItemPrimitive.Root>
   );
 };
 
-const ThreadListItemMore: FC = () => {
-  return (
-    <ThreadListItemMorePrimitive.Root>
-      <ThreadListItemMorePrimitive.Trigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="aui-thread-list-item-more me-2 size-7 p-0 opacity-0 transition-opacity group-hover:opacity-100 data-[state=open]:bg-accent data-[state=open]:opacity-100 group-data-active:opacity-100"
-        >
-          <MoreHorizontalIcon className="size-4" />
-          <span className="sr-only">More options</span>
-        </Button>
-      </ThreadListItemMorePrimitive.Trigger>
-      <ThreadListItemMorePrimitive.Content
-        side="bottom"
-        align="start"
-        className="aui-thread-list-item-more-content z-50 min-w-32 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md"
-      >
-        <ThreadListItemPrimitive.Archive asChild>
-          <ThreadListItemMorePrimitive.Item className="aui-thread-list-item-more-item flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-            <ArchiveIcon className="size-4" />
-            Archive
-          </ThreadListItemMorePrimitive.Item>
-        </ThreadListItemPrimitive.Archive>
-        <ThreadListItemPrimitive.Delete asChild>
-          <ThreadListItemMorePrimitive.Item className="aui-thread-list-item-more-item flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-destructive text-sm outline-none hover:bg-destructive/10 hover:text-destructive focus:bg-destructive/10 focus:text-destructive">
-            <TrashIcon className="size-4" />
-            Delete
-          </ThreadListItemMorePrimitive.Item>
-        </ThreadListItemPrimitive.Delete>
-      </ThreadListItemMorePrimitive.Content>
-    </ThreadListItemMorePrimitive.Root>
-  );
-};

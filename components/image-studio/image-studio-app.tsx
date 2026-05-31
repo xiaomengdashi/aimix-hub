@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type FC } from "react";
+import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { ChatAiProviderProvider } from "@/components/assistant-ui/contexts/chat-ui-theme-context";
 import { ImageStudioCanvas } from "@/components/image-studio/image-studio-canvas";
@@ -22,6 +23,7 @@ import {
 } from "@/lib/chat/models";
 import type { ImageGenerationParams } from "@/lib/image-generation/settings";
 import type { ImageSessionSummary } from "@/lib/image-generation/session";
+import { threadPath } from "@/lib/chat/routes";
 import { createClient } from "@/lib/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -45,7 +47,8 @@ const sidebarProps = (
   onNavigate,
 });
 
-const ImageStudioApp: FC = () => {
+const ImageStudioApp: FC<{ sessionId?: string }> = ({ sessionId }) => {
+  const router = useRouter();
   const isMobile = useIsMobile();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
@@ -126,22 +129,40 @@ const ImageStudioApp: FC = () => {
     })();
   }, []);
 
+  useEffect(() => {
+    if (!authReady || sessionsLoading) return;
+    if (!sessionId) {
+      setComposeMode(true);
+      setActiveId(null);
+      return;
+    }
+    const exists = sessions.some((s) => s.id === sessionId);
+    if (exists) {
+      setComposeMode(false);
+      setActiveId(sessionId);
+    } else if (sessions.length > 0) {
+      router.replace(threadPath("image"));
+    }
+  }, [authReady, sessionId, sessions, sessionsLoading, router]);
+
   const handleCompose = () => {
     setComposeMode(true);
     setActiveId(null);
     setError(null);
+    router.push(threadPath("image"));
   };
 
   const handleSelect = (id: string) => {
     setComposeMode(false);
     setActiveId(id);
     setError(null);
+    router.push(threadPath("image", id));
   };
 
   const handleDelete = async (id: string) => {
     await fetch(`/api/images/sessions/${id}`, { method: "DELETE" });
     setSessions((prev) => prev.filter((s) => s.id !== id));
-    if (activeId === id) handleCompose();
+    if (activeId === id || sessionId === id) handleCompose();
   };
 
   const handleGenerate = async (params: ImageGenerationParams) => {
@@ -170,6 +191,7 @@ const ImageStudioApp: FC = () => {
         ]);
         setActiveId(data.session.id);
         setComposeMode(false);
+        router.replace(threadPath("image", data.session.id));
       }
     } catch {
       setError("网络错误，请稍后重试");
@@ -270,8 +292,8 @@ const ImageStudioApp: FC = () => {
   );
 };
 
-export const ImageStudioRoot: FC = () => (
+export const ImageStudioRoot: FC<{ sessionId?: string }> = ({ sessionId }) => (
   <ChatAiProviderProvider initialProvider="image">
-    <ImageStudioApp />
+    <ImageStudioApp sessionId={sessionId} />
   </ChatAiProviderProvider>
 );

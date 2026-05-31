@@ -1,37 +1,44 @@
 import { NextResponse } from "next/server";
 import type { ChatAiProvider } from "@/lib/chat/provider";
 import type { ChatModel } from "@/lib/chat/models";
-import { FALLBACK_CHAT_MODELS } from "@/lib/chat/models";
-import { buildChatModelsFromGateway, getModelsUrl } from "@/lib/ai-gateway/gateway-models";
-import { applyModelDisplayList } from "@/lib/ai-gateway/model-display";
+import { getEnabledModelCatalog } from "@/lib/chat/model-catalog";
+import { getModelsUrl } from "@/lib/ai-gateway/gateway-models";
+import { isAdminClientConfigured } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const models = await buildChatModelsFromGateway();
+    const models = await getEnabledModelCatalog();
     const byProvider = groupByProvider(models);
+    let modelsUrl: string | null = null;
+
+    if (isAdminClientConfigured()) {
+      try {
+        modelsUrl = await getModelsUrl();
+      } catch {
+        modelsUrl = null;
+      }
+    }
 
     return NextResponse.json({
-      source: "gateway",
-      modelsUrl: getModelsUrl(),
+      source: "catalog",
+      modelsUrl,
       models,
       byProvider,
     });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "拉取模型列表失败";
-    const fallback = applyModelDisplayList(FALLBACK_CHAT_MODELS);
-    const byProvider = groupByProvider(fallback);
+      error instanceof Error ? error.message : "加载模型列表失败";
 
     return NextResponse.json(
       {
         source: "fallback",
         error: message,
-        models: fallback,
-        byProvider,
+        models: [],
+        byProvider: groupByProvider([]),
       },
-      { status: 200 },
+      { status: 503 },
     );
   }
 }

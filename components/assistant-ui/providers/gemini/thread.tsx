@@ -27,9 +27,12 @@ import {
 } from "lucide-react";
 import { type FC, useCallback, useEffect, useState } from "react";
 import { useShallow } from "zustand/shallow";
+import { cn } from "@/lib/utils";
+import { ArtifactAssistantMarkdown } from "@/components/assistant-ui/artifacts/artifact-assistant-markdown";
 import { MarkdownText } from "@/components/assistant-ui/message/markdown-text";
 import { useComposerTool } from "@/components/assistant-ui/contexts/composer-tool-context";
 import { AssistantMessageActionBar } from "@/components/assistant-ui/providers/shared/assistant-message-action-bar";
+import { userMessageActionBarRootClass } from "@/components/assistant-ui/providers/shared/message-action-bar-styles";
 import { ComposerToolsMenu } from "@/components/assistant-ui/providers/shared/composer-tools-menu";
 import { GEMINI_TOOLS_MENU } from "@/components/assistant-ui/providers/shared/composer-tools-menu-items";
 import { ProviderModelPicker } from "@/components/assistant-ui/providers/shared/model-picker";
@@ -227,7 +230,7 @@ const ChatMessage: FC = () => {
     <MessagePrimitive.Root className="group/message relative mx-auto mb-4 flex w-full max-w-3xl flex-col pb-0.5">
       <AuiIf condition={(s) => s.message.role === "user"}>
         <div className="flex items-center justify-end gap-1">
-          <ActionBarPrimitive.Root className="flex items-center gap-0.5 pt-1 opacity-0 transition-opacity group-focus-within/message:opacity-100 group-hover/message:opacity-100">
+          <ActionBarPrimitive.Root className={cn("pt-1", userMessageActionBarRootClass)}>
             <ActionBarPrimitive.Copy className={actionBtnClass}>
               <CopyIcon width={16} height={16} />
             </ActionBarPrimitive.Copy>
@@ -237,7 +240,7 @@ const ChatMessage: FC = () => {
           </ActionBarPrimitive.Root>
           <div className="max-w-[85%] rounded-3xl rounded-tr bg-[#e9eef6] px-4 py-3 text-[#1f1f1f] dark:bg-[#282a2c] dark:text-[#e3e3e3]">
             <div className="prose prose-sm dark:prose-invert wrap-break-word">
-              <MessagePrimitive.Parts components={{ Text: MarkdownText }} />
+              <MessagePrimitive.Parts components={{ Text: ArtifactAssistantMarkdown }} />
             </div>
           </div>
         </div>
@@ -246,12 +249,9 @@ const ChatMessage: FC = () => {
       <AuiIf condition={(s) => s.message.role === "assistant"}>
         <div>
           <div className="prose prose-sm dark:prose-invert wrap-break-word prose-li:my-1 prose-ol:my-1 prose-p:my-2 prose-ul:my-1 text-[#1f1f1f] dark:text-[#e3e3e3]">
-            <MessagePrimitive.Parts components={{ Text: MarkdownText }} />
+            <MessagePrimitive.Parts components={{ Text: ArtifactAssistantMarkdown }} />
           </div>
-          <AssistantMessageActionBar
-            variant="gemini"
-            className="mt-2 -ml-2 opacity-0 transition-opacity duration-300 group-focus-within/message:opacity-100 group-hover/message:opacity-100"
-          />
+          <AssistantMessageActionBar variant="gemini" className="mt-2 -ml-2" />
         </div>
       </AuiIf>
     </MessagePrimitive.Root>

@@ -17,7 +17,9 @@ export type UseStableChatRuntimeOptions<
   UI_MESSAGE extends UIMessage = UIMessage,
 > = UseChatRuntimeOptions<UI_MESSAGE> & {
   threadListAdapter: RemoteThreadListAdapter;
+  /** @deprecated Prefer `threadId`, which reacts to URL changes. */
   initialThreadId?: string | undefined;
+  threadId?: string | undefined;
 };
 
 const useDynamicChatTransport = <UI_MESSAGE extends UIMessage = UIMessage>(
@@ -89,7 +91,7 @@ const useChatThreadRuntime = <UI_MESSAGE extends UIMessage = UIMessage>(
 export const useStableChatRuntime = <UI_MESSAGE extends UIMessage = UIMessage>(
   options: UseStableChatRuntimeOptions<UI_MESSAGE>,
 ): AssistantRuntime => {
-  const { threadListAdapter, initialThreadId, ...chatOptions } = options;
+  const { threadListAdapter, ...chatOptions } = options;
   const optionsRef = useRef(chatOptions);
   optionsRef.current = chatOptions;
 
@@ -100,7 +102,6 @@ export const useStableChatRuntime = <UI_MESSAGE extends UIMessage = UIMessage>(
   return useRemoteThreadListRuntime({
     runtimeHook,
     adapter: threadListAdapter,
-    initialThreadId,
     allowNesting: true,
   });
 };

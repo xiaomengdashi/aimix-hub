@@ -3,6 +3,7 @@ import {
   ComposerAttachments,
   UserMessageAttachments,
 } from "@/components/assistant-ui/message/attachment";
+import { ArtifactAssistantMarkdown } from "@/components/assistant-ui/artifacts/artifact-assistant-markdown";
 import { MarkdownText } from "@/components/assistant-ui/message/markdown-text";
 import {
   Reasoning,
@@ -18,6 +19,7 @@ import {
 } from "@/components/assistant-ui/message/tool-group";
 import { ToolFallback } from "@/components/assistant-ui/message/tool-fallback";
 import { AssistantMessageActionBar } from "@/components/assistant-ui/providers/shared/assistant-message-action-bar";
+import { userMessageActionBarRootClass } from "@/components/assistant-ui/providers/shared/message-action-bar-styles";
 import { VoicePlaceholderButton } from "@/components/assistant-ui/providers/shared/voice-ui-placeholder";
 import { ContextUsageIndicator } from "@/components/assistant-ui/shell/context-usage-indicator";
 import { useChatSession } from "@/components/assistant-ui/contexts/chat-session-context";
@@ -256,9 +258,7 @@ const MessageError: FC = () => {
 };
 
 const AssistantMessage: FC = () => {
-  // reserves space for action bar and compensates with `-mb` for consistent msg spacing
-  // keeps hovered action bar from shifting layout (autohide doesn't support absolute positioning well)
-  // for pt-[n] use -mb-[n + 6] & min-h-[n + 6] to preserve compensation
+  // 底部 footer 预留操作栏高度，避免 hover 显示按钮时挤动下方消息
   const ACTION_BAR_PT = "pt-1.5";
   const ACTION_BAR_HEIGHT = `-mb-7.5 min-h-7.5 ${ACTION_BAR_PT}`;
 
@@ -309,7 +309,7 @@ const AssistantMessage: FC = () => {
                   </ToolGroupRoot>
                 );
               case "text":
-                return <MarkdownText />;
+                return <ArtifactAssistantMarkdown />;
               case "reasoning":
                 return <Reasoning {...part} />;
               case "tool-call":
@@ -329,7 +329,6 @@ const AssistantMessage: FC = () => {
         <BranchPicker />
         <AssistantMessageActionBar
           variant="other"
-          autohide="not-last"
           className="aui-assistant-action-bar-root col-start-3 row-start-2 -ms-1 gap-1 text-muted-foreground"
         />
       </div>
@@ -363,9 +362,10 @@ const UserActionBar: FC = () => {
   return (
     <ActionBarPrimitive.Root
       hideWhenRunning
-      autohide="not-last"
-      autohideFloat="single-branch"
-      className="aui-user-action-bar-root flex items-center gap-1 text-muted-foreground opacity-0 transition-opacity group-hover/message:opacity-100 group-focus-within/message:opacity-100 data-[floating]:opacity-100"
+      className={cn(
+        "aui-user-action-bar-root gap-1 text-muted-foreground",
+        userMessageActionBarRootClass,
+      )}
     >
       <ActionBarPrimitive.Edit asChild>
         <TooltipIconButton tooltip="编辑" side="bottom">

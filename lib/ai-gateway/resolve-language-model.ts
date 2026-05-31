@@ -1,22 +1,25 @@
 import type { LanguageModel } from "ai";
-import { anthropic } from "@/lib/ai-gateway/anthropic";
-import { getChatModel, type ModelBackend } from "@/lib/chat/models";
-import { openaiGateway } from "@/lib/ai-gateway/openai-gateway";
+import {
+  createAnthropicProvider,
+  createOpenAiGatewayProvider,
+} from "@/lib/ai-gateway/create-providers";
+import { getChatModel, type ChatModel } from "@/lib/chat/models";
+import { inferModelBackend } from "@/lib/ai-gateway/model-backend";
 
-function inferBackend(modelId: string): ModelBackend {
-  if (/^gemini/i.test(modelId)) return "openai";
-  return "anthropic";
-}
-
-/** 统一走 ANTHROPIC_API_KEY + ANTHROPIC_BASE_URL；Gemini 等需 OpenAI chat/completions 格式 */
-export function resolveLanguageModel(modelId: string): LanguageModel {
-  const def = getChatModel(modelId);
+/** Claude → Anthropic Messages；GPT / Gemini → OpenAI Chat Completions（共用网关密钥与 Base URL） */
+export async function resolveLanguageModel(
+  modelId: string,
+  modelDef?: ChatModel,
+): Promise<LanguageModel> {
+  const def = modelDef ?? getChatModel(modelId);
   const apiModel = def?.apiModel ?? modelId;
-  const backend = def?.backend ?? inferBackend(modelId);
+  const backend = def?.backend ?? inferModelBackend(modelId);
 
   if (backend === "openai" || backend === "google") {
+    const openaiGateway = await createOpenAiGatewayProvider();
     return openaiGateway.chat(apiModel);
   }
 
+  const anthropic = await createAnthropicProvider();
   return anthropic(apiModel);
 }

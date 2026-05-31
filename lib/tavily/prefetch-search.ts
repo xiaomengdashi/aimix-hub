@@ -43,9 +43,9 @@ ${searchContext}`;
 export async function prefetchTavilySearchContext(
   messages: UIMessage[],
 ): Promise<string> {
-  const config = getTavilyClientConfig();
+  const config = await getTavilyClientConfig();
   if (!config) {
-    throw new Error("TAVILY_API_KEY 未配置");
+    throw new Error("Tavily 未配置：请在管理后台设置 Tavily API Key");
   }
 
   const query = extractLastUserMessageText(messages);

@@ -3,9 +3,13 @@
 import { AssistantRuntimeProvider } from "@assistant-ui/react";
 import type { RemoteThreadListAdapter } from "@assistant-ui/core";
 import type { User } from "@supabase/supabase-js";
-import { useEffect, useMemo, useState, type FC } from "react";
-import { ChatActiveThreadTracker } from "@/components/assistant-ui/shell/chat-active-thread-tracker";
+import { usePathname } from "next/navigation";
+import { ChatThreadUrlSync } from "@/components/assistant-ui/shell/chat-thread-url-sync";
+import { ChatDeferredThreadSwitch } from "@/components/assistant-ui/shell/chat-deferred-thread-switch";
+import { ChatThreadTitleOnFirstRun } from "@/components/assistant-ui/shell/chat-thread-title-on-first-run";
 import { ChatThreadListOrderSync } from "@/components/assistant-ui/shell/chat-thread-list-order-sync";
+import { ArtifactThreadSync } from "@/components/assistant-ui/artifacts/artifact-thread-sync";
+import { ArtifactWorkspace } from "@/components/assistant-ui/artifacts/artifact-panel";
 import { ChatModeProvider } from "@/components/assistant-ui/contexts/chat-mode-context";
 import { ChatModelProvider } from "@/components/assistant-ui/contexts/chat-model-context";
 import { ComposerToolProvider } from "@/components/assistant-ui/contexts/composer-tool-context";
@@ -18,7 +22,8 @@ import { getAppUI } from "@/components/assistant-ui/providers/registry";
 import type { AppId } from "@/lib/chat/app-id";
 import { isImageApp } from "@/lib/chat/app-id";
 import { useStableChatRuntime } from "@/hooks/use-stable-chat-runtime";
-import { getLastActiveThreadId } from "@/lib/chat/session-storage";
+import { threadIdFromPathname } from "@/lib/chat/routes";
+import { useEffect, useMemo, useState, type FC } from "react";
 import { chatTransport } from "@/lib/chat/transport";
 import { createClient } from "@/lib/supabase/client";
 import { getDisplayUsername } from "@/lib/auth/username";
@@ -27,13 +32,13 @@ import { createSupabaseThreadListAdapter } from "@/lib/supabase/thread-adapter";
 const ChatShellContent: FC<{
   userId: string;
   threadListAdapter: RemoteThreadListAdapter;
-  initialThreadId?: string;
+  threadId?: string;
   displayUsername: string;
   appId: AppId;
 }> = ({
   userId,
   threadListAdapter,
-  initialThreadId,
+  threadId,
   displayUsername,
   appId,
 }) => {
@@ -42,7 +47,6 @@ const ChatShellContent: FC<{
 
   const runtime = useStableChatRuntime({
     threadListAdapter,
-    initialThreadId,
     transport: chatTransport,
     onError: (error) => {
       setChatError(error.message || "发送失败，请稍后重试");
@@ -55,10 +59,15 @@ const ChatShellContent: FC<{
   const shell = (
     <ChatModelProvider uiScope={appId}>
       <AssistantRuntimeProvider runtime={runtime}>
-        <ChatActiveThreadTracker userId={userId} appId={appId} />
+        <ChatDeferredThreadSwitch threadId={threadId} />
+        <ChatThreadTitleOnFirstRun />
+        <ChatThreadUrlSync userId={userId} appId={appId} />
         <ChatThreadListOrderSync />
         <Layout displayUsername={displayUsername} chatError={chatError}>
-          <Thread />
+          <ArtifactWorkspace>
+            <ArtifactThreadSync />
+            <Thread />
+          </ArtifactWorkspace>
         </Layout>
       </AssistantRuntimeProvider>
     </ChatModelProvider>
@@ -94,6 +103,8 @@ const ChatShellInner: FC<{
   displayUsername: string;
 }> = ({ userId, displayUsername }) => {
   const { appId } = useAppNav();
+  const pathname = usePathname();
+  const threadId = threadIdFromPathname(pathname) ?? undefined;
   const supabase = useMemo(() => createClient(), []);
 
   const threadListAdapter = useMemo(
@@ -106,7 +117,7 @@ const ChatShellInner: FC<{
       key={appId}
       userId={userId}
       threadListAdapter={threadListAdapter}
-      initialThreadId={getLastActiveThreadId(userId, appId)}
+      threadId={threadId}
       displayUsername={displayUsername}
       appId={appId}
     />

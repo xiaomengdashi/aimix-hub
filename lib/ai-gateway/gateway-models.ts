@@ -1,6 +1,7 @@
 import type { ChatAiProvider } from "@/lib/chat/provider";
 import type { ChatModel } from "@/lib/chat/models";
 import { applyModelDisplayList } from "@/lib/ai-gateway/model-display";
+import { backendForUiProvider } from "@/lib/ai-gateway/model-backend";
 
 const CACHE_TTL_MS = 10 * 60 * 1000;
 
@@ -15,6 +16,9 @@ type GatewayModelRow = {
 const EXCLUDE_ID =
   /tts|audio|image|realtime|transcribe|vision|embedding|gizmo|whisper|dall-e|flux|midjourney|suno|video|ocr|moderation|search-api|\*/i;
 
+/** 已从产品中移除的模型（网关仍可能返回） */
+const REMOVED_MODEL_IDS = new Set(["gpt-4o"]);
+
 const PREFERRED: Record<ChatAiProvider, readonly string[]> = {
   chatgpt: [
     "gpt-5.5",
@@ -22,7 +26,6 @@ const PREFERRED: Record<ChatAiProvider, readonly string[]> = {
     "gpt-5.4-mini",
     "gpt-5.3-chat",
     "gpt-5.2-chat",
-    "gpt-4o",
     "o4-mini",
     "gpt-5-mini",
     "gpt-5-nano",
@@ -79,6 +82,7 @@ function uiProviderForId(id: string): ChatAiProvider {
 function isChatCandidate(row: GatewayModelRow): boolean {
   const id = row.id;
   if (!id) return false;
+  if (REMOVED_MODEL_IDS.has(id)) return false;
   if (EXCLUDE_ID.test(id)) return false;
   if (row.model_type) {
     const t = row.model_type.toLowerCase();
@@ -93,11 +97,6 @@ function versionScore(id: string): number {
   return Math.max(...parts.map((p) => parseFloat(p)));
 }
 
-function backendForProvider(uiProvider: ChatAiProvider): ChatModel["backend"] {
-  if (uiProvider === "gemini") return "openai";
-  return "anthropic";
-}
-
 function toChatModel(row: GatewayModelRow, uiProvider: ChatAiProvider): ChatModel {
   return {
     id: row.id,
@@ -105,7 +104,7 @@ function toChatModel(row: GatewayModelRow, uiProvider: ChatAiProvider): ChatMode
     description: "",
     contextWindow: 200_000,
     uiProvider,
-    backend: backendForProvider(uiProvider),
+    backend: backendForUiProvider(uiProvider),
     apiModel: row.id,
   };
 }
@@ -142,16 +141,22 @@ function pickForProvider(
   return picked;
 }
 
-export async function fetchGatewayModelRows(): Promise<GatewayModelRow[]> {
-  const url = normalizeModelsUrl(process.env.ANTHROPIC_BASE_URL);
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    throw new Error("未配置 ANTHROPIC_API_KEY");
+export async function fetchGatewayModelRows(
+  credentials?: { baseUrl: string; apiKey: string },
+): Promise<GatewayModelRow[]> {
+  const { getGatewayCredentials } = await import(
+    "@/lib/admin/server-integration-settings"
+  );
+  const resolved = credentials ?? (await getGatewayCredentials());
+
+  const url = normalizeModelsUrl(resolved.baseUrl);
+  if (!resolved.apiKey) {
+    throw new Error("AI 网关未配置：请在管理后台设置 API Key");
   }
 
   const res = await fetch(url, {
-    headers: { Authorization: `Bearer ${apiKey}` },
-    next: { revalidate: 600 },
+    headers: { Authorization: `Bearer ${resolved.apiKey}` },
+    cache: "no-store",
   });
 
   if (!res.ok) {
@@ -229,6 +234,10 @@ export async function getGatewayChatModels(): Promise<ChatModel[]> {
   return models;
 }
 
-export function getModelsUrl(): string {
-  return normalizeModelsUrl(process.env.ANTHROPIC_BASE_URL);
+export async function getModelsUrl(): Promise<string> {
+  const { getGatewayCredentials } = await import(
+    "@/lib/admin/server-integration-settings"
+  );
+  const { baseUrl } = await getGatewayCredentials();
+  return normalizeModelsUrl(baseUrl);
 }

@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { isAdminRole } from "@/lib/auth/is-admin-role";
 import { DEFAULT_CHAT_AI_PROVIDER } from "@/lib/chat/provider";
 import { providerPath } from "@/lib/chat/routes";
 import { getSupabaseEnv } from "@/lib/supabase/env";
@@ -61,6 +62,20 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = providerPath(DEFAULT_CHAT_AI_PROVIDER);
     return NextResponse.redirect(url);
+  }
+
+  if (user && pathname.startsWith("/admin")) {
+    const { data: profile } = await supabase
+      .from("user_profiles")
+      .select("app_role")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (!isAdminRole(profile?.app_role)) {
+      const url = request.nextUrl.clone();
+      url.pathname = providerPath(DEFAULT_CHAT_AI_PROVIDER);
+      return NextResponse.redirect(url);
+    }
   }
 
   return supabaseResponse;

@@ -71,14 +71,17 @@ export async function generateGatewayImage(options: {
   format?: "jpeg" | "png" | "webp";
   abortSignal?: AbortSignal;
 }): Promise<GatewayGeneratedImage> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const { getGatewayCredentials } = await import(
+    "@/lib/admin/server-integration-settings"
+  );
+  const { baseUrl, apiKey } = await getGatewayCredentials();
   if (!apiKey) {
-    throw new Error("未配置 ANTHROPIC_API_KEY");
+    throw new Error("AI 网关未配置：请在管理后台设置 API Key");
   }
 
   const format = options.format ?? "jpeg";
   const mediaType = mediaTypeFromFormat(format);
-  const url = `${normalizeBaseUrl(process.env.ANTHROPIC_BASE_URL)}/images/generations`;
+  const url = `${normalizeBaseUrl(baseUrl)}/images/generations`;
 
   const apiSize = options.size ?? "auto";
 

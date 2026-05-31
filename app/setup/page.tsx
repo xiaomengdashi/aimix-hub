@@ -37,11 +37,13 @@ export default function SetupPage() {
         <pre className="overflow-x-auto rounded-lg bg-muted p-3 text-xs leading-relaxed">
           {`NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOi...
-
-# 已有（聊天模型）
-ANTHROPIC_API_KEY=你的密钥
-ANTHROPIC_BASE_URL=https://yunwu.ai/v1`}
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOi...`}
         </pre>
+        <p className="text-muted-foreground text-xs">
+          AI 网关与 Tavily 密钥在部署后由管理员在{" "}
+          <code className="rounded bg-muted px-1">/admin/models</code> 配置，无需写入
+          .env.local。
+        </p>
       </section>
 
       <section className="space-y-3 rounded-xl border bg-card p-5 text-sm">
@@ -74,6 +76,18 @@ ANTHROPIC_BASE_URL=https://yunwu.ai/v1`}
               supabase/migrations/004_generated_images_storage.sql
             </code>{" "}
             — 绘图文件 Storage 策略
+          </li>
+          <li>
+            <code className="rounded bg-muted px-1">
+              supabase/migrations/005_thread_is_pinned.sql
+            </code>{" "}
+            — 会话置顶
+          </li>
+          <li>
+            <code className="rounded bg-muted px-1">
+              supabase/migrations/013_model_catalog_and_integration_settings.sql
+            </code>{" "}
+            — 模型目录与网关/Tavily 配置
           </li>
         </ol>
         <p className="text-muted-foreground text-xs">

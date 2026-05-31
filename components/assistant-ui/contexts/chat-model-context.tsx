@@ -12,7 +12,10 @@ import {
 } from "react";
 import {
   FALLBACK_CHAT_MODELS,
+  getClientChatModels,
+  getClientChatModelsSource,
   getDefaultModelIdForScope,
+  hasClientChatModelsLoaded,
   setClientChatModels,
   type ChatModel,
   type ModelUiScope,
@@ -41,7 +44,7 @@ type ChatModelContextValue = {
   uiProvider: ModelUiScope;
   models: ChatModel[];
   modelsLoading: boolean;
-  modelsSource: "gateway" | "fallback" | "pending";
+  modelsSource: "catalog" | "fallback" | "pending";
 };
 
 const ChatModelContext = createContext<ChatModelContextValue | null>(null);
@@ -66,11 +69,15 @@ export const ChatModelProvider: FC<{
   uiScope: ModelUiScope;
   children: ReactNode;
 }> = ({ uiScope, children }) => {
-  const [models, setModels] = useState<ChatModel[]>(FALLBACK_CHAT_MODELS);
-  const [modelsLoading, setModelsLoading] = useState(true);
+  const [models, setModels] = useState<ChatModel[]>(() => getClientChatModels());
+  const [modelsLoading, setModelsLoading] = useState(
+    () => !hasClientChatModelsLoaded(),
+  );
   const [modelsSource, setModelsSource] = useState<
-    "gateway" | "fallback" | "pending"
-  >("pending");
+    "catalog" | "fallback" | "pending"
+  >(() =>
+    hasClientChatModelsLoaded() ? getClientChatModelsSource() : "pending",
+  );
   const [model, setModelState] = useState(() =>
     pickInitialModel(uiScope, FALLBACK_CHAT_MODELS),
   );
@@ -84,6 +91,17 @@ export const ChatModelProvider: FC<{
   }, [model]);
 
   useEffect(() => {
+    if (hasClientChatModelsLoaded()) {
+      const cached = getClientChatModels();
+      setModels(cached);
+      setModelsSource(getClientChatModelsSource());
+      setModelsLoading(false);
+      const initial = pickInitialModel(uiScope, cached, model);
+      selectedChatModel.value = initial;
+      setModelState(initial);
+      return;
+    }
+
     let cancelled = false;
 
     async function load() {
@@ -96,16 +114,17 @@ export const ChatModelProvider: FC<{
         const nextModels = data.models?.length
           ? data.models
           : FALLBACK_CHAT_MODELS;
-        setClientChatModels(nextModels);
+        const source = data.source === "catalog" ? "catalog" : "fallback";
+        setClientChatModels(nextModels, source);
         setModels(nextModels);
-        setModelsSource(data.source === "gateway" ? "gateway" : "fallback");
+        setModelsSource(source);
 
         const initial = pickInitialModel(uiScope, nextModels, model);
         selectedChatModel.value = initial;
         setModelState(initial);
       } catch {
         if (cancelled) return;
-        setClientChatModels(FALLBACK_CHAT_MODELS);
+        setClientChatModels(FALLBACK_CHAT_MODELS, "fallback");
         setModels(FALLBACK_CHAT_MODELS);
         setModelsSource("fallback");
         const initial = pickInitialModel(uiScope, FALLBACK_CHAT_MODELS, model);

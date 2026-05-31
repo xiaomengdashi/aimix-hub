@@ -129,6 +129,17 @@ npm start
 
 部署时请同步配置上述环境变量，并将 Supabase **Site URL** / **Redirect URLs** 改为你的生产域名。
 
+### 自建服务器（替代 Vercel + Supabase Cloud）
+
+完整迁移步骤（含 Docker、Nginx、数据 `pg_dump`、Storage 同步）见 **[deploy/README.md](deploy/README.md)**。
+
+```bash
+cp deploy/.env.example deploy/.env   # 填写域名与密钥
+sudo bash deploy/scripts/server-setup.sh
+bash deploy/scripts/setup-supabase.sh
+# … 见 deploy/README.md
+```
+
 ## 使用说明
 
 ### 注册与登录
@@ -173,6 +184,7 @@ lib/
   chat-models.ts     # 模型列表
   supabase/          # Supabase 客户端与中间件
 supabase/migrations/ # 数据库迁移 SQL
+deploy/              # 自建部署脚本、Nginx 模板、Docker Compose
 ```
 
 ## 常见问题

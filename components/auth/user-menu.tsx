@@ -1,9 +1,15 @@
 "use client";
 
-import { ArchivedThreadsDialog } from "@/components/assistant-ui/shell/archived-threads-dialog";
-import { ChevronDownIcon, LogOutIcon, UserIcon, ArchiveIcon } from "lucide-react";
+import {
+  ArchiveIcon,
+  BotIcon,
+  ChevronDownIcon,
+  LogOutIcon,
+  UserIcon,
+  UsersIcon,
+} from "lucide-react";
 import Link from "next/link";
-import { useState, type FC } from "react";
+import type { FC } from "react";
 import { useAuiState } from "@assistant-ui/store";
 import {
   DropdownMenu,
@@ -14,6 +20,7 @@ import {
 } from "@/components/shared/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useSignOut } from "@/hooks/use-sign-out";
+import { useUserIsAdmin } from "@/hooks/use-user-is-admin";
 import { cn } from "@/lib/utils";
 
 type UserMenuProps = {
@@ -23,11 +30,10 @@ type UserMenuProps = {
 export const UserMenu: FC<UserMenuProps> = ({ displayName }) => {
   const initial = displayName.slice(0, 1).toUpperCase();
   const { signOut, loading } = useSignOut();
-  const [archivedOpen, setArchivedOpen] = useState(false);
   const archivedCount = useAuiState((s) => s.threads.archivedThreadIds.length);
+  const isAdmin = useUserIsAdmin();
 
   return (
-    <>
     <DropdownMenu>
       <DropdownMenuTrigger
         className={cn(
@@ -50,22 +56,28 @@ export const UserMenu: FC<UserMenuProps> = ({ displayName }) => {
           <p className="text-muted-foreground text-xs">已登录</p>
         </div>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          icon={<ArchiveIcon className="size-4" />}
-          onSelect={(event) => {
-            event.preventDefault();
-            setArchivedOpen(true);
-          }}
-        >
-          已归档
-          {archivedCount > 0 ? (
-            <span className="ms-auto text-muted-foreground text-xs tabular-nums">
-              {archivedCount}
-            </span>
-          ) : null}
-        </DropdownMenuItem>
         <DropdownMenuItem asChild icon={<UserIcon className="size-4" />}>
-          <Link href="/account">个人信息</Link>
+          <Link href="/account">个人中心</Link>
+        </DropdownMenuItem>
+        {isAdmin ? (
+          <>
+            <DropdownMenuItem asChild icon={<UsersIcon className="size-4" />}>
+              <Link href="/admin/users">用户管理</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild icon={<BotIcon className="size-4" />}>
+              <Link href="/admin/models">模型管理</Link>
+            </DropdownMenuItem>
+          </>
+        ) : null}
+        <DropdownMenuItem asChild icon={<ArchiveIcon className="size-4" />}>
+          <Link href="/account#archived">
+            已归档
+            {archivedCount > 0 ? (
+              <span className="ms-auto text-muted-foreground text-xs tabular-nums">
+                {archivedCount}
+              </span>
+            ) : null}
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
@@ -81,7 +93,5 @@ export const UserMenu: FC<UserMenuProps> = ({ displayName }) => {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-    <ArchivedThreadsDialog open={archivedOpen} onOpenChange={setArchivedOpen} />
-    </>
   );
 };

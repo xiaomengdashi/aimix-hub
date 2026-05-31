@@ -6,6 +6,7 @@ import {
 import type { ChatUsageMetadata } from "@/lib/chat/context-usage";
 import { requireUser } from "@/lib/auth/require-user";
 import {
+  getChatModelAsync,
   getDefaultModelIdForScopeAsync,
   parseChatModelIdAsync,
 } from "@/lib/chat/models";
@@ -33,6 +34,7 @@ import {
   prefetchTavilySearchContext,
   getPrefetchSearchSystemPrompt,
 } from "@/lib/tavily/prefetch-search";
+import { resolveMaxOutputTokens } from "@/lib/chat/output-limits";
 
 /** 文生图可能需 1–2 分钟 */
 export const maxDuration = 300;
@@ -99,11 +101,11 @@ export async function POST(req: Request) {
   const toolId = parseComposerToolId(tool);
   const isSearchMode = toolId === "search";
 
-  if (isSearchMode && !isTavilyConfigured()) {
+  if (isSearchMode && !(await isTavilyConfigured())) {
     return new Response(
       JSON.stringify({
         error:
-          "搜索模式需要 Tavily：请在 .env.local 中配置 TAVILY_API_KEY（可选 TAVILY_BASE_URL）",
+          "搜索模式需要 Tavily：请在管理后台配置 Tavily API Key（可选 Base URL）",
       }),
       {
         status: 503,
@@ -127,9 +129,11 @@ export async function POST(req: Request) {
     }
   }
 
+  const modelDef = await getChatModelAsync(modelId);
+
   let languageModel;
   try {
-    languageModel = resolveLanguageModel(modelId);
+    languageModel = await resolveLanguageModel(modelId, modelDef);
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "模型配置错误";
@@ -164,6 +168,7 @@ export async function POST(req: Request) {
 
   const result = streamText({
     model: languageModel,
+    maxOutputTokens: resolveMaxOutputTokens(modelId, modelDef),
     ...(system ? { system } : {}),
     messages: await convertToModelMessages(
       expandTextFilePartsForModel(uiMessages),

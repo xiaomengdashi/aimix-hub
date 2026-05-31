@@ -1,5 +1,5 @@
 import { generateText } from "ai";
-import { anthropic } from "@/lib/ai-gateway/anthropic";
+import { createAnthropicProvider } from "@/lib/ai-gateway/create-providers";
 import { requireUser } from "@/lib/auth/require-user";
 import type { ThreadTitleMessage } from "@/lib/supabase/thread-title";
 
@@ -30,6 +30,7 @@ export async function POST(req: Request) {
   }
 
   try {
+    const anthropic = await createAnthropicProvider();
     const { text } = await generateText({
       model: anthropic(TITLE_MODEL_ID),
       system: `You generate short chat thread titles for a sidebar.

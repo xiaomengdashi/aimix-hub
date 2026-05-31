@@ -22,7 +22,7 @@ import {
 } from "@radix-ui/react-icons";
 import { useEffect, useState, type FC } from "react";
 import { AssistantFilePart } from "@/components/assistant-ui/message/assistant-file-part";
-import { MarkdownText } from "@/components/assistant-ui/message/markdown-text";
+import { ArtifactAssistantMarkdown } from "@/components/assistant-ui/artifacts/artifact-assistant-markdown";
 import { TooltipIconButton } from "@/components/assistant-ui/message/tooltip-icon-button";
 import { useShallow } from "zustand/shallow";
 import { Mic, PlusIcon } from "lucide-react";
@@ -30,6 +30,7 @@ import { useComposerTool } from "@/components/assistant-ui/contexts/composer-too
 import { ComposerToolsMenu } from "@/components/assistant-ui/providers/shared/composer-tools-menu";
 import { CHATGPT_TOOLS_MENU } from "@/components/assistant-ui/providers/shared/composer-tools-menu-items";
 import { AssistantMessageActionBar } from "@/components/assistant-ui/providers/shared/assistant-message-action-bar";
+import { userMessageActionBarRootClass } from "@/components/assistant-ui/providers/shared/message-action-bar-styles";
 import { VoicePlaceholderButton } from "@/components/assistant-ui/providers/shared/voice-ui-placeholder";
 import { ContextUsageIndicator } from "@/components/assistant-ui/shell/context-usage-indicator";
 
@@ -179,7 +180,7 @@ const ThreadScrollToBottom: FC = () => {
 
 const UserMessage: FC = () => {
   return (
-    <MessagePrimitive.Root className="relative mx-auto flex w-full max-w-3xl flex-col items-end gap-1">
+    <MessagePrimitive.Root className="group/message relative mx-auto flex w-full max-w-3xl flex-col items-end gap-1">
       <div className="flex flex-row flex-wrap justify-end gap-2">
         <MessagePrimitive.Attachments
           components={{ Attachment: ChatGPTAttachmentUI }}
@@ -189,9 +190,7 @@ const UserMessage: FC = () => {
       <div className="flex items-start gap-4">
         <ActionBarPrimitive.Root
           hideWhenRunning
-          autohide="not-last"
-          autohideFloat="single-branch"
-          className="mt-2"
+          className={cn("mt-2", userMessageActionBarRootClass)}
         >
           <ActionBarPrimitive.Edit asChild>
             <TooltipIconButton tooltip="Edit" className="text-[#b4b4b4]">
@@ -229,10 +228,10 @@ const EditComposer: FC = () => {
 
 const AssistantMessage: FC = () => {
   return (
-    <MessagePrimitive.Root className="relative mx-auto flex w-full max-w-3xl flex-col">
+    <MessagePrimitive.Root className="group/message relative mx-auto flex w-full max-w-3xl flex-col">
       <div className="text-[#0d0d0d] dark:text-[#ececec]">
         <MessagePrimitive.Parts
-          components={{ Text: MarkdownText, File: AssistantFilePart }}
+          components={{ Text: ArtifactAssistantMarkdown, File: AssistantFilePart }}
           unstable_showEmptyOnNonTextEnd={false}
         />
       </div>

@@ -21,6 +21,7 @@ import {
   type ReactNode,
 } from "react";
 import { TooltipIconButton } from "@/components/assistant-ui/message/tooltip-icon-button";
+import { assistantMessageActionBarRootClass } from "@/components/assistant-ui/providers/shared/message-action-bar-styles";
 import { cn } from "@/lib/utils";
 
 export type AssistantMessageActionBarVariant =
@@ -80,7 +81,7 @@ const VARIANT_CONFIG: Record<AssistantMessageActionBarVariant, VariantConfig> = 
     moreContentClass:
       "z-50 min-w-40 overflow-hidden rounded-lg border border-[#E5E0D6] bg-[#F0ECE0] p-1 text-[#1a1a18] shadow-md dark:border-[#3d3a35] dark:bg-[#2b2a27] dark:text-[#eee]",
     moreItemClass:
-      "flex w-full cursor-pointer select-none items-center gap-2 rounded-md px-2.5 py-2 font-serif text-sm outline-none hover:bg-[#1a1a18]/5 dark:hover:bg-white/5",
+      "flex w-full cursor-pointer select-none items-center gap-2 rounded-md px-2.5 py-2 text-sm outline-none hover:bg-[#1a1a18]/5 dark:hover:bg-white/5",
   },
   gemini: {
     buttonClass:
@@ -212,15 +213,15 @@ export const AssistantMessageActionBar: FC<
     variant: AssistantMessageActionBarVariant;
   } & Pick<
     ComponentProps<typeof ActionBarPrimitive.Root>,
-    "className" | "hideWhenRunning" | "autohide" | "autohideFloat"
+    "className" | "hideWhenRunning"
   >
-> = ({ variant, className, ...rootProps }) => {
+> = ({ variant, className, hideWhenRunning, ...rootProps }) => {
   const config = VARIANT_CONFIG[variant];
 
   return (
     <ActionBarPrimitive.Root
-      hideWhenRunning
-      className={cn("flex items-center gap-0.5", className)}
+      hideWhenRunning={hideWhenRunning}
+      className={cn(assistantMessageActionBarRootClass, className)}
       {...rootProps}
     >
       <PrimitiveActionButton

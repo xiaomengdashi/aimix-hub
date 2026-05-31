@@ -3,7 +3,7 @@ import { IMAGE_GENERATION_MODEL_ID } from "@/lib/image-generation/constants";
 
 /** 模型在 UI 中的归属（含独立绘图应用） */
 export type ModelUiScope = ChatAiProvider | "image";
-import { getGatewayChatModels } from "@/lib/ai-gateway/gateway-models";
+import { getEnabledModelCatalog } from "@/lib/chat/model-catalog";
 import { normalizeModelId } from "@/lib/ai-gateway/normalize-model-id";
 
 export type ModelBackend = "anthropic" | "openai" | "google";
@@ -26,7 +26,7 @@ export const FALLBACK_CHAT_MODELS: ChatModel[] = [
     description: "旗舰对话，综合能力强",
     contextWindow: 256_000,
     uiProvider: "chatgpt",
-    backend: "anthropic",
+    backend: "openai",
     apiModel: "gpt-5.5",
   },
   {
@@ -35,7 +35,7 @@ export const FALLBACK_CHAT_MODELS: ChatModel[] = [
     description: "更强推理，适合复杂问题",
     contextWindow: 256_000,
     uiProvider: "chatgpt",
-    backend: "anthropic",
+    backend: "openai",
     apiModel: "gpt-5.4-pro",
   },
   {
@@ -44,7 +44,7 @@ export const FALLBACK_CHAT_MODELS: ChatModel[] = [
     description: "更快更省，适合日常对话",
     contextWindow: 256_000,
     uiProvider: "chatgpt",
-    backend: "anthropic",
+    backend: "openai",
     apiModel: "gpt-5.4-mini",
   },
   {
@@ -53,7 +53,7 @@ export const FALLBACK_CHAT_MODELS: ChatModel[] = [
     description: "对话优化，响应顺滑",
     contextWindow: 200_000,
     uiProvider: "chatgpt",
-    backend: "anthropic",
+    backend: "openai",
     apiModel: "gpt-5.3-chat",
   },
   {
@@ -62,17 +62,8 @@ export const FALLBACK_CHAT_MODELS: ChatModel[] = [
     description: "稳定对话，性价比高",
     contextWindow: 200_000,
     uiProvider: "chatgpt",
-    backend: "anthropic",
+    backend: "openai",
     apiModel: "gpt-5.2-chat",
-  },
-  {
-    id: "gpt-4o",
-    name: "GPT-4o",
-    description: "成熟多模态，综合稳定",
-    contextWindow: 128_000,
-    uiProvider: "chatgpt",
-    backend: "anthropic",
-    apiModel: "gpt-4o",
   },
   {
     id: IMAGE_GENERATION_MODEL_ID,
@@ -248,9 +239,22 @@ export const FALLBACK_CHAT_MODELS: ChatModel[] = [
 ];
 
 let clientModels: ChatModel[] | null = null;
+let clientModelsSource: "catalog" | "fallback" = "fallback";
 
-export function setClientChatModels(models: ChatModel[]): void {
+export function hasClientChatModelsLoaded(): boolean {
+  return clientModels !== null;
+}
+
+export function getClientChatModelsSource(): "catalog" | "fallback" {
+  return clientModelsSource;
+}
+
+export function setClientChatModels(
+  models: ChatModel[],
+  source: "catalog" | "fallback" = "fallback",
+): void {
   clientModels = models;
+  clientModelsSource = source;
 }
 
 export function getClientChatModels(): ChatModel[] {
@@ -302,11 +306,7 @@ export async function getDefaultModelIdForProviderAsync(
 export const DEFAULT_CHAT_MODEL_ID = getDefaultModelIdForProvider("chatgpt");
 
 export async function resolveAllowedModels(): Promise<ChatModel[]> {
-  try {
-    return await getGatewayChatModels();
-  } catch {
-    return FALLBACK_CHAT_MODELS;
-  }
+  return getEnabledModelCatalog();
 }
 
 export async function isAllowedChatModelIdAsync(id: string): Promise<boolean> {
@@ -336,6 +336,11 @@ export function parseChatModelId(model: unknown): string | null {
 
 export function getChatModel(id: string): ChatModel | undefined {
   return modelMap(getClientChatModels()).get(id) ?? modelMap(FALLBACK_CHAT_MODELS).get(id);
+}
+
+export async function getChatModelAsync(id: string): Promise<ChatModel | undefined> {
+  const models = await resolveAllowedModels();
+  return modelMap(models).get(id) ?? modelMap(FALLBACK_CHAT_MODELS).get(id);
 }
 
 export function getChatModelContextWindow(id: string): number {

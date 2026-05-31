@@ -12,8 +12,8 @@ export function getSearchToolSystemPrompt(): string {
 }
 
 /** 为 AI SDK 创建 Tavily 搜索工具；未配置 API key 时返回 null */
-export function createTavilySearchTools() {
-  const client = getTavilyClientConfig();
+export async function createTavilySearchTools() {
+  const client = await getTavilyClientConfig();
   if (!client) return null;
 
   return {

@@ -46,13 +46,7 @@ export const ProviderModelPicker: FC<{
         className={cn(TRIGGER_CLASS[variant], className)}
         disabled={modelsLoading || models.length === 0}
       >
-        <span
-          className={cn(
-            "truncate",
-            variant === "claude" && "font-serif",
-            labelClassName,
-          )}
-        >
+        <span className={cn("truncate", labelClassName)}>
           {modelsLoading
             ? "加载模型…"
             : (current?.name ?? model ?? "选择模型")}
@@ -82,7 +76,6 @@ export const ProviderModelPicker: FC<{
               <ModelOptionLabel
                 name={m.name}
                 description={m.description}
-                serif={variant === "claude"}
               />
             </DropdownMenuItem>
           ))
@@ -95,12 +88,9 @@ export const ProviderModelPicker: FC<{
 const ModelOptionLabel: FC<{
   name: string;
   description: string;
-  serif?: boolean;
-}> = ({ name, description, serif }) => (
+}> = ({ name, description }) => (
   <span className="flex min-w-0 flex-1 flex-col">
-    <span className={cn("text-foreground text-sm", serif && "font-serif")}>
-      {name}
-    </span>
+    <span className="text-foreground text-sm">{name}</span>
     <span className="text-muted-foreground text-xs leading-snug">{description}</span>
   </span>
 );

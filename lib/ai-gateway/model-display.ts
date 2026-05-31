@@ -12,7 +12,6 @@ const KNOWN: Record<string, ModelDisplay> = {
   "gpt-5.4-mini": { name: "GPT-5.4 Mini", description: "更快更省，适合日常对话" },
   "gpt-5.3-chat": { name: "GPT-5.3 Chat", description: "对话优化，响应顺滑" },
   "gpt-5.2-chat": { name: "GPT-5.2 Chat", description: "稳定对话，性价比高" },
-  "gpt-4o": { name: "GPT-4o", description: "成熟多模态，综合稳定" },
   "gpt-image-2": {
     name: "GPT Image 2",
     description: "文生图，输入描述即可绘图",

@@ -16,6 +16,7 @@ import {
 } from "@radix-ui/react-icons";
 import { Mic } from "lucide-react";
 import type { FC } from "react";
+import { cn } from "@/lib/utils";
 import {
   ClaudeComposerAddAttachment,
   ClaudeComposerAttachments,
@@ -28,8 +29,10 @@ import { CLAUDE_TOOLS_MENU } from "@/components/assistant-ui/providers/shared/co
 import { UserMessageAttachments } from "@/components/assistant-ui/message/attachment";
 import { ContextUsageIndicator } from "@/components/assistant-ui/shell/context-usage-indicator";
 import { ModeTabs } from "@/components/assistant-ui/shell/mode-tabs";
+import { ArtifactAssistantMarkdown } from "@/components/assistant-ui/artifacts/artifact-assistant-markdown";
 import { MarkdownText } from "@/components/assistant-ui/message/markdown-text";
 import { AssistantMessageActionBar } from "@/components/assistant-ui/providers/shared/assistant-message-action-bar";
+import { userMessageActionBarRootClass } from "@/components/assistant-ui/providers/shared/message-action-bar-styles";
 import { ProviderModelPicker } from "@/components/assistant-ui/providers/shared/model-picker";
 import { VoicePlaceholderButton } from "@/components/assistant-ui/providers/shared/voice-ui-placeholder";
 
@@ -37,13 +40,13 @@ const messageActionButtonClassName =
   "flex size-8 items-center justify-center rounded-md text-[#5b5950] transition-colors hover:bg-[#1a1a18]/5 hover:text-[#1a1a18] dark:text-[#a3a098] dark:hover:bg-white/5 dark:hover:text-[#eee]";
 
 const claudeEditActionClassName =
-  "rounded-md px-3 py-1.5 font-serif text-sm transition-colors";
+  "rounded-md px-3 py-1.5 text-sm transition-colors";
 
 export const ClaudeThread: FC = () => {
   const { onComposerSubmit } = useChatSession();
 
   return (
-    <ThreadPrimitive.Root className="flex h-full flex-col items-stretch bg-[#F0ECE0] font-serif text-[#1a1a18] dark:bg-[#2b2a27] dark:text-[#eee]">
+    <ThreadPrimitive.Root className="flex h-full flex-col items-stretch bg-[#F0ECE0] text-[#1a1a18] dark:bg-[#2b2a27] dark:text-[#eee]">
       <AuiIf condition={(s) => s.thread.isEmpty}>
         <EmptyState onSend={onComposerSubmit} />
       </AuiIf>
@@ -78,7 +81,7 @@ const EmptyState: FC<{ onSend?: () => void }> = ({ onSend }) => {
   return (
     <div className="flex grow flex-col items-center justify-center px-4">
       <div className="mx-auto flex w-full max-w-2xl flex-col items-stretch gap-5">
-        <h1 className="text-center font-serif text-3xl text-[#1a1a18] sm:text-4xl dark:text-[#eee]">
+        <h1 className="text-center text-3xl text-[#1a1a18] sm:text-4xl dark:text-[#eee]">
           How can I help you today?
         </h1>
         <Composer onSend={onSend} />
@@ -198,9 +201,7 @@ const ClaudeUserMessage: FC = () => {
         </div>
         <ActionBarPrimitive.Root
           hideWhenRunning
-          autohide="not-last"
-          autohideFloat="single-branch"
-          className="-mt-px flex items-center gap-0.5 opacity-0 transition-opacity group-focus-within/message:opacity-100 group-hover/message:opacity-100 data-[floating]:opacity-100"
+          className={cn("-mt-px", userMessageActionBarRootClass)}
         >
           <ActionBarPrimitive.Edit className={messageActionButtonClassName}>
             <Pencil1Icon width={16} height={16} />
@@ -226,19 +227,15 @@ const ClaudeAssistantMessage: FC = () => {
       data-role="assistant"
     >
       <div className="flex flex-col">
-        <div className="prose prose-claude wrap-break-word font-serif text-[#1a1a18] leading-[1.65rem] dark:text-[#eee]">
+        <div className="prose prose-claude wrap-break-word text-[#1a1a18] leading-[1.65rem] dark:text-[#eee]">
           <MessagePrimitive.Parts>
             {({ part }) => {
-              if (part.type === "text") return <MarkdownText />;
+              if (part.type === "text") return <ArtifactAssistantMarkdown />;
               return null;
             }}
           </MessagePrimitive.Parts>
         </div>
-        <AssistantMessageActionBar
-          variant="claude"
-          autohide="not-last"
-          className="mt-2 opacity-0 transition-opacity group-focus-within/message:opacity-100 group-hover/message:opacity-100"
-        />
+        <AssistantMessageActionBar variant="claude" className="mt-2" />
       </div>
     </MessagePrimitive.Root>
   );
@@ -253,7 +250,7 @@ const ClaudeEditComposer: FC = () => {
       <div className="flex max-w-[80%] flex-col items-end gap-2 ms-auto w-full">
         <ComposerPrimitive.Root className="flex w-full flex-col gap-2 rounded-2xl border border-[#E5E0D6] bg-white px-3.5 pt-3 pb-2.5 dark:border-[#3d3a35] dark:bg-[#1f1e1b]">
           <ComposerPrimitive.Input
-            className="block min-h-14 w-full resize-none bg-transparent font-serif text-[#1a1a18] outline-none dark:text-[#eee]"
+            className="block min-h-14 w-full resize-none bg-transparent text-[#1a1a18] outline-none dark:text-[#eee]"
             autoFocus
             aria-label="编辑消息"
           />

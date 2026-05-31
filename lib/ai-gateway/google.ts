@@ -1,2 +1,2 @@
-/** @deprecated 使用 resolveLanguageModel 或 openaiGateway.chat */
-export { openaiGateway as google } from "@/lib/ai-gateway/openai-gateway";
+/** @deprecated 使用 createOpenAiGatewayProvider() */
+export { createOpenAiGatewayProvider as google } from "@/lib/ai-gateway/create-providers";

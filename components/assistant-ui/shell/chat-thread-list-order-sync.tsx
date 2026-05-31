@@ -33,7 +33,9 @@ export const ChatThreadListOrderSync: FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!remoteId || isThreadLoading) return;
+    if (!remoteId) return;
+
+    if (isThreadLoading) return;
 
     if (prevCountRef.current === null) {
       prevCountRef.current = messageCount;
@@ -41,6 +43,12 @@ export const ChatThreadListOrderSync: FC = () => {
     }
 
     if (messageCount <= prevCountRef.current) {
+      prevCountRef.current = messageCount;
+      return;
+    }
+
+    const delta = messageCount - prevCountRef.current;
+    if (prevCountRef.current === 0 && delta > 2) {
       prevCountRef.current = messageCount;
       return;
     }

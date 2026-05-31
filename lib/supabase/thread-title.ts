@@ -1,6 +1,8 @@
 import type { ThreadMessage } from "@assistant-ui/core";
 
-const MAX_TITLE_LENGTH = 50;
+export const MAX_THREAD_TITLE_LENGTH = 50;
+
+const MAX_TITLE_LENGTH = MAX_THREAD_TITLE_LENGTH;
 
 export type ThreadTitleMessage = {
   role: "user" | "assistant";

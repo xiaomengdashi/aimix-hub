@@ -20,7 +20,7 @@ const ClaudeSidebarPanel: FC = () => (
   <div className="flex h-full min-h-0 flex-col">
     <div className="flex items-center gap-2 px-3 py-3">
       <ClaudeIcon className="size-5" />
-      <span className="font-serif text-sm">Claude</span>
+      <span className="text-sm">Claude</span>
     </div>
     <div className="flex min-h-0 flex-1 flex-col px-2 pb-2">
       <ClaudeThreadList />
@@ -57,7 +57,7 @@ export const ClaudeLayout: FC<{
   };
 
   return (
-    <div className="flex h-dvh w-full bg-[#F0ECE0] font-serif text-[#1a1a18] dark:bg-[#2b2a27] dark:text-[#eee]">
+    <div className="flex h-dvh w-full bg-[#F0ECE0] text-[#1a1a18] dark:bg-[#2b2a27] dark:text-[#eee]">
       <aside
         className={cn(
           "hidden h-full shrink-0 flex-col border-[#E5E0D6] border-r transition-[width] duration-200 md:flex dark:border-[#3d3a35]",
@@ -75,7 +75,7 @@ export const ClaudeLayout: FC<{
       >
           <SheetContent
             side="left"
-            className="flex h-full w-[min(100vw,260px)] flex-col border-[#E5E0D6] bg-[#F0ECE0] p-0 font-serif text-[#1a1a18] dark:border-[#3d3a35] dark:bg-[#2b2a27] dark:text-[#eee] [&>button]:hidden"
+            className="flex h-full w-[min(100vw,260px)] flex-col border-[#E5E0D6] bg-[#F0ECE0] p-0 text-[#1a1a18] dark:border-[#3d3a35] dark:bg-[#2b2a27] dark:text-[#eee] [&>button]:hidden"
           >
             <SheetHeader className="sr-only">
               <SheetTitle>会话列表</SheetTitle>
@@ -85,7 +85,7 @@ export const ClaudeLayout: FC<{
           </SheetContent>
       </Sheet>
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <header className="flex h-14 shrink-0 items-center gap-2 px-3">
           <button
             type="button"

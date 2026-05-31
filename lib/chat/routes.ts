@@ -9,6 +9,21 @@ export function appPath(appId: AppId): string {
   return appId === "image" ? "/image" : `/${appId}`;
 }
 
+export function threadPath(appId: AppId, threadId?: string | null): string {
+  const base = appPath(appId);
+  if (!threadId) return base;
+  return `${base}/${threadId}`;
+}
+
+export function threadIdFromPathname(pathname: string): string | null {
+  const segments = pathname.replace(/^\/+|\/+$/g, "").split("/");
+  if (segments.length < 2) return null;
+  const [appSegment, threadSegment] = segments;
+  if (appSegment === "image") return threadSegment ?? null;
+  if (isChatAiProvider(appSegment)) return threadSegment ?? null;
+  return null;
+}
+
 /** @deprecated 使用 appPath */
 export function providerPath(provider: ChatAiProvider): string {
   return appPath(provider);

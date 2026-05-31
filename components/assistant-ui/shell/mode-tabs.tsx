@@ -45,7 +45,7 @@ export const ModeTabs: FC = () => {
               aria-pressed={isActive}
               onClick={() => selectMode(item.id)}
               className={cn(
-                "flex h-8 items-center gap-1.5 whitespace-nowrap rounded-lg border px-3 font-serif text-sm transition-colors",
+                "flex h-8 items-center gap-1.5 whitespace-nowrap rounded-lg border px-3 text-sm transition-colors",
                 isActive
                   ? "border-[#c96442]/50 bg-white text-[#1a1a18] shadow-sm dark:bg-[#1f1e1b] dark:text-[#eee]"
                   : "border-[#E5E0D6] bg-transparent text-[#3d3a35] hover:bg-white/60 dark:border-[#3d3a35] dark:text-[#cdc9be] dark:hover:bg-[#1f1e1b]/60",
@@ -106,7 +106,7 @@ const ModeSuggestionChip: FC<ChatModeSuggestion> = ({ title, prompt }) => {
       type="button"
       disabled={disabled}
       onClick={fillComposer}
-      className="rounded-xl border border-[#E5E0D6] bg-white/70 px-3 py-2.5 text-left font-serif text-[#3d3a35] text-sm transition-colors hover:bg-white disabled:opacity-50 dark:border-[#3d3a35] dark:bg-[#1f1e1b]/70 dark:text-[#cdc9be] dark:hover:bg-[#1f1e1b]"
+      className="rounded-xl border border-[#E5E0D6] bg-white/70 px-3 py-2.5 text-left text-[#3d3a35] text-sm transition-colors hover:bg-white disabled:opacity-50 dark:border-[#3d3a35] dark:bg-[#1f1e1b]/70 dark:text-[#cdc9be] dark:hover:bg-[#1f1e1b]"
     >
       {title}
     </button>

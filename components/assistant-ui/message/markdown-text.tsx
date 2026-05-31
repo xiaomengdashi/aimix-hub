@@ -18,6 +18,9 @@ import { CheckIcon, CopyIcon } from "lucide-react";
 import { MermaidDiagram } from "@/components/assistant-ui/message/mermaid-diagram";
 import { SyntaxHighlighter } from "@/components/assistant-ui/message/shiki-highlighter";
 import { TooltipIconButton } from "@/components/assistant-ui/message/tooltip-icon-button";
+import { ArtifactCodeHeader } from "@/components/assistant-ui/artifacts/artifact-code-header";
+import { useArtifactsEnabled } from "@/components/assistant-ui/artifacts/artifacts-enabled-context";
+import { normalizeAssistantMarkdown } from "@/lib/markdown/normalize-assistant-markdown";
 import { cn } from "@/lib/utils";
 
 /** @assistant-ui 在无语言围栏时会传入占位符 "unknown"，不应展示给用户 */
@@ -29,6 +32,7 @@ function isDisplayableCodeLanguage(language: string | undefined): language is st
 const MarkdownTextImpl = () => {
   return (
     <MarkdownTextPrimitive
+      preprocess={normalizeAssistantMarkdown}
       remarkPlugins={[remarkGfm, remarkMath]}
       rehypePlugins={[
         [
@@ -53,7 +57,15 @@ const MarkdownTextImpl = () => {
 
 export const MarkdownText = memo(MarkdownTextImpl);
 
-const CodeHeader: FC<CodeHeaderProps> = ({ language, code }) => {
+const CodeHeader: FC<CodeHeaderProps> = (props) => {
+  const artifactsEnabled = useArtifactsEnabled();
+  if (artifactsEnabled) {
+    return <ArtifactCodeHeader {...props} />;
+  }
+  return <DefaultCodeHeader {...props} />;
+};
+
+const DefaultCodeHeader: FC<CodeHeaderProps> = ({ language, code }) => {
   const { isCopied, copyToClipboard } = useCopyToClipboard();
   const showLanguage = isDisplayableCodeLanguage(language);
   const onCopy = () => {
@@ -173,6 +185,15 @@ const defaultComponents = memoizeMarkdownComponents({
       )}
       {...props}
     />
+  ),
+  strong: ({ className, ...props }) => (
+    <strong
+      className={cn("aui-md-strong font-semibold", className)}
+      {...props}
+    />
+  ),
+  em: ({ className, ...props }) => (
+    <em className={cn("aui-md-em italic", className)} {...props} />
   ),
   blockquote: ({ className, ...props }) => (
     <blockquote

@@ -1,11 +1,8 @@
 import { redirect } from "next/navigation";
-import { Assistant } from "../assistant";
 import {
   DEFAULT_CHAT_AI_PROVIDER,
   isChatAiProvider,
-  type ChatAiProvider,
 } from "@/lib/chat/provider";
-import { providerPath } from "@/lib/chat/routes";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +10,7 @@ type ProviderPageProps = {
   params: Promise<{ provider: string }>;
 };
 
+/** Route shell only — UI lives in `[provider]/layout.tsx`. */
 export default async function ProviderPage({ params }: ProviderPageProps) {
   const { provider: providerParam } = await params;
 
@@ -21,14 +19,8 @@ export default async function ProviderPage({ params }: ProviderPageProps) {
   }
 
   if (!isChatAiProvider(providerParam)) {
-    redirect(providerPath(DEFAULT_CHAT_AI_PROVIDER));
+    redirect(`/${DEFAULT_CHAT_AI_PROVIDER}`);
   }
 
-  const provider = providerParam as ChatAiProvider;
-
-  return (
-    <main className="h-dvh">
-      <Assistant initialAppId={provider} />
-    </main>
-  );
+  return null;
 }

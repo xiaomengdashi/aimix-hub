@@ -26,6 +26,7 @@ type ThreadRow = {
   id: string;
   title: string | null;
   is_archived: boolean;
+  is_pinned: boolean;
   external_id: string | null;
   provider: AppId;
 };
@@ -110,6 +111,7 @@ export function createSupabaseThreadListAdapter(
     externalId: row.external_id ?? undefined,
     status: row.is_archived ? "archived" : "regular",
     title: row.title ?? undefined,
+    custom: row.is_pinned ? { isPinned: true } : undefined,
   });
 
   return {
@@ -119,9 +121,11 @@ export function createSupabaseThreadListAdapter(
       const userId = await requireUserId();
       const { data, error } = await supabase
         .from("threads")
-        .select("id, title, is_archived, external_id, provider")
+        .select("id, title, is_archived, is_pinned, external_id, provider")
         .eq("user_id", userId)
         .eq("provider", provider)
+        .order("is_pinned", { ascending: false })
+        .order("pinned_at", { ascending: false, nullsFirst: false })
         .order("last_message_at", { ascending: false });
 
       if (error) throw error;
@@ -196,7 +200,7 @@ export function createSupabaseThreadListAdapter(
       const userId = await requireUserId();
       const { data, error } = await supabase
         .from("threads")
-        .select("id, title, is_archived, external_id, provider")
+        .select("id, title, is_archived, is_pinned, external_id, provider")
         .eq("id", threadId)
         .eq("user_id", userId)
         .eq("provider", provider)

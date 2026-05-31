@@ -23,3 +23,12 @@ next-env.d.ts
 
 # vercel
 .vercel
+
+# typescript build info
+tsconfig.tsbuildinfo
+
+# self-hosted migration / deploy (Supabase + Vercel → 自有服务器)
+/deploy/
+/Dockerfile
+/.dockerignore
+/public/

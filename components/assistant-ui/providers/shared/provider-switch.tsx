@@ -56,14 +56,7 @@ export const ProviderSwitch: FC<{
       >
         <span className="flex min-w-0 items-center gap-2">
           <AppOptionIcon appId={appId} />
-          <span
-            className={cn(
-              "truncate",
-              variant === "claude" && "font-serif",
-            )}
-          >
-            {currentLabel}
-          </span>
+          <span className="truncate">{currentLabel}</span>
         </span>
         <ChevronDownIcon width={16} height={16} className="shrink-0 opacity-60" />
       </DropdownMenuTrigger>
@@ -89,9 +82,7 @@ export const ProviderSwitch: FC<{
             }
           >
             <AppOptionIcon appId={id} />
-            <span className={cn(variant === "claude" && "font-serif")}>
-              {label}
-            </span>
+            <span>{label}</span>
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
