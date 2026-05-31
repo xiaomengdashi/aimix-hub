@@ -10,6 +10,7 @@ import {
 import { PlusIcon } from "lucide-react";
 import type { FC } from "react";
 import { ThreadListItemMoreMenu } from "@/components/assistant-ui/shell/thread-list-item-more-menu";
+import { ThreadListItemLastActivityTooltip } from "@/components/assistant-ui/shell/thread-list-item-last-activity-tooltip";
 import { ThreadListItemTitle } from "@/components/assistant-ui/shell/thread-list-item-title";
 import {
   ThreadListItemNavTrigger,
@@ -63,19 +64,21 @@ const ThreadListSkeleton: FC = () => (
 );
 
 const ImageThreadListItem: FC = () => (
-  <ThreadListItemPrimitive.Root className="group flex h-9 items-center gap-2 rounded-lg transition-colors hover:bg-[#e6efff] data-active:bg-[#d4e4ff] dark:hover:bg-[#243044] dark:data-active:bg-[#2a3a52]">
-    <ThreadListItemNavTrigger className="flex h-full min-w-0 flex-1 items-center px-3 text-start text-[#0d3b8c] text-sm dark:text-[#b8d4ff]">
-      <ThreadListItemTitle fallback="新绘图" />
-    </ThreadListItemNavTrigger>
-    <ThreadListItemMoreMenu
-      triggerClassName="me-2 size-7 p-0 opacity-0 transition-opacity group-hover:opacity-100 data-[state=open]:opacity-100 group-data-active:opacity-100"
-      contentClassName="z-50 min-w-32 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md"
-      itemClassName="flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent"
-      deleteItemClassName="flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-destructive text-sm outline-none hover:bg-destructive/10"
-      archiveLabel="归档"
-      deleteLabel="删除"
-      srOnlyLabel="更多操作"
-    />
-  </ThreadListItemPrimitive.Root>
+  <ThreadListItemLastActivityTooltip>
+    <ThreadListItemPrimitive.Root className="group flex h-9 items-center gap-2 rounded-lg transition-colors hover:bg-[#e6efff] data-active:bg-[#d4e4ff] dark:hover:bg-[#243044] dark:data-active:bg-[#2a3a52]">
+      <ThreadListItemNavTrigger className="flex h-full min-w-0 flex-1 items-center px-3 text-start text-[#0d3b8c] text-sm dark:text-[#b8d4ff]">
+        <ThreadListItemTitle fallback="新绘图" />
+      </ThreadListItemNavTrigger>
+      <ThreadListItemMoreMenu
+        triggerClassName="me-2 size-7 p-0 opacity-0 transition-opacity group-hover:opacity-100 data-[state=open]:opacity-100 group-data-active:opacity-100"
+        contentClassName="z-50 min-w-32 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md"
+        itemClassName="flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent"
+        deleteItemClassName="flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-destructive text-sm outline-none hover:bg-destructive/10"
+        archiveLabel="归档"
+        deleteLabel="删除"
+        srOnlyLabel="更多操作"
+      />
+    </ThreadListItemPrimitive.Root>
+  </ThreadListItemLastActivityTooltip>
 );
 

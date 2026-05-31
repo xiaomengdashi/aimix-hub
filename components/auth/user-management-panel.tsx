@@ -4,6 +4,7 @@ import {
   ArrowLeftIcon,
   Loader2Icon,
   ShieldCheckIcon,
+  Trash2Icon,
   UsersIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -14,6 +15,14 @@ import {
   type AppUserRole,
 } from "@/lib/auth/roles";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
 type UserManagementPanelProps = {
@@ -35,6 +44,10 @@ export const UserManagementPanel: FC<UserManagementPanelProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
+  const [pendingDeleteUser, setPendingDeleteUser] = useState<ManagedUser | null>(
+    null,
+  );
 
   const loadUsers = useCallback(async () => {
     setLoading(true);
@@ -99,6 +112,33 @@ export const UserManagementPanel: FC<UserManagementPanelProps> = ({
     }
   };
 
+  const handleDeleteUser = async (user: ManagedUser) => {
+    setDeletingUserId(user.id);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/admin/users/${user.id}`, {
+        method: "DELETE",
+      });
+      const payload = (await response.json()) as { error?: string };
+
+      if (!response.ok) {
+        throw new Error(payload.error ?? "删除用户失败");
+      }
+
+      setUsers((current) => current.filter((item) => item.id !== user.id));
+      setPendingDeleteUser(null);
+    } catch (deleteError) {
+      setError(
+        deleteError instanceof Error
+          ? deleteError.message
+          : "删除用户失败",
+      );
+    } finally {
+      setDeletingUserId(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
@@ -118,7 +158,7 @@ export const UserManagementPanel: FC<UserManagementPanelProps> = ({
           <div className="min-w-0 flex-1">
             <h1 className="font-semibold text-xl">用户管理</h1>
             <p className="text-muted-foreground text-sm">
-              查看所有用户并分配角色。现有用户默认为管理员，新注册用户为普通用户。
+              查看所有用户、分配角色或删除账号。删除后该用户的会话与消息也会一并清除。
             </p>
           </div>
         </div>
@@ -140,12 +180,13 @@ export const UserManagementPanel: FC<UserManagementPanelProps> = ({
                 <th className="px-4 py-3 font-medium">角色</th>
                 <th className="px-4 py-3 font-medium">注册时间</th>
                 <th className="px-4 py-3 font-medium">最近登录</th>
+                <th className="px-4 py-3 font-medium">操作</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={4} className="px-4 py-10 text-center">
+                  <td colSpan={5} className="px-4 py-10 text-center">
                     <span className="inline-flex items-center gap-2 text-muted-foreground">
                       <Loader2Icon className="size-4 animate-spin" />
                       加载中…
@@ -155,7 +196,7 @@ export const UserManagementPanel: FC<UserManagementPanelProps> = ({
               ) : users.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={4}
+                    colSpan={5}
                     className="px-4 py-10 text-center text-muted-foreground"
                   >
                     暂无用户
@@ -165,6 +206,8 @@ export const UserManagementPanel: FC<UserManagementPanelProps> = ({
                 users.map((user) => {
                   const isCurrentUser = user.id === currentUserId;
                   const isUpdating = updatingUserId === user.id;
+                  const isDeleting = deletingUserId === user.id;
+                  const isBusy = isUpdating || isDeleting;
 
                   return (
                     <tr key={user.id} className="border-t">
@@ -187,10 +230,10 @@ export const UserManagementPanel: FC<UserManagementPanelProps> = ({
                             className={cn(
                               "h-9 min-w-32 rounded-md border bg-background px-3 text-sm outline-none",
                               "focus-visible:ring-2 focus-visible:ring-ring/50",
-                              isUpdating && "opacity-60",
+                              isBusy && "opacity-60",
                             )}
                             value={user.role}
-                            disabled={isUpdating}
+                            disabled={isBusy}
                             aria-label={`设置 ${user.username} 的角色`}
                             onChange={(event) => {
                               void handleRoleChange(
@@ -220,6 +263,23 @@ export const UserManagementPanel: FC<UserManagementPanelProps> = ({
                       <td className="px-4 py-3 text-muted-foreground">
                         {formatDate(user.lastSignInAt)}
                       </td>
+                      <td className="px-4 py-3">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="gap-1.5 text-destructive hover:text-destructive"
+                          disabled={isCurrentUser || isBusy}
+                          onClick={() => setPendingDeleteUser(user)}
+                        >
+                          {isDeleting ? (
+                            <Loader2Icon className="size-4 animate-spin" />
+                          ) : (
+                            <Trash2Icon className="size-4" />
+                          )}
+                          删除
+                        </Button>
+                      </td>
                     </tr>
                   );
                 })
@@ -228,6 +288,47 @@ export const UserManagementPanel: FC<UserManagementPanelProps> = ({
           </table>
         </div>
       </section>
+
+      <Dialog
+        open={pendingDeleteUser !== null}
+        onOpenChange={(open) => {
+          if (!open && !deletingUserId) {
+            setPendingDeleteUser(null);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md" showCloseButton={!deletingUserId}>
+          <DialogHeader>
+            <DialogTitle>删除用户</DialogTitle>
+            <DialogDescription>
+              确定要删除用户「{pendingDeleteUser?.username}」吗？此操作不可撤销，
+              该账号的所有会话与消息也会被永久删除。
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={Boolean(deletingUserId)}
+              onClick={() => setPendingDeleteUser(null)}
+            >
+              取消
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={!pendingDeleteUser || Boolean(deletingUserId)}
+              onClick={() => {
+                if (pendingDeleteUser) {
+                  void handleDeleteUser(pendingDeleteUser);
+                }
+              }}
+            >
+              {deletingUserId ? "删除中…" : "确认删除"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

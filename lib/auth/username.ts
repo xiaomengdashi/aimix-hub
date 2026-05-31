@@ -20,13 +20,14 @@ export function usernameToAuthEmail(username: string): string {
 }
 
 export function getDisplayUsername(user: User): string {
+  const email = user.email;
+  // 内部登录邮箱与用户名一一对应，改名后比 JWT 内嵌的 user_metadata 更可靠
+  if (email?.endsWith(`@${AUTH_EMAIL_DOMAIN}`)) {
+    return email.slice(0, -(`@${AUTH_EMAIL_DOMAIN}`.length));
+  }
   const fromMeta = user.user_metadata?.username;
   if (typeof fromMeta === "string" && fromMeta.trim()) {
     return fromMeta.trim();
-  }
-  const email = user.email;
-  if (email?.endsWith(`@${AUTH_EMAIL_DOMAIN}`)) {
-    return email.slice(0, -(`@${AUTH_EMAIL_DOMAIN}`.length));
   }
   return email?.split("@")[0] ?? "用户";
 }

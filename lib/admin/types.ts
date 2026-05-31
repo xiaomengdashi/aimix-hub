@@ -38,5 +38,6 @@ export type GatewayModelOption = {
   id: string;
   description?: string;
   modelType?: string;
+  supportedEndpointTypes?: string[];
   uiProvider?: ModelUiScope;
 };

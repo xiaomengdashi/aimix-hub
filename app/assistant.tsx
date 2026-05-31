@@ -140,17 +140,29 @@ export const Assistant: FC<{ initialAppId: AppId }> = ({ initialAppId }) => {
   const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user: currentUser } }) => {
+    let cancelled = false;
+
+    const syncUser = async () => {
+      const {
+        data: { user: currentUser },
+      } = await supabase.auth.getUser();
+      if (cancelled) return;
       setUser(currentUser);
       setAuthReady(true);
-    });
+    };
+
+    void syncUser();
+
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setAuthReady(true);
+    } = supabase.auth.onAuthStateChange(() => {
+      void syncUser();
     });
-    return () => subscription.unsubscribe();
+
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, [supabase]);
 
   if (!authReady) {

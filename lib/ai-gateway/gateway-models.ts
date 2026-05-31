@@ -10,6 +10,7 @@ type GatewayModelRow = {
   description?: string;
   model_type?: string;
   tags?: string;
+  supported_endpoint_types?: string[];
 };
 
 /** 非对话场景模型（语音/图像/嵌入等） */

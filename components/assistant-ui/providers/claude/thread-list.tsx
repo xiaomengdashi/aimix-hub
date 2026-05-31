@@ -10,6 +10,7 @@ import {
 import { PlusIcon } from "lucide-react";
 import type { FC } from "react";
 import { ThreadListItemMoreMenu } from "@/components/assistant-ui/shell/thread-list-item-more-menu";
+import { ThreadListItemLastActivityTooltip } from "@/components/assistant-ui/shell/thread-list-item-last-activity-tooltip";
 import { ThreadListItemTitle } from "@/components/assistant-ui/shell/thread-list-item-title";
 import {
   ThreadListItemNavTrigger,
@@ -63,11 +64,13 @@ const ThreadListSkeleton: FC = () => (
 );
 
 const ClaudeThreadListItem: FC = () => (
-  <ThreadListItemPrimitive.Root className="aui-thread-list-item group flex h-9 items-center gap-2 rounded-lg transition-colors hover:bg-[#E5E0D6]/70 focus-visible:bg-[#E5E0D6]/70 data-active:bg-[#E5E0D6] dark:hover:bg-[#393937]/70 dark:focus-visible:bg-[#393937]/70 dark:data-active:bg-[#393937]">
-    <ThreadListItemNavTrigger className="aui-thread-list-item-trigger flex h-full min-w-0 flex-1 items-center px-3 text-start text-[#3d3a35] text-sm dark:text-[#cdc9be]">
-      <ThreadListItemTitle />
-    </ThreadListItemNavTrigger>
-    <ThreadListItemMoreMenu />
-  </ThreadListItemPrimitive.Root>
+  <ThreadListItemLastActivityTooltip>
+    <ThreadListItemPrimitive.Root className="aui-thread-list-item group flex h-9 items-center gap-2 rounded-lg transition-colors hover:bg-[#E5E0D6]/70 focus-visible:bg-[#E5E0D6]/70 data-active:bg-[#E5E0D6] dark:hover:bg-[#393937]/70 dark:focus-visible:bg-[#393937]/70 dark:data-active:bg-[#393937]">
+      <ThreadListItemNavTrigger className="aui-thread-list-item-trigger flex h-full min-w-0 flex-1 items-center px-3 text-start text-[#3d3a35] text-sm dark:text-[#cdc9be]">
+        <ThreadListItemTitle />
+      </ThreadListItemNavTrigger>
+      <ThreadListItemMoreMenu />
+    </ThreadListItemPrimitive.Root>
+  </ThreadListItemLastActivityTooltip>
 );
 

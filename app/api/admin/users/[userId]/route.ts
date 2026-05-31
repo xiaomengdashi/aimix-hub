@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 import {
+  deleteManagedUser,
+  UserDeleteError,
+} from "@/lib/admin/delete-user";
+import {
   updateManagedUserRole,
   UserRoleUpdateError,
 } from "@/lib/admin/update-user-role";
@@ -10,6 +14,28 @@ import { createClient } from "@/lib/supabase/server";
 type RouteContext = {
   params: Promise<{ userId: string }>;
 };
+
+export async function DELETE(_request: Request, context: RouteContext) {
+  const session = await requireAdmin();
+  if (!session) {
+    return NextResponse.json({ error: "无权访问" }, { status: 403 });
+  }
+
+  const { userId } = await context.params;
+
+  try {
+    const supabase = await createClient();
+    await deleteManagedUser(supabase, userId);
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    if (error instanceof UserDeleteError) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+    const message =
+      error instanceof Error ? error.message : "删除用户失败";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
 
 export async function PATCH(request: Request, context: RouteContext) {
   const session = await requireAdmin();

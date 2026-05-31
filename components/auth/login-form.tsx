@@ -1,10 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState, type FC, type FormEvent } from "react";
-import { createClient } from "@/lib/supabase/client";
 import {
-  usernameToAuthEmail,
   validateUsername,
 } from "@/lib/auth/username";
 import { PasswordInput } from "@/components/auth/password-input";
@@ -22,14 +19,11 @@ export const LoginForm: FC<LoginFormProps> = ({
   authError = false,
   authErrorMessage,
 }) => {
-  const router = useRouter();
   const [mode, setMode] = useState<Mode>("login");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const supabase = createClient();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -50,55 +44,34 @@ export const LoginForm: FC<LoginFormProps> = ({
       return;
     }
 
-    const email = usernameToAuthEmail(normalized);
-
-    if (mode === "login") {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+    let response: Response;
+    try {
+      response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: normalized,
+          password,
+          mode,
+        }),
       });
-      if (error) {
-        setStatus("error");
-        setErrorMessage(
-          error.message.includes("Invalid login")
-            ? "用户名或密码错误"
-            : error.message,
-        );
-        return;
-      }
-      router.push("/");
-      router.refresh();
-      return;
-    }
-
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { username: normalized },
-      },
-    });
-
-    if (error) {
+    } catch {
       setStatus("error");
-      setErrorMessage(
-        error.message.includes("already registered")
-          ? "用户名已被占用"
-          : error.message,
-      );
+      setErrorMessage("网络错误，请稍后重试");
       return;
     }
 
-    if (data.session) {
-      router.push("/");
-      router.refresh();
+    const payload = (await response.json().catch(() => null)) as {
+      error?: string;
+    } | null;
+
+    if (!response.ok) {
+      setStatus("error");
+      setErrorMessage(payload?.error ?? "登录失败，请重试");
       return;
     }
 
-    setStatus("error");
-    setErrorMessage(
-      "注册成功，但需在 Supabase 关闭邮箱确认后才能直接登录；或改用已有账号登录。",
-    );
+    window.location.assign("/");
   };
 
   return (

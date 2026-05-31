@@ -4,7 +4,13 @@ import { Plus, Trash2 } from "lucide-react";
 import type { FC } from "react";
 import { ProviderSwitch } from "@/components/assistant-ui/providers/shared/provider-switch";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { ImageSessionSummary } from "@/lib/image-generation/session";
+import { formatRelativeConversationTime } from "@/lib/utils/format-relative-conversation-time";
 import { cn } from "@/lib/utils";
 
 type ImageStudioSidebarProps = {
@@ -61,30 +67,42 @@ export const ImageStudioSidebar: FC<ImageStudioSidebarProps> = ({
         <p className="px-2 py-4 text-center text-[#6b8fc7] text-xs">暂无历史作品</p>
       ) : (
         <ul className="space-y-1">
-          {sessions.map((s) => (
+          {sessions.map((s) => {
+            const lastActivityLabel = formatRelativeConversationTime(s.updatedAt);
+
+            return (
             <li key={s.id}>
               <section className="group flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleSelect(s.id)}
-                  className={cn(
-                    "flex min-w-0 flex-1 flex-col gap-0.5 rounded-lg px-3 py-2 text-left text-sm transition-colors",
-                    !composeMode && activeId === s.id
-                      ? "bg-[#d4e4ff] text-[#0d3b8c] dark:bg-[#2a3a52] dark:text-[#b8d4ff]"
-                      : "text-[#3d5a8c] hover:bg-[#e6efff] dark:text-[#8ab4f8] dark:hover:bg-[#1a2332]",
-                  )}
-                >
-                  <span className="line-clamp-2 font-medium">
-                    {s.title ?? s.prompt}
-                  </span>
-                  <span className="text-[#6b8fc7] text-xs">
-                    {s.status === "completed"
-                      ? (s.modelName ?? s.model)
-                      : s.status === "failed"
-                        ? "失败"
-                        : "生成中"}
-                  </span>
-                </button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      onClick={() => handleSelect(s.id)}
+                      className={cn(
+                        "flex min-w-0 flex-1 flex-col gap-0.5 rounded-lg px-3 py-2 text-left text-sm transition-colors",
+                        !composeMode && activeId === s.id
+                          ? "bg-[#d4e4ff] text-[#0d3b8c] dark:bg-[#2a3a52] dark:text-[#b8d4ff]"
+                          : "text-[#3d5a8c] hover:bg-[#e6efff] dark:text-[#8ab4f8] dark:hover:bg-[#1a2332]",
+                      )}
+                    >
+                      <span className="line-clamp-2 font-medium">
+                        {s.title ?? s.prompt}
+                      </span>
+                      <span className="text-[#6b8fc7] text-xs">
+                        {s.status === "completed"
+                          ? (s.modelName ?? s.model)
+                          : s.status === "failed"
+                            ? "失败"
+                            : "生成中"}
+                      </span>
+                    </button>
+                  </TooltipTrigger>
+                  {lastActivityLabel ? (
+                    <TooltipContent side="right" sideOffset={8}>
+                      最近对话：{lastActivityLabel}
+                    </TooltipContent>
+                  ) : null}
+                </Tooltip>
                 {s.imageUrl && s.status === "completed" ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -103,7 +121,8 @@ export const ImageStudioSidebar: FC<ImageStudioSidebarProps> = ({
                 </button>
               </section>
             </li>
-          ))}
+            );
+          })}
         </ul>
       )}
     </section>

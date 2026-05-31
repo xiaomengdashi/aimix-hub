@@ -14,18 +14,28 @@ export const PasswordInput: FC<PasswordInputProps> = ({
   const [visible, setVisible] = useState(false);
 
   return (
-    <div className="relative">
+    <div
+      className={cn(
+        "flex h-9 w-full items-stretch overflow-hidden rounded-md border border-input bg-transparent shadow-xs",
+        "focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50",
+        "dark:bg-input/30",
+      )}
+    >
       <Input
-        type={visible ? "text" : "password"}
-        className={cn("pe-9", className)}
         {...props}
+        type={visible ? "text" : "password"}
+        className={cn(
+          "h-full min-h-0 flex-1 border-0 shadow-none focus-visible:ring-0 dark:bg-transparent",
+          className,
+        )}
       />
       <button
         type="button"
         tabIndex={-1}
-        className="absolute inset-y-0 end-0 flex items-center px-3 text-muted-foreground transition-colors hover:text-foreground"
+        className="flex w-10 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
         onClick={() => setVisible((v) => !v)}
         aria-label={visible ? "隐藏密码" : "显示密码"}
+        aria-pressed={visible}
       >
         {visible ? (
           <EyeOffIcon className="size-4" aria-hidden />

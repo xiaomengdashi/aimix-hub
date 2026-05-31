@@ -29,6 +29,7 @@ type ThreadRow = {
   is_pinned: boolean;
   external_id: string | null;
   provider: AppId;
+  last_message_at: string | null;
 };
 
 class SupabaseHistoryAdapter implements ThreadHistoryAdapter {
@@ -106,13 +107,19 @@ export function createSupabaseThreadListAdapter(
     return user.id;
   };
 
-  const mapThread = (row: ThreadRow): RemoteThreadMetadata => ({
-    remoteId: row.id,
-    externalId: row.external_id ?? undefined,
-    status: row.is_archived ? "archived" : "regular",
-    title: row.title ?? undefined,
-    custom: row.is_pinned ? { isPinned: true } : undefined,
-  });
+  const mapThread = (row: ThreadRow): RemoteThreadMetadata => {
+    const custom: Record<string, unknown> = {};
+    if (row.is_pinned) custom.isPinned = true;
+    if (row.last_message_at) custom.lastMessageAt = row.last_message_at;
+
+    return {
+      remoteId: row.id,
+      externalId: row.external_id ?? undefined,
+      status: row.is_archived ? "archived" : "regular",
+      title: row.title ?? undefined,
+      custom: Object.keys(custom).length > 0 ? custom : undefined,
+    };
+  };
 
   return {
     unstable_Provider: createHistoryProvider(supabase),
@@ -121,7 +128,9 @@ export function createSupabaseThreadListAdapter(
       const userId = await requireUserId();
       const { data, error } = await supabase
         .from("threads")
-        .select("id, title, is_archived, is_pinned, external_id, provider")
+        .select(
+          "id, title, is_archived, is_pinned, external_id, provider, last_message_at",
+        )
         .eq("user_id", userId)
         .eq("provider", provider)
         .order("is_pinned", { ascending: false })
@@ -200,7 +209,9 @@ export function createSupabaseThreadListAdapter(
       const userId = await requireUserId();
       const { data, error } = await supabase
         .from("threads")
-        .select("id, title, is_archived, is_pinned, external_id, provider")
+        .select(
+          "id, title, is_archived, is_pinned, external_id, provider, last_message_at",
+        )
         .eq("id", threadId)
         .eq("user_id", userId)
         .eq("provider", provider)

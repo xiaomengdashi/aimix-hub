@@ -24,9 +24,9 @@ import type {
   ModelCatalogInput,
 } from "@/lib/admin/types";
 import {
-  defaultBackendForProvider,
   uiProviderForGatewayId,
 } from "@/lib/ai-gateway/gateway-discovery";
+import { inferBackendFromEndpointTypes } from "@/lib/ai-gateway/model-backend";
 import { resolveModelDisplay } from "@/lib/ai-gateway/model-display";
 import type { ModelUiScope } from "@/lib/chat/models";
 import { Button } from "@/components/ui/button";
@@ -40,7 +40,24 @@ const PROVIDER_TABS: { id: ModelUiScope; label: string }[] = [
   { id: "image", label: "绘图" },
 ];
 
-type EditableModel = ModelCatalogInput;
+type EditableModel = ModelCatalogInput & {
+  modelType?: string;
+  supportedEndpointTypes?: string[];
+};
+
+function resolveModelType(
+  model: EditableModel,
+  gatewayTypeById: Map<string, string>,
+): string | undefined {
+  return model.modelType ?? gatewayTypeById.get(model.modelId);
+}
+
+function resolveSupportedEndpointTypes(
+  model: EditableModel,
+  gatewayEndpointTypesById: Map<string, string[]>,
+): string[] | undefined {
+  return model.supportedEndpointTypes ?? gatewayEndpointTypesById.get(model.modelId);
+}
 
 function createModelFromGateway(
   option: GatewayModelOption,
@@ -56,8 +73,10 @@ function createModelFromGateway(
     name: display.name,
     description: display.description,
     contextWindow: uiProvider === "image" ? 0 : uiProvider === "gemini" ? 1_000_000 : 200_000,
-    backend: defaultBackendForProvider(uiProvider),
+    backend: inferBackendFromEndpointTypes(option.supportedEndpointTypes, uiProvider),
     apiModel: option.id,
+    modelType: option.modelType,
+    supportedEndpointTypes: option.supportedEndpointTypes,
   };
 }
 
@@ -95,6 +114,28 @@ export const ModelManagementPanel: FC = () => {
     [models],
   );
 
+  const gatewayTypeById = useMemo(
+    () =>
+      new Map(
+        gatewayModels
+          .filter((model) => model.modelType)
+          .map((model) => [model.id, model.modelType!] as const),
+      ),
+    [gatewayModels],
+  );
+
+  const gatewayEndpointTypesById = useMemo(
+    () =>
+      new Map(
+        gatewayModels
+          .filter((model) => model.supportedEndpointTypes?.length)
+          .map(
+            (model) => [model.id, model.supportedEndpointTypes!] as const,
+          ),
+      ),
+    [gatewayModels],
+  );
+
   const filteredGatewayModels = useMemo(() => {
     const query = gatewayFilter.trim().toLowerCase();
     return gatewayModels.filter((model) => {
@@ -109,9 +150,10 @@ export const ModelManagementPanel: FC = () => {
     setError(null);
 
     try {
-      const [settingsRes, modelsRes] = await Promise.all([
+      const [settingsRes, modelsRes, gatewayRes] = await Promise.all([
         fetch("/api/admin/integration"),
         fetch("/api/admin/models"),
+        fetch("/api/admin/models/gateway"),
       ]);
 
       const settingsPayload = (await settingsRes.json()) as {
@@ -122,12 +164,20 @@ export const ModelManagementPanel: FC = () => {
         models?: EditableModel[];
         error?: string;
       };
+      const gatewayPayload = (await gatewayRes.json()) as {
+        models?: GatewayModelOption[];
+        error?: string;
+      };
 
       if (!settingsRes.ok) {
         throw new Error(settingsPayload.error ?? "加载网关配置失败");
       }
       if (!modelsRes.ok) {
         throw new Error(modelsPayload.error ?? "加载模型配置失败");
+      }
+
+      if (gatewayRes.ok) {
+        setGatewayModels(gatewayPayload.models ?? []);
       }
 
       setSettings(settingsPayload.settings ?? null);
@@ -147,6 +197,11 @@ export const ModelManagementPanel: FC = () => {
           contextWindow: model.contextWindow,
           backend: model.backend,
           apiModel: model.apiModel,
+          modelType: gatewayPayload.models?.find((row) => row.id === model.modelId)
+            ?.modelType,
+          supportedEndpointTypes: gatewayPayload.models?.find(
+            (row) => row.id === model.modelId,
+          )?.supportedEndpointTypes,
         })),
       );
     } catch (loadError) {
@@ -264,7 +319,15 @@ export const ModelManagementPanel: FC = () => {
       const response = await fetch("/api/admin/models", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ models }),
+        body: JSON.stringify({
+          models: models.map((model) => ({
+            ...model,
+            backend: inferBackendFromEndpointTypes(
+              resolveSupportedEndpointTypes(model, gatewayEndpointTypesById),
+              model.uiProvider,
+            ),
+          })),
+        }),
       });
       const payload = (await response.json()) as {
         models?: EditableModel[];
@@ -286,6 +349,8 @@ export const ModelManagementPanel: FC = () => {
           contextWindow: model.contextWindow,
           backend: model.backend,
           apiModel: model.apiModel,
+          modelType: gatewayTypeById.get(model.modelId),
+          supportedEndpointTypes: gatewayEndpointTypesById.get(model.modelId),
         })),
       );
       setSuccess("模型配置已保存");
@@ -535,7 +600,7 @@ export const ModelManagementPanel: FC = () => {
                 <th className="px-3 py-3 font-medium">描述</th>
                 <th className="px-3 py-3 font-medium">Context</th>
                 <th className="px-3 py-3 font-medium">Backend</th>
-                <th className="px-3 py-3 font-medium">API Model</th>
+                <th className="px-3 py-3 font-medium">类型</th>
                 <th className="px-3 py-3 font-medium">操作</th>
               </tr>
             </thead>
@@ -602,28 +667,41 @@ export const ModelManagementPanel: FC = () => {
                       />
                     </td>
                     <td className="px-3 py-3">
-                      <select
-                        className="h-9 rounded-md border bg-background px-2"
-                        value={model.backend}
-                        onChange={(event) =>
-                          updateModel(model.modelId, {
-                            backend: event.target.value as EditableModel["backend"],
-                          })
+                      {(() => {
+                        const endpointTypes = resolveSupportedEndpointTypes(
+                          model,
+                          gatewayEndpointTypesById,
+                        );
+                        if (!endpointTypes?.length) {
+                          return (
+                            <span className="text-muted-foreground text-xs">—</span>
+                          );
                         }
-                      >
-                        <option value="openai">openai</option>
-                        <option value="anthropic">anthropic</option>
-                        <option value="google">google</option>
-                      </select>
+                        return (
+                          <div className="flex max-w-40 flex-wrap gap-1">
+                            {endpointTypes.map((type) => (
+                              <span
+                                key={type}
+                                className="inline-flex rounded-full bg-muted px-2 py-0.5 font-mono text-xs"
+                              >
+                                {type}
+                              </span>
+                            ))}
+                          </div>
+                        );
+                      })()}
                     </td>
                     <td className="px-3 py-3">
-                      <input
-                        className="h-9 min-w-32 rounded-md border bg-background px-2 font-mono text-xs"
-                        value={model.apiModel}
-                        onChange={(event) =>
-                          updateModel(model.modelId, { apiModel: event.target.value })
-                        }
-                      />
+                      {(() => {
+                        const modelType = resolveModelType(model, gatewayTypeById);
+                        return modelType ? (
+                          <span className="inline-flex rounded-full bg-muted px-2.5 py-1 text-xs">
+                            {modelType}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground text-xs">—</span>
+                        );
+                      })()}
                     </td>
                     <td className="px-3 py-3">
                       <div className="flex items-center gap-1">
@@ -689,8 +767,25 @@ export const ModelManagementPanel: FC = () => {
                     >
                       <div className="min-w-0">
                         <p className="font-mono text-xs">{option.id}</p>
+                        {option.modelType ? (
+                          <span className="mt-1 inline-flex rounded-full bg-muted px-2 py-0.5 text-muted-foreground text-xs">
+                            {option.modelType}
+                          </span>
+                        ) : null}
+                        {option.supportedEndpointTypes?.length ? (
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {option.supportedEndpointTypes.map((type) => (
+                              <span
+                                key={type}
+                                className="inline-flex rounded-full bg-muted px-2 py-0.5 font-mono text-muted-foreground text-xs"
+                              >
+                                {type}
+                              </span>
+                            ))}
+                          </div>
+                        ) : null}
                         {option.description ? (
-                          <p className="text-muted-foreground text-xs">
+                          <p className="mt-1 text-muted-foreground text-xs">
                             {option.description}
                           </p>
                         ) : null}

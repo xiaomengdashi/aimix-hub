@@ -10,6 +10,7 @@ import {
 import { PlusIcon } from "lucide-react";
 import type { FC } from "react";
 import { ThreadListItemMoreMenu } from "@/components/assistant-ui/shell/thread-list-item-more-menu";
+import { ThreadListItemLastActivityTooltip } from "@/components/assistant-ui/shell/thread-list-item-last-activity-tooltip";
 import { ThreadListItemTitle } from "@/components/assistant-ui/shell/thread-list-item-title";
 import {
   ThreadListItemNavTrigger,
@@ -63,11 +64,13 @@ const ThreadListSkeleton: FC = () => (
 );
 
 const OtherThreadListItem: FC = () => (
-  <ThreadListItemPrimitive.Root className="aui-thread-list-item group flex h-9 items-center gap-2 rounded-lg transition-colors hover:bg-muted focus-visible:bg-muted data-active:bg-muted">
-    <ThreadListItemNavTrigger className="aui-thread-list-item-trigger flex h-full min-w-0 flex-1 items-center px-3 text-start text-sm">
-      <ThreadListItemTitle />
-    </ThreadListItemNavTrigger>
-    <ThreadListItemMoreMenu />
-  </ThreadListItemPrimitive.Root>
+  <ThreadListItemLastActivityTooltip>
+    <ThreadListItemPrimitive.Root className="aui-thread-list-item group flex h-9 items-center gap-2 rounded-lg transition-colors hover:bg-muted focus-visible:bg-muted data-active:bg-muted">
+      <ThreadListItemNavTrigger className="aui-thread-list-item-trigger flex h-full min-w-0 flex-1 items-center px-3 text-start text-sm">
+        <ThreadListItemTitle />
+      </ThreadListItemNavTrigger>
+      <ThreadListItemMoreMenu />
+    </ThreadListItemPrimitive.Root>
+  </ThreadListItemLastActivityTooltip>
 );
 
