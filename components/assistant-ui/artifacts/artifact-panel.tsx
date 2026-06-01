@@ -27,6 +27,7 @@ import { useCallback, useRef, useState, type FC, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { ArtifactCodeEditor } from "@/components/assistant-ui/artifacts/artifact-code-editor";
 import { ArtifactPreviewFrame } from "@/components/assistant-ui/artifacts/artifact-preview-frame";
+import { ThreadOutlinePanel } from "@/components/assistant-ui/shell/thread-outline-panel";
 
 function clampPanelWidth(width: number): number {
   return Math.min(
@@ -248,18 +249,19 @@ export const ArtifactPanel: FC = () => (
 export const ArtifactWorkspace: FC<{ children: ReactNode }> = ({ children }) => {
   const panelOpen = useArtifactStore((s) => s.panelOpen);
   const panelWidth = useArtifactStore((s) => s.panelWidth);
-  const reservedWidth = panelOpen ? clampPanelWidth(panelWidth) : 0;
+  const artifactReserved = panelOpen ? clampPanelWidth(panelWidth) : 0;
 
   return (
-    <div className="relative h-full min-h-0 w-full overflow-hidden">
+    <div className="relative flex h-full min-h-0 w-full overflow-hidden">
       <div
-        className="flex h-full min-h-0 flex-col overflow-hidden transition-[padding-right] duration-200 ease-out"
-        style={{ paddingRight: reservedWidth }}
+        className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden transition-[padding-right] duration-200 ease-out"
+        style={{ paddingRight: artifactReserved }}
       >
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
           {children}
         </div>
       </div>
+      <ThreadOutlinePanel />
       <ArtifactPanel />
     </div>
   );

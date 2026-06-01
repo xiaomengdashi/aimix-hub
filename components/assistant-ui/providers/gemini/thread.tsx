@@ -40,6 +40,7 @@ import { VoicePlaceholderButton } from "@/components/assistant-ui/providers/shar
 import { ContextUsageIndicator } from "@/components/assistant-ui/shell/context-usage-indicator";
 import type { ComposerToolId } from "@/lib/chat/composer-tools";
 import { useAui } from "@assistant-ui/react";
+import { ThreadQuestionAnchor } from "@/components/assistant-ui/shell/thread-question-anchor";
 
 export const GeminiThread: FC = () => {
   return (
@@ -229,6 +230,7 @@ const ChatMessage: FC = () => {
   return (
     <MessagePrimitive.Root className="group/message relative mx-auto mb-4 flex w-full max-w-3xl flex-col pb-0.5">
       <AuiIf condition={(s) => s.message.role === "user"}>
+        <ThreadQuestionAnchor className="w-full max-w-3xl ms-auto">
         <div className="flex items-center justify-end gap-1">
           <ActionBarPrimitive.Root className={cn("pt-1", userMessageActionBarRootClass)}>
             <ActionBarPrimitive.Copy className={actionBtnClass}>
@@ -244,6 +246,7 @@ const ChatMessage: FC = () => {
             </div>
           </div>
         </div>
+        </ThreadQuestionAnchor>
       </AuiIf>
 
       <AuiIf condition={(s) => s.message.role === "assistant"}>

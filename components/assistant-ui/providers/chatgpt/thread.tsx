@@ -33,6 +33,7 @@ import { AssistantMessageActionBar } from "@/components/assistant-ui/providers/s
 import { userMessageActionBarRootClass } from "@/components/assistant-ui/providers/shared/message-action-bar-styles";
 import { VoicePlaceholderButton } from "@/components/assistant-ui/providers/shared/voice-ui-placeholder";
 import { ContextUsageIndicator } from "@/components/assistant-ui/shell/context-usage-indicator";
+import { ThreadUserMessageRoot } from "@/components/assistant-ui/shell/thread-user-message-root";
 
 export const ChatGPTThread: FC = () => {
   return (
@@ -180,7 +181,7 @@ const ThreadScrollToBottom: FC = () => {
 
 const UserMessage: FC = () => {
   return (
-    <MessagePrimitive.Root className="group/message relative mx-auto flex w-full max-w-3xl flex-col items-end gap-1">
+    <ThreadUserMessageRoot className="group/message relative mx-auto flex w-full max-w-3xl flex-col items-end gap-1">
       <div className="flex flex-row flex-wrap justify-end gap-2">
         <MessagePrimitive.Attachments
           components={{ Attachment: ChatGPTAttachmentUI }}
@@ -205,7 +206,7 @@ const UserMessage: FC = () => {
       </div>
 
       <BranchPicker className="mt-2 mr-3" />
-    </MessagePrimitive.Root>
+    </ThreadUserMessageRoot>
   );
 };
 

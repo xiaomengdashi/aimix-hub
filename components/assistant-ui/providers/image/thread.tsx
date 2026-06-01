@@ -24,6 +24,7 @@ import { ArtifactAssistantMarkdown } from "@/components/assistant-ui/artifacts/a
 import { TooltipIconButton } from "@/components/assistant-ui/message/tooltip-icon-button";
 import { AssistantMessageActionBar } from "@/components/assistant-ui/providers/shared/assistant-message-action-bar";
 import { userMessageActionBarRootClass } from "@/components/assistant-ui/providers/shared/message-action-bar-styles";
+import { ThreadUserMessageRoot } from "@/components/assistant-ui/shell/thread-user-message-root";
 import { cn } from "@/lib/utils";
 
 const SUGGESTIONS = [
@@ -157,7 +158,7 @@ const ThreadScrollToBottom: FC = () => (
 );
 
 const UserMessage: FC = () => (
-  <MessagePrimitive.Root className="group/message relative mx-auto flex w-full max-w-3xl flex-col items-end gap-1">
+  <ThreadUserMessageRoot className="group/message relative mx-auto flex w-full max-w-3xl flex-col items-end gap-1">
     <div className="flex items-start gap-4">
       <ActionBarPrimitive.Root
         hideWhenRunning
@@ -174,7 +175,7 @@ const UserMessage: FC = () => (
       </div>
     </div>
     <BranchPicker className="mt-2 mr-3" />
-  </MessagePrimitive.Root>
+  </ThreadUserMessageRoot>
 );
 
 const EditComposer: FC = () => (

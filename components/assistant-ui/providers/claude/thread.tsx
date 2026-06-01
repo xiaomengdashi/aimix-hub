@@ -35,6 +35,7 @@ import { AssistantMessageActionBar } from "@/components/assistant-ui/providers/s
 import { userMessageActionBarRootClass } from "@/components/assistant-ui/providers/shared/message-action-bar-styles";
 import { ProviderModelPicker } from "@/components/assistant-ui/providers/shared/model-picker";
 import { VoicePlaceholderButton } from "@/components/assistant-ui/providers/shared/voice-ui-placeholder";
+import { ThreadUserMessageRoot } from "@/components/assistant-ui/shell/thread-user-message-root";
 
 const messageActionButtonClassName =
   "flex size-8 items-center justify-center rounded-md text-[#5b5950] transition-colors hover:bg-[#1a1a18]/5 hover:text-[#1a1a18] dark:text-[#a3a098] dark:hover:bg-white/5 dark:hover:text-[#eee]";
@@ -185,10 +186,7 @@ const ComposerPrimaryAction: FC = () => {
 
 const ClaudeUserMessage: FC = () => {
   return (
-    <MessagePrimitive.Root
-      className="group/message relative mx-auto flex w-full max-w-3xl flex-col py-2"
-      data-role="user"
-    >
+    <ThreadUserMessageRoot className="group/message relative mx-auto flex w-full max-w-3xl flex-col py-2">
       <div className="flex max-w-[80%] flex-col items-end gap-1.5 ms-auto">
         <UserMessageAttachments />
         <div className="wrap-break-word w-full whitespace-pre-wrap rounded-2xl bg-[#E5E0D6] px-4 py-2.5 text-[#1a1a18] empty:hidden dark:bg-[#393937] dark:text-[#eee]">
@@ -216,7 +214,7 @@ const ClaudeUserMessage: FC = () => {
           </ActionBarPrimitive.Copy>
         </ActionBarPrimitive.Root>
       </div>
-    </MessagePrimitive.Root>
+    </ThreadUserMessageRoot>
   );
 };
 

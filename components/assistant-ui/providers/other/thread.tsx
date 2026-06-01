@@ -22,6 +22,7 @@ import { AssistantMessageActionBar } from "@/components/assistant-ui/providers/s
 import { userMessageActionBarRootClass } from "@/components/assistant-ui/providers/shared/message-action-bar-styles";
 import { VoicePlaceholderButton } from "@/components/assistant-ui/providers/shared/voice-ui-placeholder";
 import { ContextUsageIndicator } from "@/components/assistant-ui/shell/context-usage-indicator";
+import { ThreadUserMessageRoot } from "@/components/assistant-ui/shell/thread-user-message-root";
 import { useChatSession } from "@/components/assistant-ui/contexts/chat-session-context";
 import { useComposerTool } from "@/components/assistant-ui/contexts/composer-tool-context";
 import { ComposerToolsMenu } from "@/components/assistant-ui/providers/shared/composer-tools-menu";
@@ -338,10 +339,9 @@ const AssistantMessage: FC = () => {
 
 const UserMessage: FC = () => {
   return (
-    <MessagePrimitive.Root
+    <ThreadUserMessageRoot
       data-slot="aui_user-message-root"
       className="group/message fade-in slide-in-from-bottom-1 flex animate-in flex-col items-end gap-1 px-2 duration-150 [contain-intrinsic-size:auto_60px] [content-visibility:auto]"
-      data-role="user"
     >
       <UserMessageAttachments />
 
@@ -354,7 +354,7 @@ const UserMessage: FC = () => {
         data-slot="aui_user-branch-picker"
         className="-me-1 justify-end"
       />
-    </MessagePrimitive.Root>
+    </ThreadUserMessageRoot>
   );
 };
 
