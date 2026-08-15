@@ -43,7 +43,11 @@ type ProfileFieldProps = {
 	children: React.ReactNode;
 };
 
-const ProfileField: FC<ProfileFieldProps> = ({ icon: Icon, label, children }) => (
+const ProfileField: FC<ProfileFieldProps> = ({
+	icon: Icon,
+	label,
+	children,
+}) => (
 	<div className="flex gap-3 border-b border-slate-100 px-1 py-3.5 last:border-0">
 		<Icon className="mt-0.5 size-4 shrink-0 text-slate-400" />
 		<div className="min-w-0">

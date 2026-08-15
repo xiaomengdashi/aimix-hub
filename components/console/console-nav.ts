@@ -29,7 +29,12 @@ export const CONSOLE_NAV_GROUPS: ConsoleNavGroup[] = [
 		label: "总览",
 		adminOnly: true,
 		items: [
-			{ href: "/admin", label: "控制台首页", icon: LayoutDashboardIcon, adminOnly: true },
+			{
+				href: "/admin",
+				label: "控制台首页",
+				icon: LayoutDashboardIcon,
+				adminOnly: true,
+			},
 		],
 	},
 	{
@@ -37,9 +42,24 @@ export const CONSOLE_NAV_GROUPS: ConsoleNavGroup[] = [
 		label: "资源管理",
 		adminOnly: true,
 		items: [
-			{ href: "/admin/users", label: "成员与权限", icon: UsersRoundIcon, adminOnly: true },
-			{ href: "/admin/models", label: "模型与路由", icon: RouteIcon, adminOnly: true },
-			{ href: "/admin/integration", label: "服务配置", icon: Settings2Icon, adminOnly: true },
+			{
+				href: "/admin/users",
+				label: "成员与权限",
+				icon: UsersRoundIcon,
+				adminOnly: true,
+			},
+			{
+				href: "/admin/models",
+				label: "模型与路由",
+				icon: RouteIcon,
+				adminOnly: true,
+			},
+			{
+				href: "/admin/integration",
+				label: "服务配置",
+				icon: Settings2Icon,
+				adminOnly: true,
+			},
 		],
 	},
 	{

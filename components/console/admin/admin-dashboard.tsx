@@ -123,13 +123,20 @@ export const AdminDashboard: FC = () => {
 			</ConsoleSection>
 
 			<div className="grid gap-6 lg:grid-cols-2">
-				<ConsoleSection title="应用使用分布" description="最近 14 天按应用统计消息与 Token">
+				<ConsoleSection
+					title="应用使用分布"
+					description="最近 14 天按应用统计消息与 Token"
+				>
 					<DashboardDistribution providerUsage={dashboard.providerUsage} />
 				</ConsoleSection>
 				<ConsoleSection
 					title="服务配置状态"
 					description="密钥仅显示配置状态，不会展示内容"
-					action={<span className="text-xs text-slate-400">配置状态 · 非在线状态</span>}
+					action={
+						<span className="text-xs text-slate-400">
+							配置状态 · 非在线状态
+						</span>
+					}
 				>
 					<DashboardStatus
 						integration={dashboard.integration}

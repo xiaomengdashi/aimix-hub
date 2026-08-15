@@ -13,10 +13,7 @@ type DashboardTrendChartProps = {
 	activity: AdminDashboardData["activity"];
 };
 
-function buildPoints(
-	values: number[],
-	max: number,
-): string {
+function buildPoints(values: number[], max: number): string {
 	if (values.length === 0) return "";
 	const innerWidth = VIEW_WIDTH - PADDING * 2;
 	const innerHeight = VIEW_HEIGHT - PADDING * 2;
@@ -43,7 +40,9 @@ export const DashboardTrendChart: FC<DashboardTrendChartProps> = ({
 
 	const messagePath = buildPoints(messageCounts, max);
 	const tokenPath = buildPoints(tokenCounts, max);
-	const busiesDay = activity.reduce<AdminDashboardData["activity"][number] | null>(
+	const busiesDay = activity.reduce<
+		AdminDashboardData["activity"][number] | null
+	>(
 		(best, day) => (!best || day.messageCount > best.messageCount ? day : best),
 		null,
 	);
@@ -52,11 +51,7 @@ export const DashboardTrendChart: FC<DashboardTrendChartProps> = ({
 
 	return (
 		<div>
-			<div
-				role="img"
-				aria-label={ariaLabel}
-				className="w-full"
-			>
+			<div role="img" aria-label={ariaLabel} className="w-full">
 				<svg
 					viewBox={`0 0 ${VIEW_WIDTH} ${VIEW_HEIGHT}`}
 					className="h-56 w-full animate-[fade-in_180ms_ease-out_both]"
@@ -125,7 +120,8 @@ export const DashboardTrendChart: FC<DashboardTrendChartProps> = ({
 				</div>
 				{busiesDay && busiesDay.messageCount > 0 ? (
 					<p className="sr-only">
-						消息量最高的一天是 {busiesDay.date}，共 {busiesDay.messageCount} 条消息。
+						消息量最高的一天是 {busiesDay.date}，共 {busiesDay.messageCount}{" "}
+						条消息。
 					</p>
 				) : null}
 			</div>

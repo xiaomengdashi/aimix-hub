@@ -1,6 +1,11 @@
 "use client";
 
-import { Loader2Icon, SearchIcon, ShieldCheckIcon, Trash2Icon } from "lucide-react";
+import {
+	Loader2Icon,
+	SearchIcon,
+	ShieldCheckIcon,
+	Trash2Icon,
+} from "lucide-react";
 import { useCallback, useEffect, useMemo, useState, type FC } from "react";
 import type { ManagedUser } from "@/lib/admin/types";
 import { APP_USER_ROLE_LABELS, type AppUserRole } from "@/lib/auth/roles";
@@ -163,7 +168,9 @@ export const UserManagementPanel: FC<UserManagementPanelProps> = ({
 						aria-label="按角色筛选"
 						className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
 						value={roleFilter}
-						onChange={(event) => setRoleFilter(event.target.value as RoleFilter)}
+						onChange={(event) =>
+							setRoleFilter(event.target.value as RoleFilter)
+						}
 					>
 						<option value="all">全部角色</option>
 						<option value="admin">{APP_USER_ROLE_LABELS.admin}</option>

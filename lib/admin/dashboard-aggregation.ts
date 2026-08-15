@@ -35,9 +35,7 @@ function resolveProvider(value: string | undefined): AppId {
 	return value && isAppId(value) ? value : "other";
 }
 
-function messageTokens(
-	usage: DashboardMessageRow["usage"],
-): number {
+function messageTokens(usage: DashboardMessageRow["usage"]): number {
 	if (!usage) return 0;
 	return (usage.inputTokens ?? 0) + (usage.outputTokens ?? 0);
 }
@@ -62,7 +60,10 @@ export function buildAdminDashboardData(input: {
 
 	const threadById = new Map(threads.map((thread) => [thread.id, thread]));
 
-	const providerStats = new Map<AppId, { messageCount: number; tokenCount: number }>(
+	const providerStats = new Map<
+		AppId,
+		{ messageCount: number; tokenCount: number }
+	>(
 		APP_NAV_OPTIONS.map((option) => [
 			option.id,
 			{ messageCount: 0, tokenCount: 0 },

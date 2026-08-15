@@ -365,7 +365,8 @@ export const ModelManagementPanel: FC = () => {
 							模型目录
 						</h2>
 						<p className="mt-0.5 text-sm text-slate-500">
-							已配置 {models.length} 个模型，其中 {models.filter((model) => model.enabled).length} 个启用
+							已配置 {models.length} 个模型，其中{" "}
+							{models.filter((model) => model.enabled).length} 个启用
 						</p>
 					</div>
 					<Button
@@ -567,7 +568,9 @@ export const ModelManagementPanel: FC = () => {
 
 				<div className="mt-6 space-y-3 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_1px_2px_rgb(15_23_42/0.03)]">
 					<div className="flex flex-wrap items-center gap-3">
-						<h3 className="text-base font-semibold text-slate-900 tracking-tight">从网关添加模型</h3>
+						<h3 className="text-base font-semibold text-slate-900 tracking-tight">
+							从网关添加模型
+						</h3>
 						<input
 							className="h-9 min-w-48 flex-1 rounded-md border border-slate-200 bg-white px-3 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
 							value={gatewayFilter}

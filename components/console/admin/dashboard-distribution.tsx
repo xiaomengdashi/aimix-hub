@@ -32,7 +32,8 @@ export const DashboardDistribution: FC<DashboardDistributionProps> = ({
 								{getAppDisplayName(row.provider)}
 							</span>
 							<span className="text-muted-foreground tabular-nums">
-								{row.messageCount} 消息 · {formatTokenCount(row.tokenCount)} Token
+								{row.messageCount} 消息 · {formatTokenCount(row.tokenCount)}{" "}
+								Token
 							</span>
 						</div>
 						<div className="h-2 overflow-hidden rounded-full bg-slate-100">

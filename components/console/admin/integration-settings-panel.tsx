@@ -1,10 +1,6 @@
 "use client";
 
-import {
-	CheckCircle2Icon,
-	Loader2Icon,
-	PlugZapIcon,
-} from "lucide-react";
+import { CheckCircle2Icon, Loader2Icon, PlugZapIcon } from "lucide-react";
 import { useCallback, useEffect, useState, type FC } from "react";
 import type { AdminIntegrationSettings } from "@/lib/admin/types";
 import { Button } from "@/components/ui/button";
@@ -121,9 +117,7 @@ export const IntegrationSettingsPanel: FC = () => {
 			}
 			setSuccess(`AI 网关连接成功，共 ${payload.count ?? 0} 个模型`);
 		} catch (testError) {
-			setError(
-				testError instanceof Error ? testError.message : "连接测试失败",
-			);
+			setError(testError instanceof Error ? testError.message : "连接测试失败");
 		} finally {
 			setTestingConnection(false);
 		}
@@ -184,7 +178,10 @@ export const IntegrationSettingsPanel: FC = () => {
 								aria-hidden
 							/>
 						) : (
-							<PlugZapIcon className="size-4 shrink-0 text-amber-500" aria-hidden />
+							<PlugZapIcon
+								className="size-4 shrink-0 text-amber-500"
+								aria-hidden
+							/>
 						)}
 						<div className="min-w-0">
 							<p className="text-xs text-slate-400">{item.label}</p>

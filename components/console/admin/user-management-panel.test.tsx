@@ -9,8 +9,20 @@ beforeEach(() =>
 			new Response(
 				JSON.stringify({
 					users: [
-						{ id: "u-1", username: "alice", role: "admin", createdAt: "2026-08-01T00:00:00Z", lastSignInAt: null },
-						{ id: "u-2", username: "bob", role: "user", createdAt: "2026-08-02T00:00:00Z", lastSignInAt: null },
+						{
+							id: "u-1",
+							username: "alice",
+							role: "admin",
+							createdAt: "2026-08-01T00:00:00Z",
+							lastSignInAt: null,
+						},
+						{
+							id: "u-2",
+							username: "bob",
+							role: "user",
+							createdAt: "2026-08-02T00:00:00Z",
+							lastSignInAt: null,
+						},
 					],
 				}),
 				{ status: 200 },

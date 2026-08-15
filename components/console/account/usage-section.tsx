@@ -54,7 +54,9 @@ export const AccountUsageSection: FC<AccountUsageSectionProps> = ({
 		<div className="grid gap-6 lg:grid-cols-2">
 			<section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_1px_2px_rgb(15_23_42/0.03)]">
 				<div className="mb-4 border-b border-slate-100 pb-4">
-					<h2 className="font-semibold text-base text-slate-900">各应用使用量</h2>
+					<h2 className="font-semibold text-base text-slate-900">
+						各应用使用量
+					</h2>
 					<p className="text-muted-foreground text-sm">
 						按 ChatGPT、Claude、Gemini 等应用统计会话与消息
 					</p>
@@ -95,7 +97,9 @@ export const AccountUsageSection: FC<AccountUsageSectionProps> = ({
 
 			<section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_1px_2px_rgb(15_23_42/0.03)]">
 				<div className="mb-4 border-b border-slate-100 pb-4">
-					<h2 className="font-semibold text-base text-slate-900">绘图模型使用量</h2>
+					<h2 className="font-semibold text-base text-slate-900">
+						绘图模型使用量
+					</h2>
 					<p className="text-muted-foreground text-sm">
 						统计 Image Studio 中各模型的生成次数
 					</p>
@@ -110,7 +114,9 @@ export const AccountUsageSection: FC<AccountUsageSectionProps> = ({
 						{byModel.map((item) => (
 							<li key={item.modelId} className="space-y-2">
 								<div className="flex items-center justify-between gap-3 text-sm">
-									<span className="font-medium text-slate-800">{item.label}</span>
+									<span className="font-medium text-slate-800">
+										{item.label}
+									</span>
 									<span className="text-muted-foreground tabular-nums">
 										{item.messageCount} 次
 									</span>
