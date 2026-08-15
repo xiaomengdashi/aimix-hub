@@ -45,7 +45,7 @@ export const ConsoleShell: FC<ConsoleShellProps> = ({
 
 	return (
 		<div className="flex min-h-dvh bg-[#f6f8fb]">
-			<aside className="hidden h-dvh w-60 shrink-0 border-slate-200 border-r bg-white md:flex md:sticky md:top-0">
+			<aside className="hidden h-full w-60 shrink-0 border-r border-slate-200 bg-white lg:flex">
 				{sidebar}
 			</aside>
 
@@ -68,7 +68,7 @@ export const ConsoleShell: FC<ConsoleShellProps> = ({
 			</Sheet>
 
 			<div className="flex min-w-0 flex-1 flex-col">
-				<div className="flex h-12 shrink-0 items-center border-slate-200 border-b bg-white px-3 md:hidden">
+				<div className="flex h-12 shrink-0 items-center px-3 lg:hidden">
 					<Button
 						type="button"
 						variant="ghost"
@@ -78,11 +78,8 @@ export const ConsoleShell: FC<ConsoleShellProps> = ({
 					>
 						<MenuIcon className="size-4" />
 					</Button>
-					<span className="ml-2 font-semibold text-slate-900 text-sm">
-						Axis Control
-					</span>
 				</div>
-				<main className="min-h-0 flex-1">
+				<main className="min-h-0 flex-1 overflow-y-auto">
 					<div className="mx-auto w-full max-w-[1440px] px-4 py-6 md:px-8 md:py-8 xl:px-10">
 						{children}
 					</div>
