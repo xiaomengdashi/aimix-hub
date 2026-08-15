@@ -28,18 +28,30 @@ export const ConsoleSidebar: FC<ConsoleSidebarProps> = ({
 	const pathname = usePathname();
 	const { signOut, loading } = useSignOut();
 	const roleLabel = role ? APP_USER_ROLE_LABELS[role] : null;
+	const initial = displayName.slice(0, 1).toUpperCase();
 
 	return (
 		<div className="flex h-full min-h-0 flex-col">
-			<div className="px-3 pt-4 pb-3">
-				<p className="px-2 font-semibold text-[15px] tracking-tight">控制台</p>
+			<div className="flex items-center gap-2.5 px-5 pt-6 pb-7">
+				<span
+					aria-hidden
+					className="grid size-8 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-blue-500 to-blue-400 text-sm font-bold text-white"
+				>
+					A
+				</span>
+				<div className="min-w-0">
+					<p className="font-bold text-[15px] text-slate-900 tracking-tight">
+						Axis Control
+					</p>
+					<p className="text-[11px] text-slate-400">AI Platform</p>
+				</div>
 			</div>
 
-			<nav className="min-h-0 flex-1 space-y-5 overflow-y-auto px-3 pb-3">
+			<nav className="min-h-0 flex-1 space-y-6 overflow-y-auto px-3 pb-4">
 				{CONSOLE_NAV_GROUPS.filter((group) => !group.adminOnly || isAdmin).map(
 					(group) => (
 						<section key={group.id}>
-							<p className="px-2 pb-1.5 font-medium text-[11px] text-muted-foreground tracking-wide">
+							<p className="px-3 pb-2 text-[10px] font-semibold tracking-[0.14em] text-slate-400 uppercase">
 								{group.label}
 							</p>
 							<ul className="space-y-0.5">
@@ -54,13 +66,18 @@ export const ConsoleSidebar: FC<ConsoleSidebarProps> = ({
 													href={item.href}
 													onClick={onNavigateAction}
 													className={cn(
-														"flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors",
+														"flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors",
 														active
-															? "bg-black/[0.06] font-medium text-foreground dark:bg-white/10"
-															: "text-neutral-600 hover:bg-black/[0.04] hover:text-foreground dark:text-neutral-400 dark:hover:bg-white/5",
+															? "bg-blue-50 font-medium text-blue-700"
+															: "text-slate-600 hover:bg-slate-50 hover:text-slate-950",
 													)}
 												>
-													<Icon className="size-3.5 shrink-0 opacity-70" />
+													<Icon
+														className={cn(
+															"size-4 shrink-0",
+															active ? "text-blue-600" : "text-slate-400",
+														)}
+													/>
 													{item.label}
 												</Link>
 											</li>
@@ -72,29 +89,39 @@ export const ConsoleSidebar: FC<ConsoleSidebarProps> = ({
 				)}
 			</nav>
 
-			<footer className="mt-auto space-y-1 border-black/5 border-t px-3 py-3 dark:border-white/10">
+			<footer className="mt-auto space-y-1 border-t border-slate-100 px-3 py-4">
 				<Link
 					href="/"
 					onClick={onNavigateAction}
-					className="flex items-center gap-2 rounded-md px-2 py-1.5 text-neutral-600 text-sm hover:bg-black/[0.04] hover:text-foreground dark:text-neutral-400 dark:hover:bg-white/5"
+					className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-slate-600 text-sm transition-colors hover:bg-slate-50 hover:text-slate-950"
 				>
-					<ArrowLeftIcon className="size-3.5 opacity-70" />
+					<ArrowLeftIcon className="size-4 text-slate-400" />
 					返回对话
 				</Link>
 				<button
 					type="button"
 					disabled={loading}
 					onClick={() => void signOut()}
-					className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-red-700/80 text-sm hover:bg-red-50 hover:text-red-700 disabled:opacity-50 dark:text-red-400 dark:hover:bg-red-500/10"
+					className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
 				>
-					<LogOutIcon className="size-3.5 opacity-70" />
+					<LogOutIcon className="size-4 text-red-400" />
 					{loading ? "退出中…" : "退出登录"}
 				</button>
-				<div className="px-2 pt-2">
-					<p className="truncate font-medium text-sm">{displayName}</p>
-					{roleLabel ? (
-						<p className="text-muted-foreground text-xs">{roleLabel}</p>
-					) : null}
+				<div className="flex items-center gap-2.5 px-3 pt-3">
+					<span
+						aria-hidden
+						className="grid size-8 shrink-0 place-items-center rounded-full bg-slate-900 text-xs font-semibold text-white"
+					>
+						{initial}
+					</span>
+					<div className="min-w-0">
+						<p className="truncate font-medium text-slate-800 text-sm">
+							{displayName}
+						</p>
+						{roleLabel ? (
+							<p className="text-[11px] text-slate-400">{roleLabel}</p>
+						) : null}
+					</div>
 				</div>
 			</footer>
 		</div>

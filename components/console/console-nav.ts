@@ -2,10 +2,11 @@ import type { LucideIcon } from "lucide-react";
 import {
 	ArchiveIcon,
 	BarChart3Icon,
-	BotIcon,
-	CableIcon,
+	LayoutDashboardIcon,
+	RouteIcon,
+	Settings2Icon,
 	UserIcon,
-	UsersIcon,
+	UsersRoundIcon,
 } from "lucide-react";
 
 export type ConsoleNavItem = {
@@ -24,37 +25,38 @@ export type ConsoleNavGroup = {
 
 export const CONSOLE_NAV_GROUPS: ConsoleNavGroup[] = [
 	{
-		id: "account",
-		label: "账号",
+		id: "overview",
+		label: "总览",
+		adminOnly: true,
 		items: [
-			{ href: "/account", label: "资料", icon: UserIcon },
-			{ href: "/account/usage", label: "用量", icon: BarChart3Icon },
-			{ href: "/account/archived", label: "归档", icon: ArchiveIcon },
+			{ href: "/admin", label: "控制台首页", icon: LayoutDashboardIcon, adminOnly: true },
 		],
 	},
 	{
-		id: "admin",
-		label: "管理",
+		id: "resources",
+		label: "资源管理",
 		adminOnly: true,
 		items: [
-			{ href: "/admin/users", label: "用户", icon: UsersIcon, adminOnly: true },
-			{
-				href: "/admin/models",
-				label: "模型目录",
-				icon: BotIcon,
-				adminOnly: true,
-			},
-			{
-				href: "/admin/integration",
-				label: "接口配置",
-				icon: CableIcon,
-				adminOnly: true,
-			},
+			{ href: "/admin/users", label: "成员与权限", icon: UsersRoundIcon, adminOnly: true },
+			{ href: "/admin/models", label: "模型与路由", icon: RouteIcon, adminOnly: true },
+			{ href: "/admin/integration", label: "服务配置", icon: Settings2Icon, adminOnly: true },
+		],
+	},
+	{
+		id: "account",
+		label: "个人空间",
+		items: [
+			{ href: "/account/usage", label: "我的用量", icon: BarChart3Icon },
+			{ href: "/account/archived", label: "归档会话", icon: ArchiveIcon },
+			{ href: "/account", label: "账号资料", icon: UserIcon },
 		],
 	},
 ];
 
 export function isConsoleNavActive(pathname: string, href: string): boolean {
+	if (href === "/admin") {
+		return pathname === "/admin";
+	}
 	if (href === "/account") {
 		return pathname === "/account";
 	}

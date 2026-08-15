@@ -44,8 +44,8 @@ export const ConsoleShell: FC<ConsoleShellProps> = ({
 	);
 
 	return (
-		<div className="flex h-dvh bg-background">
-			<aside className="hidden h-full w-56 shrink-0 border-black/5 border-r bg-[#f7f7f5] md:flex dark:border-white/10 dark:bg-zinc-950">
+		<div className="flex min-h-dvh bg-[#f6f8fb]">
+			<aside className="hidden h-dvh w-60 shrink-0 border-slate-200 border-r bg-white md:flex md:sticky md:top-0">
 				{sidebar}
 			</aside>
 
@@ -57,7 +57,7 @@ export const ConsoleShell: FC<ConsoleShellProps> = ({
 			>
 				<SheetContent
 					side="left"
-					className="w-64 border-black/5 bg-[#f7f7f5] p-0 dark:border-white/10 dark:bg-zinc-950 [&>button]:hidden"
+					className="w-64 border-slate-200 bg-white p-0 [&>button]:hidden"
 				>
 					<SheetHeader className="sr-only">
 						<SheetTitle>控制台导航</SheetTitle>
@@ -68,7 +68,7 @@ export const ConsoleShell: FC<ConsoleShellProps> = ({
 			</Sheet>
 
 			<div className="flex min-w-0 flex-1 flex-col">
-				<div className="flex h-12 shrink-0 items-center px-3 md:hidden">
+				<div className="flex h-12 shrink-0 items-center border-slate-200 border-b bg-white px-3 md:hidden">
 					<Button
 						type="button"
 						variant="ghost"
@@ -78,9 +78,12 @@ export const ConsoleShell: FC<ConsoleShellProps> = ({
 					>
 						<MenuIcon className="size-4" />
 					</Button>
+					<span className="ml-2 font-semibold text-slate-900 text-sm">
+						Axis Control
+					</span>
 				</div>
-				<main className="min-h-0 flex-1 overflow-y-auto">
-					<div className="mx-auto w-full max-w-5xl px-6 py-8 md:px-10 md:py-10">
+				<main className="min-h-0 flex-1">
+					<div className="mx-auto w-full max-w-[1440px] px-4 py-6 md:px-8 md:py-8 xl:px-10">
 						{children}
 					</div>
 				</main>
