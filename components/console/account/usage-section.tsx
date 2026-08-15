@@ -9,12 +9,12 @@ type AccountUsageSectionProps = {
 	byModel: ModelUsageStat[];
 };
 
-const PROVIDER_COLORS: Record<AppId, string> = {
-	chatgpt: "bg-chart-1",
-	claude: "bg-chart-2",
-	gemini: "bg-chart-3",
-	other: "bg-chart-4",
-	image: "bg-chart-5",
+const PROVIDER_BAR_CLASS: Record<AppId, string> = {
+	chatgpt: "bg-blue-600",
+	claude: "bg-blue-500",
+	gemini: "bg-cyan-500",
+	other: "bg-slate-400",
+	image: "bg-indigo-400",
 };
 
 function UsageBar({
@@ -28,7 +28,7 @@ function UsageBar({
 }) {
 	const width = max > 0 ? Math.max(4, Math.round((value / max) * 100)) : 0;
 	return (
-		<div className="h-2 overflow-hidden rounded-full bg-muted">
+		<div className="h-2 overflow-hidden rounded-full bg-slate-100">
 			<div
 				className={cn("h-full rounded-full transition-all", className)}
 				style={{ width: `${width}%` }}
@@ -51,10 +51,10 @@ export const AccountUsageSection: FC<AccountUsageSectionProps> = ({
 	);
 
 	return (
-		<div className="grid gap-4 lg:grid-cols-2">
-			<section className="rounded-xl border bg-card p-5 shadow-sm">
-				<div className="mb-4">
-					<h2 className="font-medium text-base">各应用使用量</h2>
+		<div className="grid gap-6 lg:grid-cols-2">
+			<section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_1px_2px_rgb(15_23_42/0.03)]">
+				<div className="mb-4 border-b border-slate-100 pb-4">
+					<h2 className="font-semibold text-base text-slate-900">各应用使用量</h2>
 					<p className="text-muted-foreground text-sm">
 						按 ChatGPT、Claude、Gemini 等应用统计会话与消息
 					</p>
@@ -69,7 +69,7 @@ export const AccountUsageSection: FC<AccountUsageSectionProps> = ({
 						{byProvider.map((item) => (
 							<li key={item.provider} className="space-y-2">
 								<div className="flex items-center justify-between gap-3 text-sm">
-									<span className="font-medium">
+									<span className="font-medium text-slate-800">
 										{getAppDisplayName(item.provider)}
 									</span>
 									<span className="text-muted-foreground tabular-nums">
@@ -79,7 +79,7 @@ export const AccountUsageSection: FC<AccountUsageSectionProps> = ({
 								<UsageBar
 									value={item.messageCount}
 									max={maxProviderMessages}
-									className={PROVIDER_COLORS[item.provider]}
+									className={PROVIDER_BAR_CLASS[item.provider]}
 								/>
 								{item.inputTokens + item.outputTokens > 0 ? (
 									<p className="text-muted-foreground text-xs tabular-nums">
@@ -93,9 +93,9 @@ export const AccountUsageSection: FC<AccountUsageSectionProps> = ({
 				)}
 			</section>
 
-			<section className="rounded-xl border bg-card p-5 shadow-sm">
-				<div className="mb-4">
-					<h2 className="font-medium text-base">绘图模型使用量</h2>
+			<section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_1px_2px_rgb(15_23_42/0.03)]">
+				<div className="mb-4 border-b border-slate-100 pb-4">
+					<h2 className="font-semibold text-base text-slate-900">绘图模型使用量</h2>
 					<p className="text-muted-foreground text-sm">
 						统计 Image Studio 中各模型的生成次数
 					</p>
@@ -110,7 +110,7 @@ export const AccountUsageSection: FC<AccountUsageSectionProps> = ({
 						{byModel.map((item) => (
 							<li key={item.modelId} className="space-y-2">
 								<div className="flex items-center justify-between gap-3 text-sm">
-									<span className="font-medium">{item.label}</span>
+									<span className="font-medium text-slate-800">{item.label}</span>
 									<span className="text-muted-foreground tabular-nums">
 										{item.messageCount} 次
 									</span>
@@ -118,7 +118,7 @@ export const AccountUsageSection: FC<AccountUsageSectionProps> = ({
 								<UsageBar
 									value={item.messageCount}
 									max={maxModelCount}
-									className="bg-chart-5"
+									className="bg-indigo-400"
 								/>
 							</li>
 						))}

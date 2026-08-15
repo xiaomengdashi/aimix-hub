@@ -9,7 +9,6 @@ import { getAppDisplayName } from "@/lib/chat/app-id";
 import { threadPath } from "@/lib/chat/routes";
 import { createClient } from "@/lib/supabase/client";
 import type { ArchivedThreadSummary } from "@/lib/account/types";
-import { cn } from "@/lib/utils";
 
 type AccountArchivedListProps = {
 	threads: ArchivedThreadSummary[];
@@ -48,23 +47,23 @@ export const AccountArchivedList: FC<AccountArchivedListProps> = ({
 	};
 
 	return (
-		<section className="rounded-xl border bg-card shadow-sm">
+		<section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_1px_2px_rgb(15_23_42/0.03)]">
 			{localThreads.length === 0 ? (
-				<p className="px-5 py-10 text-center text-muted-foreground text-sm">
+				<p className="px-5 py-12 text-center text-sm text-slate-500">
 					暂无已归档会话
 				</p>
 			) : (
-				<ul className="divide-y">
+				<ul className="divide-y divide-slate-100">
 					{localThreads.map((thread) => (
 						<li
 							key={thread.id}
-							className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center"
+							className="flex flex-col gap-3 px-5 py-4 transition-colors duration-150 hover:bg-slate-50/70 sm:flex-row sm:items-center"
 						>
 							<div className="min-w-0 flex-1">
-								<p className="truncate font-medium text-sm">
+								<p className="truncate text-sm font-medium text-slate-800">
 									{thread.title?.trim() || "未命名会话"}
 								</p>
-								<p className="mt-1 text-muted-foreground text-xs">
+								<p className="mt-1 text-xs text-slate-500">
 									{getAppDisplayName(thread.provider)} · 最后活跃{" "}
 									{formatDate(thread.lastMessageAt)}
 								</p>
@@ -79,7 +78,7 @@ export const AccountArchivedList: FC<AccountArchivedListProps> = ({
 								<Button
 									variant="ghost"
 									size="sm"
-									className={cn("gap-1.5")}
+									className="gap-1.5"
 									disabled={pendingId === thread.id}
 									onClick={() => void handleUnarchive(thread.id)}
 								>

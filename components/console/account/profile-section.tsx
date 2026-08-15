@@ -7,7 +7,6 @@ import {
 	UserIcon,
 } from "lucide-react";
 import type { FC } from "react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { APP_USER_ROLE_LABELS, type AppUserRole } from "@/lib/auth/roles";
 
 type AccountProfileSectionProps = {
@@ -38,6 +37,22 @@ function formatRelativeDays(iso: string | undefined): string {
 	return `${years} 年`;
 }
 
+type ProfileFieldProps = {
+	icon: typeof UserIcon;
+	label: string;
+	children: React.ReactNode;
+};
+
+const ProfileField: FC<ProfileFieldProps> = ({ icon: Icon, label, children }) => (
+	<div className="flex gap-3 border-b border-slate-100 px-1 py-3.5 last:border-0">
+		<Icon className="mt-0.5 size-4 shrink-0 text-slate-400" />
+		<div className="min-w-0">
+			<dt className="text-slate-400 text-xs">{label}</dt>
+			<dd className="mt-0.5 font-medium text-slate-800 text-sm">{children}</dd>
+		</div>
+	</div>
+);
+
 export const AccountProfileSection: FC<AccountProfileSectionProps> = ({
 	user,
 	displayName,
@@ -47,60 +62,39 @@ export const AccountProfileSection: FC<AccountProfileSectionProps> = ({
 	const roleLabel = role ? APP_USER_ROLE_LABELS[role] : "—";
 
 	return (
-		<section className="rounded-xl border bg-card p-6 shadow-sm">
-			<div className="flex items-start gap-4">
-				<Avatar size="lg">
-					<AvatarFallback className="text-lg">{initial}</AvatarFallback>
-				</Avatar>
+		<section className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-[0_1px_2px_rgb(15_23_42/0.03)]">
+			<div className="flex items-center gap-4 border-b border-slate-100 pb-5">
+				<span
+					aria-hidden
+					className="grid size-14 shrink-0 place-items-center rounded-full bg-slate-900 text-lg font-semibold text-white"
+				>
+					{initial}
+				</span>
 				<div className="min-w-0 flex-1">
-					<p className="font-semibold text-xl">{displayName}</p>
-					<p className="text-muted-foreground text-sm">{roleLabel}</p>
+					<p className="font-semibold text-xl text-slate-900">{displayName}</p>
+					<p className="text-slate-500 text-sm">{roleLabel}</p>
 				</div>
 			</div>
 
-			<dl className="mt-6 grid gap-4 sm:grid-cols-2">
-				<div className="flex gap-3 rounded-lg bg-muted/40 px-3 py-3">
-					<UserIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-					<div className="min-w-0">
-						<dt className="text-muted-foreground text-xs">用户名</dt>
-						<dd className="truncate font-medium text-sm">{displayName}</dd>
-					</div>
-				</div>
-				<div className="flex gap-3 rounded-lg bg-muted/40 px-3 py-3">
-					<ShieldCheckIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-					<div>
-						<dt className="text-muted-foreground text-xs">角色</dt>
-						<dd className="font-medium text-sm">{roleLabel}</dd>
-					</div>
-				</div>
-				<div className="flex gap-3 rounded-lg bg-muted/40 px-3 py-3">
-					<FingerprintIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-					<div className="min-w-0">
-						<dt className="text-muted-foreground text-xs">用户 ID</dt>
-						<dd className="break-all font-mono text-xs">{user.id}</dd>
-					</div>
-				</div>
-				<div className="flex gap-3 rounded-lg bg-muted/40 px-3 py-3">
-					<CalendarDaysIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-					<div>
-						<dt className="text-muted-foreground text-xs">注册时间</dt>
-						<dd className="font-medium text-sm">
-							{formatDate(user.created_at)}
-						</dd>
-						<dd className="text-muted-foreground text-xs">
-							已使用 {formatRelativeDays(user.created_at)}
-						</dd>
-					</div>
-				</div>
-				<div className="flex gap-3 rounded-lg bg-muted/40 px-3 py-3">
-					<ClockIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-					<div>
-						<dt className="text-muted-foreground text-xs">最近登录</dt>
-						<dd className="font-medium text-sm">
-							{formatDate(user.last_sign_in_at)}
-						</dd>
-					</div>
-				</div>
+			<dl className="mt-2 grid gap-x-8 sm:grid-cols-2">
+				<ProfileField icon={UserIcon} label="用户名">
+					<span className="block truncate">{displayName}</span>
+				</ProfileField>
+				<ProfileField icon={ShieldCheckIcon} label="角色">
+					{roleLabel}
+				</ProfileField>
+				<ProfileField icon={FingerprintIcon} label="用户 ID">
+					<span className="block font-mono text-xs break-all">{user.id}</span>
+				</ProfileField>
+				<ProfileField icon={CalendarDaysIcon} label="注册时间">
+					{formatDate(user.created_at)}
+					<span className="block text-slate-400 text-xs">
+						已使用 {formatRelativeDays(user.created_at)}
+					</span>
+				</ProfileField>
+				<ProfileField icon={ClockIcon} label="最近登录">
+					{formatDate(user.last_sign_in_at)}
+				</ProfileField>
 			</dl>
 		</section>
 	);

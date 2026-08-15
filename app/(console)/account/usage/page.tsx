@@ -19,8 +19,9 @@ export default async function AccountUsagePage() {
 	return (
 		<>
 			<ConsolePageHeader
-				title="用量"
-				description="会话、消息与 Token 统计，以及近 14 天活跃"
+				eyebrow="个人空间"
+				title="我的用量"
+				description="会话、消息、Token 与近 14 天趋势"
 			/>
 			<div className="space-y-6">
 				<AccountOverviewCards overview={stats.overview} />

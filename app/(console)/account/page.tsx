@@ -19,7 +19,11 @@ export default async function AccountProfilePage() {
 
 	return (
 		<>
-			<ConsolePageHeader title="资料" description="账号身份、角色与注册信息" />
+			<ConsolePageHeader
+				eyebrow="个人空间"
+				title="账号资料"
+				description="账号身份、角色与注册信息"
+			/>
 			<AccountProfileSection
 				user={user}
 				displayName={getDisplayUsername(user)}

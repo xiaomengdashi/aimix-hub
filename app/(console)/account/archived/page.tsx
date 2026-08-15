@@ -17,8 +17,9 @@ export default async function AccountArchivedPage() {
 	return (
 		<>
 			<ConsolePageHeader
-				title="归档"
-				description="已归档会话保存在云端，可随时恢复到对话侧栏"
+				eyebrow="个人空间"
+				title="归档会话"
+				description="已归档会话会保存在云端，可随时恢复"
 			/>
 			<AccountArchivedList threads={stats.archivedThreads} />
 		</>
