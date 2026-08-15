@@ -100,10 +100,12 @@ export function buildAdminDashboardData(input: {
 		}
 	}
 
-	const providerUsage = APP_NAV_OPTIONS.map((option) => ({
-		provider: option.id,
-		...providerStats.get(option.id)!,
-	}));
+	const providerUsage = APP_NAV_OPTIONS.map((option) => {
+		const stat = providerStats.get(option.id);
+		return stat
+			? { provider: option.id, ...stat }
+			: { provider: option.id, messageCount: 0, tokenCount: 0 };
+	});
 
 	const attention: AdminDashboardData["attention"] = [];
 	if (!integration.aiApiKeyConfigured) {
