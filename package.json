@@ -7,7 +7,9 @@
     "build": "NODE_OPTIONS='--disable-warning=DEP0205' next build",
     "start": "next start -p 3000",
     "deploy:app": "bash deploy/scripts/deploy-app.sh",
-    "deploy:smoke": "bash deploy/scripts/smoke-test.sh"
+    "deploy:smoke": "bash deploy/scripts/smoke-test.sh",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.77",
@@ -44,10 +46,14 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.4",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.2",
     "@types/node": "25.9.5",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "jsdom": "^30.0.1",
     "tailwindcss": "^4.2.4",
-    "typescript": "6.0.3"
+    "typescript": "6.0.3",
+    "vitest": "^4.1.10"
   }
 }
