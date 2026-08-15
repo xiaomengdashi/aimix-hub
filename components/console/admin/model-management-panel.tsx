@@ -571,6 +571,7 @@ export const ModelManagementPanel: FC = () => {
 						<input
 							className="h-9 min-w-48 flex-1 rounded-md border border-slate-200 bg-white px-3 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
 							value={gatewayFilter}
+							onChange={(event) => setGatewayFilter(event.target.value)}
 							onKeyDown={(event) => {
 								if (event.key === "Enter" && gatewayModels.length === 0) {
 									event.preventDefault();
