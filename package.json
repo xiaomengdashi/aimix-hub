@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "NODE_OPTIONS='--disable-warning=DEP0205' next dev --turbopack",
+    "dev": "NODE_OPTIONS='--disable-warning=DEP0205' next dev --turbopack -p 3000",
     "build": "NODE_OPTIONS='--disable-warning=DEP0205' next build",
-    "start": "next start",
+    "start": "next start -p 3000",
     "deploy:app": "bash deploy/scripts/deploy-app.sh",
     "deploy:smoke": "bash deploy/scripts/smoke-test.sh"
   },
@@ -44,10 +44,10 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.4",
-    "@types/node": "^25.6.0",
+    "@types/node": "25.9.5",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "tailwindcss": "^4.2.4",
-    "typescript": "^6.0.3"
+    "typescript": "6.0.3"
   }
 }

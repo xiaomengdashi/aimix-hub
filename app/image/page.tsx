@@ -1,7 +1,6 @@
-import { ImageStudioRoot } from "@/components/image-studio/image-studio-app";
-
 export const dynamic = "force-dynamic";
 
+/** Route shell only — UI lives in `app/image/layout.tsx`. */
 export default function ImagePage() {
-  return <ImageStudioRoot />;
+	return null;
 }

@@ -1,12 +1,14 @@
-import { ImageStudioRoot } from "@/components/image-studio/image-studio-app";
-
 export const dynamic = "force-dynamic";
 
 type ImageSessionPageProps = {
-  params: Promise<{ sessionId: string }>;
+	params: Promise<{ sessionId: string }>;
 };
 
-export default async function ImageSessionPage({ params }: ImageSessionPageProps) {
-  const { sessionId } = await params;
-  return <ImageStudioRoot sessionId={sessionId} />;
+/** Route shell only — UI lives in `app/image/layout.tsx`. */
+export default async function ImageSessionPage({
+	params,
+}: ImageSessionPageProps) {
+	// Await params so Next still treats this as a valid dynamic segment shell.
+	await params;
+	return null;
 }

@@ -16,6 +16,7 @@ yarn-error.log*
 
 # misc
 .DS_Store
+.superpowers/
 *.pem
 
 # typescript
