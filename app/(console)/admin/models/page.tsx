@@ -14,7 +14,8 @@ export default async function AdminModelsPage() {
 	return (
 		<>
 			<ConsolePageHeader
-				title="模型目录"
+				eyebrow="资源管理"
+				title="模型与路由"
 				description="运行时仅展示此处启用的模型；配置保存在数据库中。"
 			/>
 			<ModelManagementPanel />

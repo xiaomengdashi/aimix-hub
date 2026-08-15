@@ -1,7 +1,7 @@
 "use client";
 
-import { Loader2Icon, ShieldCheckIcon, Trash2Icon } from "lucide-react";
-import { useCallback, useEffect, useState, type FC } from "react";
+import { Loader2Icon, SearchIcon, ShieldCheckIcon, Trash2Icon } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState, type FC } from "react";
 import type { ManagedUser } from "@/lib/admin/types";
 import { APP_USER_ROLE_LABELS, type AppUserRole } from "@/lib/auth/roles";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,8 @@ import { cn } from "@/lib/utils";
 type UserManagementPanelProps = {
 	currentUserId: string;
 };
+
+type RoleFilter = "all" | AppUserRole;
 
 function formatDate(iso: string | null): string {
 	if (!iso) return "—";
@@ -37,6 +39,8 @@ export const UserManagementPanel: FC<UserManagementPanelProps> = ({
 	const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
 	const [pendingDeleteUser, setPendingDeleteUser] =
 		useState<ManagedUser | null>(null);
+	const [query, setQuery] = useState("");
+	const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
 
 	const loadUsers = useCallback(async () => {
 		setLoading(true);
@@ -66,6 +70,15 @@ export const UserManagementPanel: FC<UserManagementPanelProps> = ({
 	useEffect(() => {
 		void loadUsers();
 	}, [loadUsers]);
+
+	const filteredUsers = useMemo(() => {
+		const keyword = query.trim().toLowerCase();
+		return users.filter((user) => {
+			if (roleFilter !== "all" && user.role !== roleFilter) return false;
+			if (!keyword) return true;
+			return user.username.toLowerCase().includes(keyword);
+		});
+	}, [users, query, roleFilter]);
 
 	const handleRoleChange = async (userId: string, role: AppUserRole) => {
 		setUpdatingUserId(userId);
@@ -125,15 +138,46 @@ export const UserManagementPanel: FC<UserManagementPanelProps> = ({
 			{error ? (
 				<div
 					role="alert"
-					className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-destructive text-sm"
+					className="rounded-xl border border-red-200 bg-red-50/60 px-4 py-3 text-red-700 text-sm"
 				>
 					{error}
 				</div>
 			) : null}
 
-			<div className="overflow-x-auto rounded-lg border">
+			<div className="flex flex-wrap items-center gap-3">
+				<label className="relative min-w-56 flex-1">
+					<SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
+					<span className="sr-only">搜索用户</span>
+					<input
+						type="search"
+						aria-label="搜索用户"
+						className="h-10 w-full rounded-lg border border-slate-200 bg-white pr-3 pl-9 text-sm outline-none transition-colors placeholder:text-slate-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+						value={query}
+						onChange={(event) => setQuery(event.target.value)}
+						placeholder="按用户名搜索"
+					/>
+				</label>
+				<label className="flex items-center gap-2 text-sm">
+					<span className="sr-only">按角色筛选</span>
+					<select
+						aria-label="按角色筛选"
+						className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+						value={roleFilter}
+						onChange={(event) => setRoleFilter(event.target.value as RoleFilter)}
+					>
+						<option value="all">全部角色</option>
+						<option value="admin">{APP_USER_ROLE_LABELS.admin}</option>
+						<option value="user">{APP_USER_ROLE_LABELS.user}</option>
+					</select>
+				</label>
+				<span className="ml-auto text-xs text-slate-400 tabular-nums">
+					已加载 {users.length} 位用户
+				</span>
+			</div>
+
+			<div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
 				<table className="min-w-full text-sm">
-					<thead className="bg-muted/40 text-left text-muted-foreground">
+					<thead className="bg-slate-50/80 text-left text-slate-500">
 						<tr>
 							<th className="px-4 py-3 font-medium">用户名</th>
 							<th className="px-4 py-3 font-medium">角色</th>
@@ -145,50 +189,79 @@ export const UserManagementPanel: FC<UserManagementPanelProps> = ({
 					<tbody>
 						{loading ? (
 							<tr>
-								<td colSpan={5} className="px-4 py-10 text-center">
-									<span className="inline-flex items-center gap-2 text-muted-foreground">
+								<td colSpan={5} className="px-4 py-12 text-center">
+									<span className="inline-flex items-center gap-2 text-slate-400">
 										<Loader2Icon className="size-4 animate-spin" />
 										加载中…
 									</span>
 								</td>
 							</tr>
-						) : users.length === 0 ? (
+						) : filteredUsers.length === 0 ? (
 							<tr>
 								<td
 									colSpan={5}
-									className="px-4 py-10 text-center text-muted-foreground"
+									className="px-4 py-12 text-center text-slate-400"
 								>
-									暂无用户
+									{users.length === 0 ? "暂无用户" : "没有匹配的用户"}
 								</td>
 							</tr>
 						) : (
-							users.map((user) => {
+							filteredUsers.map((user) => {
 								const isCurrentUser = user.id === currentUserId;
 								const isUpdating = updatingUserId === user.id;
 								const isDeleting = deletingUserId === user.id;
 								const isBusy = isUpdating || isDeleting;
+								const initial = user.username.slice(0, 1).toUpperCase();
 
 								return (
-									<tr key={user.id} className="border-t">
+									<tr
+										key={user.id}
+										className="border-t border-slate-100 transition-colors hover:bg-slate-50/70"
+									>
 										<td className="px-4 py-3">
-											<div className="flex items-center gap-2">
-												<span className="font-medium">{user.username}</span>
-												{isCurrentUser ? (
-													<span className="rounded-full bg-muted px-2 py-0.5 text-muted-foreground text-xs">
-														当前账号
-													</span>
-												) : null}
+											<div className="flex items-center gap-3">
+												<span
+													aria-hidden
+													className="grid size-9 shrink-0 place-items-center rounded-full bg-slate-900 text-xs font-semibold text-white"
+												>
+													{initial}
+												</span>
+												<div className="min-w-0">
+													<div className="flex items-center gap-2">
+														<span className="font-medium text-slate-800">
+															{user.username}
+														</span>
+														{isCurrentUser ? (
+															<span className="rounded-full bg-slate-100 px-2 py-0.5 text-slate-500 text-xs">
+																当前账号
+															</span>
+														) : null}
+													</div>
+													<p className="mt-0.5 truncate font-mono text-slate-400 text-xs">
+														{user.id}
+													</p>
+												</div>
 											</div>
-											<p className="mt-1 break-all font-mono text-muted-foreground text-xs">
-												{user.id}
-											</p>
 										</td>
 										<td className="px-4 py-3">
 											<div className="flex items-center gap-2">
+												<span
+													className={cn(
+														"inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs",
+														user.role === "admin"
+															? "bg-blue-50 text-blue-700"
+															: "bg-slate-100 text-slate-600",
+													)}
+												>
+													{user.role === "admin" ? (
+														<ShieldCheckIcon className="size-3" />
+													) : null}
+													{APP_USER_ROLE_LABELS[user.role]}
+												</span>
 												<select
 													className={cn(
-														"h-9 min-w-32 rounded-md border bg-background px-3 text-sm outline-none",
-														"focus-visible:ring-2 focus-visible:ring-ring/50",
+														"h-9 min-w-32 rounded-md border border-slate-200 bg-white px-2 text-sm outline-none",
+														"focus:border-blue-400 focus:ring-2 focus:ring-blue-100",
 														isBusy && "opacity-60",
 													)}
 													value={user.role}
@@ -208,18 +281,15 @@ export const UserManagementPanel: FC<UserManagementPanelProps> = ({
 														{APP_USER_ROLE_LABELS.user}
 													</option>
 												</select>
-												{user.role === "admin" ? (
-													<ShieldCheckIcon className="size-4 shrink-0 text-primary" />
-												) : null}
 												{isUpdating ? (
-													<Loader2Icon className="size-4 animate-spin text-muted-foreground" />
+													<Loader2Icon className="size-4 animate-spin text-slate-400" />
 												) : null}
 											</div>
 										</td>
-										<td className="px-4 py-3 text-muted-foreground">
+										<td className="px-4 py-3 text-slate-500">
 											{formatDate(user.createdAt)}
 										</td>
-										<td className="px-4 py-3 text-muted-foreground">
+										<td className="px-4 py-3 text-slate-500">
 											{formatDate(user.lastSignInAt)}
 										</td>
 										<td className="px-4 py-3">
@@ -227,7 +297,7 @@ export const UserManagementPanel: FC<UserManagementPanelProps> = ({
 												type="button"
 												variant="outline"
 												size="sm"
-												className="gap-1.5 text-destructive hover:text-destructive"
+												className="gap-1.5 text-red-600 hover:text-red-700"
 												disabled={isCurrentUser || isBusy}
 												onClick={() => setPendingDeleteUser(user)}
 											>

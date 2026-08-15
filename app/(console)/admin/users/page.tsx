@@ -14,7 +14,8 @@ export default async function AdminUsersPage() {
 	return (
 		<>
 			<ConsolePageHeader
-				title="用户"
+				eyebrow="资源管理"
+				title="成员与权限"
 				description="查看用户、分配角色或删除账号。删除后该用户的会话与消息也会一并清除。"
 			/>
 			<UserManagementPanel currentUserId={session.user.id} />

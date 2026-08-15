@@ -359,7 +359,15 @@ export const ModelManagementPanel: FC = () => {
 			) : null}
 
 			<section>
-				<div className="flex flex-wrap items-center justify-end gap-2">
+				<div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+					<div>
+						<h2 className="text-base font-semibold tracking-tight text-slate-900">
+							模型目录
+						</h2>
+						<p className="mt-0.5 text-sm text-slate-500">
+							已配置 {models.length} 个模型，其中 {models.filter((model) => model.enabled).length} 个启用
+						</p>
+					</div>
 					<Button
 						onClick={() => void handleSaveModels()}
 						disabled={savingModels || loading}
@@ -375,16 +383,16 @@ export const ModelManagementPanel: FC = () => {
 					</Button>
 				</div>
 
-				<div className="mt-4 flex flex-wrap gap-2">
+				<div className="flex flex-wrap gap-1 border-b border-slate-200">
 					{PROVIDER_TABS.map((tab) => (
 						<button
 							key={tab.id}
 							type="button"
 							className={cn(
-								"rounded-full px-3 py-1.5 text-sm transition-colors",
+								"-mb-px border-b-2 px-3.5 py-2 text-sm transition-colors duration-150",
 								activeProvider === tab.id
-									? "bg-primary text-primary-foreground"
-									: "bg-muted text-muted-foreground hover:text-foreground",
+									? "border-blue-600 font-medium text-blue-700"
+									: "border-transparent text-slate-500 hover:text-slate-800",
 							)}
 							onClick={() => setActiveProvider(tab.id)}
 						>
@@ -393,9 +401,9 @@ export const ModelManagementPanel: FC = () => {
 					))}
 				</div>
 
-				<div className="mt-6 overflow-x-auto rounded-lg border">
+				<div className="mt-4 overflow-x-auto rounded-2xl border border-slate-200/80 bg-white shadow-[0_1px_2px_rgb(15_23_42/0.03)]">
 					<table className="min-w-full text-sm">
-						<thead className="bg-muted/40 text-left text-muted-foreground">
+						<thead className="bg-slate-50/80 text-left text-slate-500">
 							<tr>
 								<th className="px-3 py-3 font-medium">启用</th>
 								<th className="px-3 py-3 font-medium">Model ID</th>
@@ -557,13 +565,12 @@ export const ModelManagementPanel: FC = () => {
 					</table>
 				</div>
 
-				<div className="mt-6 space-y-3">
+				<div className="mt-6 space-y-3 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_1px_2px_rgb(15_23_42/0.03)]">
 					<div className="flex flex-wrap items-center gap-3">
-						<h3 className="font-medium">从网关添加模型</h3>
+						<h3 className="text-base font-semibold text-slate-900 tracking-tight">从网关添加模型</h3>
 						<input
-							className="h-9 min-w-48 flex-1 rounded-md border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+							className="h-9 min-w-48 flex-1 rounded-md border border-slate-200 bg-white px-3 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
 							value={gatewayFilter}
-							onChange={(event) => setGatewayFilter(event.target.value)}
 							onKeyDown={(event) => {
 								if (event.key === "Enter" && gatewayModels.length === 0) {
 									event.preventDefault();
@@ -591,7 +598,7 @@ export const ModelManagementPanel: FC = () => {
 						</Button>
 					</div>
 
-					<div className="max-h-72 overflow-y-auto rounded-lg border">
+					<div className="max-h-72 overflow-y-auto rounded-xl border border-slate-200">
 						{filteredGatewayModels.length === 0 ? (
 							<p className="px-4 py-8 text-center text-muted-foreground text-sm">
 								{gatewayModels.length === 0

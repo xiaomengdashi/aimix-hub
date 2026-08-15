@@ -14,8 +14,9 @@ export default async function AdminIntegrationPage() {
 	return (
 		<>
 			<ConsolePageHeader
-				title="接口配置"
-				description="配置 AI 网关与 Tavily 的地址和密钥。"
+				eyebrow="资源管理"
+				title="服务配置"
+				description="配置 AI 网关与联网搜索的地址和密钥。"
 			/>
 			<IntegrationSettingsPanel />
 		</>
