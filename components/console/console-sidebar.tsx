@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeftIcon, LogOutIcon } from "lucide-react";
+import { Loader2Icon, LogOutIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { FC } from "react";
@@ -44,7 +44,9 @@ export const ConsoleSidebar: FC<ConsoleSidebarProps> = ({
 						<p className="text-[15px] font-bold leading-tight tracking-tight text-slate-900">
 							Axis Control
 						</p>
-						<p className="text-[10px] leading-tight text-slate-400">AI Platform</p>
+						<p className="text-[10px] leading-tight text-slate-400">
+							AI Platform
+						</p>
 					</div>
 				</div>
 			</div>
@@ -92,32 +94,15 @@ export const ConsoleSidebar: FC<ConsoleSidebarProps> = ({
 				)}
 			</nav>
 
-			<footer className="mt-auto space-y-1 border-t border-slate-200/80 px-3 py-3">
-				<Link
-					href="/"
-					onClick={onNavigateAction}
-					className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-slate-600 transition-colors duration-150 hover:bg-slate-50 hover:text-slate-950"
-				>
-					<ArrowLeftIcon className="size-4 text-slate-400" />
-					返回对话
-				</Link>
-				<button
-					type="button"
-					disabled={loading}
-					onClick={() => void signOut()}
-					className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-red-600 transition-colors duration-150 hover:bg-red-50 disabled:opacity-50"
-				>
-					<LogOutIcon className="size-4 text-red-400" />
-					{loading ? "退出中…" : "退出登录"}
-				</button>
-				<div className="flex items-center gap-2.5 px-3 pt-2">
+			<footer className="mt-auto border-t border-slate-200/80 px-3 py-3">
+				<div className="flex items-center gap-2.5 px-2 py-1.5">
 					<span
 						aria-hidden
 						className="grid size-8 shrink-0 place-items-center rounded-full bg-slate-800 text-xs font-semibold text-white"
 					>
 						{initial}
 					</span>
-					<div className="min-w-0">
+					<div className="min-w-0 flex-1">
 						<p className="truncate text-sm font-medium text-slate-800">
 							{displayName}
 						</p>
@@ -125,6 +110,20 @@ export const ConsoleSidebar: FC<ConsoleSidebarProps> = ({
 							<p className="text-xs text-slate-400">{roleLabel}</p>
 						) : null}
 					</div>
+					<button
+						type="button"
+						disabled={loading}
+						onClick={() => void signOut()}
+						aria-label={loading ? "退出中" : "退出登录"}
+						title={loading ? "退出中" : "退出登录"}
+						className="grid size-8 shrink-0 place-items-center rounded-lg text-slate-400 transition-colors duration-150 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+					>
+						{loading ? (
+							<Loader2Icon className="size-4 animate-spin" />
+						) : (
+							<LogOutIcon className="size-4" />
+						)}
+					</button>
 				</div>
 			</footer>
 		</div>
