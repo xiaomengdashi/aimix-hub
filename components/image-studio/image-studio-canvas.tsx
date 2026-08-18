@@ -194,7 +194,7 @@ export const ImageStudioCanvas: FC<ImageStudioCanvasProps> = ({
             <p className="text-sm font-medium text-[#0d3b8c] dark:text-[#b8d4ff]">
               提示词
             </p>
-            <p className="mt-1 line-clamp-3 text-sm leading-relaxed text-[#3d5a8c] sm:line-clamp-none dark:text-[#8ab4f8]">
+            <p className="mt-1 h-[4.5rem] overflow-y-auto text-sm leading-relaxed text-[#3d5a8c] dark:text-[#8ab4f8]">
               {session.prompt}
             </p>
             <p className="mt-1.5 text-xs text-[#6b8fc7] sm:mt-2">
