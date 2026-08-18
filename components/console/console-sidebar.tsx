@@ -1,9 +1,10 @@
 "use client";
 
-import { Loader2Icon, LogOutIcon } from "lucide-react";
+import { LogOutIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { FC } from "react";
+import { TooltipIconButton } from "@/components/assistant-ui/message/tooltip-icon-button";
 import {
 	CONSOLE_NAV_GROUPS,
 	isConsoleNavActive,
@@ -110,20 +111,17 @@ export const ConsoleSidebar: FC<ConsoleSidebarProps> = ({
 							<p className="text-xs text-slate-400">{roleLabel}</p>
 						) : null}
 					</div>
-					<button
-						type="button"
+					<TooltipIconButton
+						tooltip={loading ? "退出中" : "退出登录"}
+						side="top"
+						variant="ghost"
+						size="icon-sm"
 						disabled={loading}
+						className="text-slate-400 hover:bg-red-50 hover:text-red-600"
 						onClick={() => void signOut()}
-						aria-label={loading ? "退出中" : "退出登录"}
-						title={loading ? "退出中" : "退出登录"}
-						className="grid size-8 shrink-0 place-items-center rounded-lg text-slate-400 transition-colors duration-150 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
 					>
-						{loading ? (
-							<Loader2Icon className="size-4 animate-spin" />
-						) : (
-							<LogOutIcon className="size-4" />
-						)}
-					</button>
+						<LogOutIcon className="size-4" />
+					</TooltipIconButton>
 				</div>
 			</footer>
 		</div>

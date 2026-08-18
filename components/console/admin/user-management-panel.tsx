@@ -9,15 +9,8 @@ import {
 import { useCallback, useEffect, useMemo, useState, type FC } from "react";
 import type { ManagedUser } from "@/lib/admin/types";
 import { APP_USER_ROLE_LABELS, type AppUserRole } from "@/lib/auth/roles";
+import { ConfirmDialog } from "@/components/assistant-ui/shell/confirm-dialog";
 import { Button } from "@/components/ui/button";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
 type UserManagementPanelProps = {
@@ -324,49 +317,31 @@ export const UserManagementPanel: FC<UserManagementPanelProps> = ({
 				</table>
 			</div>
 
-			<Dialog
+			<ConfirmDialog
 				open={pendingDeleteUser !== null}
 				onOpenChange={(open) => {
 					if (!open && !deletingUserId) {
 						setPendingDeleteUser(null);
 					}
 				}}
-			>
-				<DialogContent
-					className="sm:max-w-md"
-					showCloseButton={!deletingUserId}
-				>
-					<DialogHeader>
-						<DialogTitle>删除用户</DialogTitle>
-						<DialogDescription>
-							确定要删除用户「{pendingDeleteUser?.username}
-							」吗？此操作不可撤销， 该账号的所有会话与消息也会被永久删除。
-						</DialogDescription>
-					</DialogHeader>
-					<DialogFooter>
-						<Button
-							type="button"
-							variant="outline"
-							disabled={Boolean(deletingUserId)}
-							onClick={() => setPendingDeleteUser(null)}
-						>
-							取消
-						</Button>
-						<Button
-							type="button"
-							variant="destructive"
-							disabled={!pendingDeleteUser || Boolean(deletingUserId)}
-							onClick={() => {
-								if (pendingDeleteUser) {
-									void handleDeleteUser(pendingDeleteUser);
-								}
-							}}
-						>
-							{deletingUserId ? "删除中…" : "确认删除"}
-						</Button>
-					</DialogFooter>
-				</DialogContent>
-			</Dialog>
+				title="删除用户"
+				description={
+					<>
+						确定要删除用户「{pendingDeleteUser?.username}
+						」吗？此操作不可撤销，该账号的所有会话与消息也会被永久删除。
+					</>
+				}
+				confirmLabel="确认删除"
+				loadingLabel="删除中…"
+				confirmVariant="destructive"
+				loading={Boolean(deletingUserId)}
+				showCloseButton={!deletingUserId}
+				onConfirm={() => {
+					if (pendingDeleteUser) {
+						void handleDeleteUser(pendingDeleteUser);
+					}
+				}}
+			/>
 		</div>
 	);
 };

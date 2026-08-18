@@ -33,6 +33,7 @@ import {
   type AttachmentPreview,
   resolveAttachmentPreview,
 } from "@/lib/attachments/preview";
+import { ImagePreviewDialog } from "@/components/assistant-ui/message/image-preview-dialog";
 import { cn } from "@/lib/utils";
 
 const TEXT_PREVIEW_MAX_CHARS = 512_000;
@@ -97,7 +98,7 @@ const AttachmentImagePreview: FC<{ src: string }> = ({ src }) => {
       src={src}
       alt="Attachment preview"
       className={cn(
-        "block h-auto max-h-[80vh] w-auto max-w-full object-contain",
+        "block h-auto max-h-[96dvh] w-auto max-w-[96vw] object-contain",
         isLoaded
           ? "aui-attachment-preview-image-loaded"
           : "aui-attachment-preview-image-loading invisible",
@@ -113,7 +114,7 @@ const AttachmentPreviewBody: FC<{ preview: AttachmentPreview }> = ({
   switch (preview.kind) {
     case "image":
       return (
-        <div className="aui-attachment-preview relative mx-auto flex max-h-[80dvh] w-full items-center justify-center overflow-hidden bg-background">
+        <div className="aui-attachment-preview relative mx-auto flex max-h-[96dvh] w-full items-center justify-center overflow-hidden bg-background">
           <AttachmentImagePreview src={preview.src} />
         </div>
       );
@@ -246,6 +247,8 @@ const AttachmentThumb: FC = () => {
 const AttachmentUI: FC = () => {
   const aui = useAui();
   const isComposer = aui.attachment.source !== "message";
+  const src = useAttachmentSrc();
+  const name = useAuiState((s) => s.attachment.name);
 
   const isImage = useAuiState((s) => s.attachment.type === "image");
   const typeLabel = useAuiState((s) => {
@@ -262,6 +265,19 @@ const AttachmentUI: FC = () => {
     }
   });
 
+  const tile = (
+    <TooltipTrigger asChild>
+      <div
+        className="aui-attachment-tile size-14 cursor-zoom-in overflow-hidden rounded-[calc(var(--composer-radius)-var(--composer-padding))] border bg-muted transition-opacity hover:opacity-75"
+        role="button"
+        tabIndex={0}
+        aria-label={`${typeLabel} attachment，点击预览`}
+      >
+        <AttachmentThumb />
+      </div>
+    </TooltipTrigger>
+  );
+
   return (
     <Tooltip>
       <AttachmentPrimitive.Root
@@ -270,18 +286,13 @@ const AttachmentUI: FC = () => {
           isImage && "aui-attachment-root-composer only:*:first:size-24",
         )}
       >
-        <AttachmentPreviewDialog>
-          <TooltipTrigger asChild>
-            <div
-              className="aui-attachment-tile size-14 cursor-pointer overflow-hidden rounded-[calc(var(--composer-radius)-var(--composer-padding))] border bg-muted transition-opacity hover:opacity-75"
-              role="button"
-              tabIndex={0}
-              aria-label={`${typeLabel} attachment，点击预览`}
-            >
-              <AttachmentThumb />
-            </div>
-          </TooltipTrigger>
-        </AttachmentPreviewDialog>
+        {isImage && src ? (
+          <ImagePreviewDialog src={src} alt={name} title={name}>
+            {tile}
+          </ImagePreviewDialog>
+        ) : (
+          <AttachmentPreviewDialog>{tile}</AttachmentPreviewDialog>
+        )}
         {isComposer && <AttachmentRemove />}
       </AttachmentPrimitive.Root>
       <TooltipContent side="top">

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { AccountActivityPanel } from "@/components/console/account/activity-panel";
 import { AccountOverviewCards } from "@/components/console/account/overview-cards";
+import { AccountRecentImagesPanel } from "@/components/console/account/recent-images-panel";
 import { AccountUsageSection } from "@/components/console/account/usage-section";
 import { ConsolePageHeader } from "@/components/console/console-page-header";
 import { fetchUserAccountStats } from "@/lib/account/fetch-user-stats";
@@ -29,6 +30,7 @@ export default async function AccountUsagePage() {
 					byProvider={stats.byProvider}
 					byModel={stats.byModel}
 				/>
+				<AccountRecentImagesPanel />
 				<AccountActivityPanel activity={stats.activity} />
 			</div>
 		</>

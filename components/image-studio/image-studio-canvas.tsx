@@ -6,12 +6,7 @@ import { IMAGE_PROMPT_SUGGESTIONS } from "@/lib/image-generation/prompt-suggesti
 import { cn } from "@/lib/utils";
 import { ImageAppLogo } from "@/components/assistant-ui/providers/image/icon";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { ImagePreviewDialog } from "@/components/assistant-ui/message/image-preview-dialog";
 import type { ImageSessionSummary } from "@/lib/image-generation/session";
 import {
   formatPixelCount,
@@ -186,31 +181,12 @@ export const ImageStudioCanvas: FC<ImageStudioCanvasProps> = ({
             className="pointer-events-none absolute -inset-4 rounded-3xl bg-gradient-to-br from-violet-500/20 via-pink-500/15 to-cyan-500/20 blur-2xl"
             aria-hidden
           />
-          <Dialog>
-            <DialogTrigger asChild>
-              <button
-                type="button"
-                aria-label="放大查看图片"
-                className="relative mx-auto block cursor-zoom-in rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7c3aed]/40"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={session.imageUrl}
-                  alt={session.prompt}
-                  className="max-h-[min(36dvh,900px)] w-auto max-w-full rounded-2xl border border-white/40 object-contain shadow-2xl sm:max-h-[min(50dvh,900px)] lg:max-h-[min(72dvh,900px)] dark:border-[#3d4f6f]/50"
-                />
-              </button>
-            </DialogTrigger>
-            <DialogContent className="max-h-[98dvh] w-auto max-w-[98vw] overflow-hidden border-[#d4e4ff]/40 bg-[#0a0e14]/95 p-1 shadow-2xl sm:max-w-[98vw] dark:border-[#3d4f6f]/50 [&>button]:rounded-full [&>button]:bg-white/80 [&>button]:p-1 [&>button]:opacity-100">
-              <DialogTitle className="sr-only">图片预览</DialogTitle>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={session.imageUrl}
-                alt={session.prompt}
-                className="mx-auto max-h-[96dvh] w-auto max-w-[96vw] rounded-lg object-contain"
-              />
-            </DialogContent>
-          </Dialog>
+          <ImagePreviewDialog
+            src={session.imageUrl}
+            alt={session.prompt}
+            triggerClassName="relative mx-auto block"
+            imageClassName="max-h-[min(36dvh,900px)] w-auto max-w-full rounded-2xl border border-white/40 object-contain shadow-2xl sm:max-h-[min(50dvh,900px)] lg:max-h-[min(72dvh,900px)] dark:border-[#3d4f6f]/50"
+          />
         </div>
       </div>
       <div className="shrink-0 border-t border-[#d4e4ff]/80 bg-white/70 px-3 py-2.5 backdrop-blur-sm sm:px-6 sm:py-3 dark:border-[#2a3a52] dark:bg-[#0f1419]/70">

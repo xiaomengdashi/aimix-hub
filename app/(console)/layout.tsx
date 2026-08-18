@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { ConsoleShell } from "@/components/console/console-shell";
+import { ConsoleRoot } from "@/components/console/console-root";
 import { getUserRole } from "@/lib/auth/get-user-role";
 import { isAdminRole } from "@/lib/auth/is-admin-role";
 import { requireUser } from "@/lib/auth/require-user";
@@ -22,12 +22,12 @@ export default async function ConsoleLayout({
 	const role = await getUserRole(supabase, user.id);
 
 	return (
-		<ConsoleShell
+		<ConsoleRoot
 			displayName={getDisplayUsername(user)}
 			role={role}
 			isAdmin={isAdminRole(role)}
 		>
 			{children}
-		</ConsoleShell>
+		</ConsoleRoot>
 	);
 }

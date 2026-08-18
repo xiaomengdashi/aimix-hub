@@ -3,6 +3,7 @@
 import { Plus, Trash2 } from "lucide-react";
 import type { FC } from "react";
 import { ProviderSwitch } from "@/components/assistant-ui/providers/shared/provider-switch";
+import { ImagePreviewDialog } from "@/components/assistant-ui/message/image-preview-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -104,11 +105,12 @@ export const ImageStudioSidebar: FC<ImageStudioSidebarProps> = ({
                   ) : null}
                 </Tooltip>
                 {s.imageUrl && s.status === "completed" ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <ImagePreviewDialog
                     src={s.imageUrl}
-                    alt=""
-                    className="size-11 shrink-0 rounded-md object-cover"
+                    alt={s.title ?? s.prompt}
+                    title={s.title ?? s.prompt}
+                    triggerClassName="size-11 shrink-0 overflow-hidden rounded-md"
+                    imageClassName="size-11 object-cover"
                   />
                 ) : null}
                 <button

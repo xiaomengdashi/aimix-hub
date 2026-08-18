@@ -2,6 +2,7 @@
 
 import type { FileMessagePartComponent } from "@assistant-ui/react";
 import { useMessagePartFile } from "@assistant-ui/react";
+import { ImagePreviewDialog } from "@/components/assistant-ui/message/image-preview-dialog";
 
 function resolveFileSrc(data: string, mimeType: string): string {
   if (
@@ -23,15 +24,16 @@ export const AssistantFilePart: FileMessagePartComponent = () => {
 
   const media = mimeType ?? "image/png";
   const src = resolveFileSrc(data, media);
+  const alt = filename ?? "生成的图片";
 
   if (media.startsWith("image/")) {
     return (
       <figure className="aui-generated-image my-2 max-w-full">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <ImagePreviewDialog
           src={src}
-          alt={filename ?? "生成的图片"}
-          className="max-h-[min(70dvh,720px)] w-auto max-w-full rounded-xl border border-border/60 object-contain shadow-sm"
+          alt={alt}
+          triggerClassName="block max-w-full"
+          imageClassName="max-h-[min(70dvh,720px)] w-auto max-w-full rounded-xl border border-border/60 object-contain shadow-sm"
         />
       </figure>
     );
