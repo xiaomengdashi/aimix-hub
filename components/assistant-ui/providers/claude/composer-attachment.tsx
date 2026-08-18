@@ -25,7 +25,7 @@ export const ClaudeComposerAddAttachment: FC<{
 
       for (const file of Array.from(files)) {
         try {
-          await aui.composer().addAttachment(file);
+          await aui.composer.addAttachment(file);
         } catch (error) {
           const message =
             error instanceof Error ? error.message : "无法添加附件";

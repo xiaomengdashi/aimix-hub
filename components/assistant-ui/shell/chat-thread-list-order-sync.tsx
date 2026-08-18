@@ -61,7 +61,7 @@ export const ChatThreadListOrderSync: FC = () => {
 
     bumpTimerRef.current = setTimeout(() => {
       bumpTimerRef.current = undefined;
-      void aui.threads().reload();
+      void aui.threads.reload();
     }, BUMP_DEBOUNCE_MS);
   }, [aui, remoteId, isThreadLoading, messageCount]);
 

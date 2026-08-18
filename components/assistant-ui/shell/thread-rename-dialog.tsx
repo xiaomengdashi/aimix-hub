@@ -46,7 +46,7 @@ export const ThreadRenameDialog: FC<ThreadRenameDialogProps> = ({
     setIsSaving(true);
     try {
       await aui
-        .threadListItem()
+        .threadListItem
         .rename(trimmed.slice(0, MAX_THREAD_TITLE_LENGTH));
       onOpenChange(false);
     } finally {

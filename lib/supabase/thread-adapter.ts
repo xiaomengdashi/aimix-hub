@@ -61,16 +61,16 @@ class SupabaseHistoryAdapter implements ThreadHistoryAdapter {
 
     return {
       async append(item) {
-        const { remoteId } = await adapter.aui.threadListItem().initialize();
+        const { remoteId } = await adapter.aui.threadListItem.initialize();
         await formatted.append(remoteId, item);
       },
       async update(item, localMessageId) {
-        const remoteId = adapter.aui.threadListItem().getState().remoteId;
+        const remoteId = adapter.aui.threadListItem.getState().remoteId;
         if (!remoteId) return;
         await formatted.update?.(remoteId, item, localMessageId);
       },
       async load() {
-        const remoteId = adapter.aui.threadListItem().getState().remoteId;
+        const remoteId = adapter.aui.threadListItem.getState().remoteId;
         if (!remoteId) return { messages: [] };
         return formatted.load(remoteId);
       },

@@ -31,12 +31,12 @@ export const ChatDeferredThreadSwitch: FC<ChatDeferredThreadSwitchProps> = ({
         return;
       }
       appliedRef.current = targetKey;
-      aui.threads().switchToThread(threadId);
+      aui.threads.switchToThread(threadId);
       return;
     }
 
     appliedRef.current = targetKey;
-    aui.threads().switchToNewThread();
+    aui.threads.switchToNewThread();
   }, [aui, remoteId, threadId, threadsLoading]);
 
   return null;

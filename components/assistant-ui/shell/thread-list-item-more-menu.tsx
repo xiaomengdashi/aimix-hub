@@ -56,7 +56,7 @@ const ThreadListPinMenuItem: FC<{ className?: string }> = ({ className }) => {
       onSelect={() => {
         if (!remoteId) return;
         void setThreadPinned(supabase, remoteId, !isPinned).then(() =>
-          aui.threads().reload(),
+          aui.threads.reload(),
         );
       }}
     >

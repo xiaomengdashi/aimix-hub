@@ -30,7 +30,7 @@ export const ChatThreadTitleOnFirstRun: FC = () => {
 
     wasRunningRef.current = false;
     generatedForRef.current = remoteId;
-    aui.threadListItem().generateTitle();
+    aui.threadListItem.generateTitle();
   }, [aui, isRunning, remoteId, title]);
 
   return null;

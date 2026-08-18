@@ -98,7 +98,7 @@ const ModeSuggestionChip: FC<ChatModeSuggestion> = ({ title, prompt }) => {
 
   const fillComposer = useCallback(() => {
     if (disabled) return;
-    aui.composer().setText(prompt);
+    aui.composer.setText(prompt);
   }, [aui, disabled, prompt]);
 
   return (

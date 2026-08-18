@@ -113,7 +113,7 @@ const SuggestionChip: FC<{
   const onClick = useCallback(() => {
     if (disabled) return;
     if (toolId) setTool(toolId);
-    if (prompt) aui.composer().setText(prompt);
+    if (prompt) aui.composer.setText(prompt);
   }, [aui, disabled, prompt, setTool, toolId]);
 
   return (
