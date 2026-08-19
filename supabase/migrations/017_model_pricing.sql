@@ -4,6 +4,10 @@ alter table public.model_catalog
   add column if not exists input_price_per_million numeric,
   add column if not exists output_price_per_million numeric;
 
+drop function if exists public.admin_list_model_catalog();
+drop function if exists public.admin_save_model_catalog(jsonb);
+drop function if exists public.server_read_model_catalog(text, boolean);
+
 create or replace function public.admin_list_model_catalog()
 returns table (
   model_id text,
@@ -171,3 +175,7 @@ begin
   order by mc.ui_provider asc, mc.sort_order asc, mc.model_id asc;
 end;
 $$;
+
+grant execute on function public.admin_list_model_catalog() to authenticated;
+grant execute on function public.admin_save_model_catalog(jsonb) to authenticated;
+grant execute on function public.server_read_model_catalog(text, boolean) to anon, authenticated, service_role;
