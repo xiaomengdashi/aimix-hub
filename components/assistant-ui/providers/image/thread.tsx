@@ -35,13 +35,13 @@ const SUGGESTIONS = [
 ];
 
 export const ImageThread: FC = () => (
-  <ThreadPrimitive.Root className="flex h-full flex-col items-stretch px-4">
+  <ThreadPrimitive.Root className="flex h-full min-h-0 flex-col items-stretch px-4">
     <AuiIf condition={(s) => s.thread.isEmpty}>
       <EmptyState />
     </AuiIf>
 
     <AuiIf condition={(s) => !s.thread.isEmpty}>
-      <ThreadPrimitive.Viewport className="flex grow flex-col gap-8 overflow-x-hidden overflow-y-scroll scroll-pb-52 pt-16">
+      <ThreadPrimitive.Viewport className="flex min-h-0 flex-1 flex-col gap-8 overflow-x-hidden overflow-y-scroll scroll-pb-52 pt-16 pb-52">
         <ThreadPrimitive.Messages>
           {({ message }) => {
             if (message.composer.isEditing) return <EditComposer />;

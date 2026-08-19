@@ -44,7 +44,7 @@ import { ThreadQuestionAnchor } from "@/components/assistant-ui/shell/thread-que
 
 export const GeminiThread: FC = () => {
   return (
-    <ThreadPrimitive.Root className="flex h-full flex-col items-stretch bg-[#f8f9fa] dark:bg-[#131314]">
+    <ThreadPrimitive.Root className="flex h-full min-h-0 flex-col items-stretch bg-[#f8f9fa] dark:bg-[#131314]">
       <AuiIf condition={(s) => s.thread.isEmpty}>
         <div className="flex h-full flex-col justify-center px-4">
           <div className="mx-auto w-full max-w-3xl">
@@ -79,10 +79,10 @@ export const GeminiThread: FC = () => {
       </AuiIf>
 
       <AuiIf condition={(s) => !s.thread.isEmpty}>
-        <ThreadPrimitive.Viewport className="flex grow flex-col overflow-y-scroll px-4 pt-16">
+        <ThreadPrimitive.Viewport className="flex min-h-0 flex-1 flex-col overflow-y-scroll px-4 pt-16">
           <ThreadPrimitive.Messages components={{ Message: ChatMessage }} />
         </ThreadPrimitive.Viewport>
-        <div className="space-y-2 px-4 pb-4">
+        <div className="shrink-0 space-y-2 px-4 pb-4">
           <Composer />
           <ContextUsageIndicator
             variant="shadcn"

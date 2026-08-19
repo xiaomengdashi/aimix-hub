@@ -95,6 +95,12 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOi...`}
             </code>{" "}
             — Grok 会话与模型目录
           </li>
+          <li>
+            <code className="rounded bg-muted px-1">
+              supabase/migrations/016_message_feedback.sql
+            </code>{" "}
+            — 消息点赞/点踩
+          </li>
         </ol>
         <p className="text-muted-foreground text-xs">
           若使用绘图或 Grok 时报{" "}

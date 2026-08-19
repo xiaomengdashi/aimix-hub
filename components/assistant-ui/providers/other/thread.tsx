@@ -55,7 +55,7 @@ import type { FC } from "react";
 export const OtherThread: FC = () => {
   return (
     <ThreadPrimitive.Root
-      className="aui-root aui-thread-root @container flex h-full flex-col bg-background"
+      className="aui-root aui-thread-root @container flex h-full min-h-0 flex-col bg-background"
       style={{
         ["--thread-max-width" as string]: "44rem",
         ["--composer-radius" as string]: "24px",
@@ -65,7 +65,7 @@ export const OtherThread: FC = () => {
       <ThreadPrimitive.Viewport
         turnAnchor="top"
         data-slot="aui_thread-viewport"
-        className="relative flex flex-1 flex-col overflow-x-auto overflow-y-scroll scroll-smooth scroll-pb-52"
+        className="relative flex min-h-0 flex-1 flex-col overflow-x-auto overflow-y-scroll scroll-smooth scroll-pb-52 pb-52"
       >
         <div className="mx-auto flex w-full max-w-(--thread-max-width) flex-1 flex-col px-4 pt-4">
           <AuiIf condition={(s) => s.thread.isEmpty}>

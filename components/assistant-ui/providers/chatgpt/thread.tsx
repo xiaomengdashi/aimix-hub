@@ -37,13 +37,13 @@ import { ThreadUserMessageRoot } from "@/components/assistant-ui/shell/thread-us
 
 export const ChatGPTThread: FC = () => {
   return (
-    <ThreadPrimitive.Root className="flex h-full flex-col items-stretch bg-white px-4 text-[#0d0d0d] dark:bg-[#212121] dark:text-[#ececec]">
+    <ThreadPrimitive.Root className="flex h-full min-h-0 flex-col items-stretch bg-white px-4 text-[#0d0d0d] dark:bg-[#212121] dark:text-[#ececec]">
       <AuiIf condition={(s) => s.thread.isEmpty}>
         <EmptyState />
       </AuiIf>
 
       <AuiIf condition={(s) => !s.thread.isEmpty}>
-        <ThreadPrimitive.Viewport className="flex grow flex-col gap-8 overflow-x-hidden overflow-y-scroll scroll-pb-52 pt-16">
+        <ThreadPrimitive.Viewport className="flex min-h-0 flex-1 flex-col gap-8 overflow-x-hidden overflow-y-scroll scroll-pb-52 pt-16 pb-52">
           <ThreadPrimitive.Messages>
             {({ message }) => {
               if (message.composer.isEditing) return <EditComposer />;
@@ -230,7 +230,7 @@ const EditComposer: FC = () => {
 const AssistantMessage: FC = () => {
   return (
     <MessagePrimitive.Root className="group/message relative mx-auto flex w-full max-w-3xl flex-col">
-      <div className="text-[#0d0d0d] dark:text-[#ececec]">
+      <div className="min-w-0 wrap-break-word text-[#0d0d0d] dark:text-[#ececec]">
         <MessagePrimitive.Parts
           components={{ Text: ArtifactAssistantMarkdown, File: AssistantFilePart }}
           unstable_showEmptyOnNonTextEnd={false}

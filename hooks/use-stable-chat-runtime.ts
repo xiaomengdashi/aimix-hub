@@ -12,6 +12,7 @@ import {
 import type { ChatTransport } from "ai";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { chatAttachmentAdapter } from "@/lib/chat/attachment-adapter";
+import { createChatFeedbackAdapter } from "@/lib/chat/feedback-adapter";
 
 export type UseStableChatRuntimeOptions<
   UI_MESSAGE extends UIMessage = UIMessage,
@@ -62,6 +63,13 @@ const useChatThreadRuntime = <UI_MESSAGE extends UIMessage = UIMessage>(
 
   const id = useAuiState((s) => s.threadListItem.id);
   const aui = useAui();
+  const feedbackAdapter = useMemo(
+    () =>
+      createChatFeedbackAdapter(
+        () => aui.threadListItem.getState().remoteId,
+      ),
+    [aui],
+  );
   const chat = useChat({
     ...chatOptions,
     id,
@@ -71,6 +79,7 @@ const useChatThreadRuntime = <UI_MESSAGE extends UIMessage = UIMessage>(
   const runtime = useAISDKRuntime(chat, {
     adapters: {
       attachments: chatAttachmentAdapter,
+      feedback: feedbackAdapter,
       ...adapters,
     },
     ...(toCreateMessage && { toCreateMessage }),

@@ -36,13 +36,13 @@ import { ContextUsageIndicator } from "@/components/assistant-ui/shell/context-u
 import { ThreadUserMessageRoot } from "@/components/assistant-ui/shell/thread-user-message-root";
 
 export const GrokThread: FC = () => (
-  <ThreadPrimitive.Root className="flex h-full flex-col items-stretch bg-[#fdfdfd] px-4 dark:bg-[#141414]">
+  <ThreadPrimitive.Root className="flex h-full min-h-0 flex-col items-stretch bg-[#fdfdfd] px-4 dark:bg-[#141414]">
     <AuiIf condition={(s) => s.thread.isEmpty}>
       <EmptyState />
     </AuiIf>
 
     <AuiIf condition={(s) => !s.thread.isEmpty}>
-      <ThreadPrimitive.Viewport className="flex grow flex-col overflow-y-scroll pt-16">
+      <ThreadPrimitive.Viewport className="flex min-h-0 flex-1 flex-col overflow-y-scroll pt-16 pb-52 scroll-pb-52">
         <ThreadPrimitive.Messages>
           {({ message }) => {
             if (message.composer.isEditing) return <EditComposer />;

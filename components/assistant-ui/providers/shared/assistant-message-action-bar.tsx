@@ -5,12 +5,13 @@ import {
   ActionBarPrimitive,
   AuiIf,
 } from "@assistant-ui/react";
-import { useAuiState } from "@assistant-ui/store";
 import { CheckIcon, CopyIcon, ReloadIcon } from "@radix-ui/react-icons";
 import {
   Copy as CopyLucideIcon,
   DownloadIcon,
   MoreHorizontal,
+  ThumbsDown,
+  ThumbsUp,
   Volume2,
 } from "lucide-react";
 import { VoicePlaceholderButton } from "@/components/assistant-ui/providers/shared/voice-ui-placeholder";
@@ -42,6 +43,8 @@ type VariantConfig = {
     reload: string;
     more: string;
     exportMarkdown: string;
+    good: string;
+    bad: string;
   };
   moreContentClass: string;
   moreItemClass: string;
@@ -60,6 +63,8 @@ const VARIANT_CONFIG: Record<AssistantMessageActionBarVariant, VariantConfig> = 
       reload: "Regenerate",
       more: "More",
       exportMarkdown: "Export as Markdown",
+      good: "Good response",
+      bad: "Bad response",
     },
     moreContentClass:
       "z-50 min-w-40 overflow-hidden rounded-xl border border-[#e5e5e5] bg-white p-1 text-[#0d0d0d] shadow-lg dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-[#ececec]",
@@ -78,6 +83,8 @@ const VARIANT_CONFIG: Record<AssistantMessageActionBarVariant, VariantConfig> = 
       reload: "Regenerate",
       more: "More",
       exportMarkdown: "Export as Markdown",
+      good: "Good response",
+      bad: "Bad response",
     },
     moreContentClass:
       "z-50 min-w-40 overflow-hidden rounded-lg border border-[#E5E0D6] bg-[#F0ECE0] p-1 text-[#1a1a18] shadow-md dark:border-[#3d3a35] dark:bg-[#2b2a27] dark:text-[#eee]",
@@ -96,6 +103,8 @@ const VARIANT_CONFIG: Record<AssistantMessageActionBarVariant, VariantConfig> = 
       reload: "Regenerate",
       more: "More",
       exportMarkdown: "Export as Markdown",
+      good: "Good response",
+      bad: "Bad response",
     },
     moreContentClass:
       "z-50 min-w-40 overflow-hidden rounded-2xl border border-[#dadce0] bg-[#f8f9fa] p-1 text-[#1f1f1f] shadow-lg dark:border-[#3c4043] dark:bg-[#282a2c] dark:text-[#e3e3e3]",
@@ -114,6 +123,8 @@ const VARIANT_CONFIG: Record<AssistantMessageActionBarVariant, VariantConfig> = 
       reload: "Regenerate",
       more: "More",
       exportMarkdown: "Export as Markdown",
+      good: "Good response",
+      bad: "Bad response",
     },
     moreContentClass:
       "z-50 min-w-40 overflow-hidden rounded-xl border border-[#e5e5e5] bg-white p-1 text-[#0d0d0d] shadow-lg dark:border-[#2a2a2a] dark:bg-[#1a1a1a] dark:text-white",
@@ -131,6 +142,8 @@ const VARIANT_CONFIG: Record<AssistantMessageActionBarVariant, VariantConfig> = 
       reload: "重新生成",
       more: "更多",
       exportMarkdown: "导出 Markdown",
+      good: "有帮助",
+      bad: "没帮助",
     },
     moreContentClass:
       "aui-action-bar-more-content z-50 min-w-36 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
@@ -253,6 +266,50 @@ export const AssistantMessageActionBar: FC<
         </AuiIf>
         <AuiIf condition={(s) => !s.message.isCopied}>
           <CopyIconVisual variant={config} copied={false} />
+        </AuiIf>
+      </PrimitiveActionButton>
+
+      <PrimitiveActionButton
+        config={config}
+        tooltip={config.labels.good}
+        primitive={ActionBarPrimitive.FeedbackPositive}
+        className="data-[submitted=true]:text-foreground"
+      >
+        <AuiIf
+          condition={(s) =>
+            s.message.metadata.submittedFeedback?.type === "positive"
+          }
+        >
+          <ThumbsUp className={cn(config.iconClass, "fill-current")} />
+        </AuiIf>
+        <AuiIf
+          condition={(s) =>
+            s.message.metadata.submittedFeedback?.type !== "positive"
+          }
+        >
+          <ThumbsUp className={config.iconClass} />
+        </AuiIf>
+      </PrimitiveActionButton>
+
+      <PrimitiveActionButton
+        config={config}
+        tooltip={config.labels.bad}
+        primitive={ActionBarPrimitive.FeedbackNegative}
+        className="data-[submitted=true]:text-foreground"
+      >
+        <AuiIf
+          condition={(s) =>
+            s.message.metadata.submittedFeedback?.type === "negative"
+          }
+        >
+          <ThumbsDown className={cn(config.iconClass, "fill-current")} />
+        </AuiIf>
+        <AuiIf
+          condition={(s) =>
+            s.message.metadata.submittedFeedback?.type !== "negative"
+          }
+        >
+          <ThumbsDown className={config.iconClass} />
         </AuiIf>
       </PrimitiveActionButton>
 

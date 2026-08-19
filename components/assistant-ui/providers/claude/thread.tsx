@@ -47,13 +47,13 @@ export const ClaudeThread: FC = () => {
   const { onComposerSubmit } = useChatSession();
 
   return (
-    <ThreadPrimitive.Root className="flex h-full flex-col items-stretch bg-[#F0ECE0] text-[#1a1a18] dark:bg-[#2b2a27] dark:text-[#eee]">
+    <ThreadPrimitive.Root className="flex h-full min-h-0 flex-col items-stretch bg-[#F0ECE0] text-[#1a1a18] dark:bg-[#2b2a27] dark:text-[#eee]">
       <AuiIf condition={(s) => s.thread.isEmpty}>
         <EmptyState onSend={onComposerSubmit} />
       </AuiIf>
 
       <AuiIf condition={(s) => !s.thread.isEmpty}>
-        <ThreadPrimitive.Viewport className="flex grow flex-col overflow-x-hidden overflow-y-auto px-4 pt-12 scroll-pb-52">
+        <ThreadPrimitive.Viewport className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto px-4 pt-12 pb-52 scroll-pb-52">
           <ThreadPrimitive.Messages
             components={{
               UserMessage: ClaudeUserMessage,
