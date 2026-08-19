@@ -10,6 +10,7 @@ export type ModelVendor =
   | "qwen"
   | "minimax"
   | "xiaomi"
+  | "xai"
   | "generic";
 
 export function resolveModelVendor(
@@ -26,6 +27,9 @@ export function resolveModelVendor(
   }
   if (uiProvider === "gemini" || id.includes("gemini")) {
     return "google";
+  }
+  if (uiProvider === "grok" || id.includes("grok")) {
+    return "xai";
   }
   if (id.includes("deepseek")) return "deepseek";
   if (id.includes("glm")) return "zhipu";

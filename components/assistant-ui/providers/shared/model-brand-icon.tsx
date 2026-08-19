@@ -5,6 +5,7 @@ import type { ChatAiProvider } from "@/lib/chat/provider";
 import { resolveModelVendor, type ModelVendor } from "@/lib/ai-gateway/model-vendor";
 import { ClaudeIcon } from "@/components/assistant-ui/providers/claude/icon";
 import { OpenAIIcon } from "@/components/assistant-ui/providers/chatgpt/icon";
+import { GrokIcon } from "@/components/assistant-ui/providers/grok/icon";
 import { GeminiIcon } from "@/components/assistant-ui/providers/gemini/icon";
 import {
   DeepSeekIcon,
@@ -29,6 +30,7 @@ const VENDOR_ICONS: Record<
   qwen: QwenIcon,
   minimax: MinimaxIcon,
   xiaomi: XiaomiMimoIcon,
+  xai: GrokIcon,
   generic: GenericModelIcon,
 };
 

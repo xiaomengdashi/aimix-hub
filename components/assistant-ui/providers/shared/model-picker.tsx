@@ -12,7 +12,12 @@ import {
 import { getChatModel } from "@/lib/chat/models";
 import { cn } from "@/lib/utils";
 
-export type ProviderModelPickerVariant = "claude" | "chatgpt" | "gemini" | "default";
+export type ProviderModelPickerVariant =
+  | "claude"
+  | "chatgpt"
+  | "gemini"
+  | "grok"
+  | "default";
 
 const TRIGGER_CLASS: Record<ProviderModelPickerVariant, string> = {
   claude:
@@ -21,6 +26,8 @@ const TRIGGER_CLASS: Record<ProviderModelPickerVariant, string> = {
     "flex h-9 max-w-[9rem] items-center gap-1 truncate rounded-full px-3 text-[#0d0d0d] text-sm transition-colors hover:bg-[#0d0d0d]/5 dark:text-[#ececec] dark:hover:bg-white/10",
   gemini:
     "flex h-10 max-w-[9rem] items-center gap-1 truncate rounded-full px-3 text-[#444746] text-sm transition hover:bg-[#444746]/8 dark:text-[#c4c7c5] dark:hover:bg-[#c4c7c5]/8",
+  grok:
+    "mb-0.5 flex h-9 max-w-[9rem] shrink-0 items-center gap-1 truncate rounded-full px-2.5 text-[#0d0d0d] text-sm hover:bg-[#f0f0f0] dark:text-white dark:hover:bg-[#2a2a2a]",
   default:
     "flex h-9 max-w-[10rem] items-center gap-1 truncate rounded-md border border-border bg-background px-3 text-sm hover:bg-muted",
 };
@@ -29,6 +36,7 @@ const CHECK_CLASS: Record<ProviderModelPickerVariant, string> = {
   claude: "text-[#c96442]",
   chatgpt: "text-[#0d0d0d] dark:text-[#ececec]",
   gemini: "text-[#1a73e8] dark:text-[#8ab4f8]",
+  grok: "text-[#0d0d0d] dark:text-white",
   default: "text-primary",
 };
 

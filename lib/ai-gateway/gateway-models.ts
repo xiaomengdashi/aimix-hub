@@ -1,4 +1,4 @@
-import type { ChatAiProvider } from "@/lib/chat/provider";
+import { CHAT_AI_PROVIDERS, type ChatAiProvider } from "@/lib/chat/provider";
 import type { ChatModel } from "@/lib/chat/models";
 import { applyModelDisplayList } from "@/lib/ai-gateway/model-display";
 import { backendForUiProvider } from "@/lib/ai-gateway/model-backend";
@@ -48,6 +48,14 @@ const PREFERRED: Record<ChatAiProvider, readonly string[]> = {
     "gemini-2.5-flash-lite",
     "gemini-flash-latest",
   ],
+  grok: [
+    "grok-4.1-fast",
+    "grok-4.1",
+    "grok-4",
+    "grok-4-fast",
+    "grok-3-mini",
+    "grok-3",
+  ],
   other: [
     "deepseek-v4-pro",
     "deepseek-v4-flash",
@@ -63,6 +71,7 @@ const MODELS_LIMIT: Record<ChatAiProvider, number> = {
   chatgpt: 6,
   claude: 5,
   gemini: 5,
+  grok: 5,
   other: 7,
 };
 
@@ -77,6 +86,7 @@ function uiProviderForId(id: string): ChatAiProvider {
   if (/^claude/i.test(id)) return "claude";
   if (/^(gpt-|o[1-9]|chatgpt)/i.test(id)) return "chatgpt";
   if (/^gemini/i.test(id)) return "gemini";
+  if (/^grok/i.test(id)) return "grok";
   return "other";
 }
 
@@ -220,8 +230,7 @@ function pickImageModels(rows: GatewayModelRow[]): ChatModel[] {
 
 export async function buildChatModelsFromGateway(): Promise<ChatModel[]> {
   const rows = await fetchGatewayModelRows();
-  const providers: ChatAiProvider[] = ["chatgpt", "claude", "gemini", "other"];
-  const picked = providers.flatMap((p) => pickForProvider(rows, p));
+  const picked = CHAT_AI_PROVIDERS.flatMap((p) => pickForProvider(rows, p));
   const imageModels = pickImageModels(rows);
   return applyModelDisplayList([...picked, ...imageModels]);
 }

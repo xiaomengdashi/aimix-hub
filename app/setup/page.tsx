@@ -89,11 +89,17 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOi...`}
             </code>{" "}
             — 模型目录与网关/Tavily 配置
           </li>
+          <li>
+            <code className="rounded bg-muted px-1">
+              supabase/migrations/015_thread_provider_grok.sql
+            </code>{" "}
+            — Grok 会话与模型目录
+          </li>
         </ol>
         <p className="text-muted-foreground text-xs">
-          若使用绘图功能时报{" "}
+          若使用绘图或 Grok 时报{" "}
           <code className="rounded bg-muted px-1">threads_provider_check</code>
-          ，说明缺少第 3 步。
+          ，说明缺少对应迁移。
         </p>
       </section>
 

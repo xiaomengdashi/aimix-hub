@@ -14,6 +14,7 @@ export const APP_NAV_OPTIONS: { id: AppId; label: string }[] = [
   { id: "chatgpt", label: "ChatGPT" },
   { id: "claude", label: "Claude" },
   { id: "gemini", label: "Gemini" },
+  { id: "grok", label: "Grok" },
   { id: "other", label: "其他" },
   { id: "image", label: "绘图" },
 ];

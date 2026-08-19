@@ -21,6 +21,7 @@ const PROVIDER_TABS: { id: ModelUiScope; label: string }[] = [
 	{ id: "chatgpt", label: "ChatGPT" },
 	{ id: "claude", label: "Claude" },
 	{ id: "gemini", label: "Gemini" },
+	{ id: "grok", label: "Grok" },
 	{ id: "other", label: "其他" },
 	{ id: "image", label: "绘图" },
 ];

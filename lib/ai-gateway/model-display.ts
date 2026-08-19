@@ -76,6 +76,27 @@ const KNOWN: Record<string, ModelDisplay> = {
     name: "Gemini Flash Latest",
     description: "始终跟进最新 Flash",
   },
+  // Grok
+  "grok-4.1-fast": {
+    name: "Grok 4.1 Fast",
+    description: "默认。快速响应",
+  },
+  "grok-4.1": {
+    name: "Grok 4.1",
+    description: "标准推理",
+  },
+  "grok-4": {
+    name: "Grok 4",
+    description: "旗舰对话，综合能力强",
+  },
+  "grok-3-mini": {
+    name: "Grok 3 Mini",
+    description: "更快更省，适合日常对话",
+  },
+  "grok-3": {
+    name: "Grok 3",
+    description: "均衡对话",
+  },
   // 其他
   "deepseek-v4-pro": {
     name: "DeepSeek V4 Pro",
@@ -123,6 +144,11 @@ function formatGeminiName(id: string): string {
   return `Gemini ${body.split("-").map(titleCase).join(" ")}`;
 }
 
+function formatGrokName(id: string): string {
+  const body = id.replace(/^grok-/i, "");
+  return `Grok ${body.split("-").map(titleCase).join(" ")}`;
+}
+
 function formatClaudeName(id: string): string {
   if (id.includes("opus")) {
     const v = id.match(/opus-(\d+-\d+)/)?.[1]?.replace("-", ".");
@@ -147,6 +173,8 @@ function defaultDescription(uiProvider: ModelUiScope): string {
       return "Anthropic 对话模型";
     case "gemini":
       return "Google 对话模型";
+    case "grok":
+      return "xAI 对话模型";
     case "image":
       return "文生图，输入描述即可生成图像";
     default:
@@ -168,6 +196,8 @@ export function resolveModelDisplay(
       return { name: formatGeminiName(id), description: defaultDescription(uiProvider) };
     case "claude":
       return { name: formatClaudeName(id), description: defaultDescription(uiProvider) };
+    case "grok":
+      return { name: formatGrokName(id), description: defaultDescription(uiProvider) };
     default:
       return {
         name: id.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),

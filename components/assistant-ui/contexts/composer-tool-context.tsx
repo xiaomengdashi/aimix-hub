@@ -33,6 +33,7 @@ const ComposerToolContext = createContext<ComposerToolContextValue | null>(
 const DEFAULT_PLACEHOLDERS: Record<ChatAiProvider, string> = {
   chatgpt: "Ask anything",
   gemini: "Ask Gemini",
+  grok: "What do you want to know?",
   claude: "How can I help you today?",
   other: "Message…",
 };

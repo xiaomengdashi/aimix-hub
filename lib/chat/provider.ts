@@ -1,4 +1,12 @@
-export type ChatAiProvider = "claude" | "chatgpt" | "gemini" | "other";
+export const CHAT_AI_PROVIDERS = [
+  "chatgpt",
+  "claude",
+  "gemini",
+  "grok",
+  "other",
+] as const;
+
+export type ChatAiProvider = (typeof CHAT_AI_PROVIDERS)[number];
 
 export const CHAT_AI_PROVIDER_STORAGE_KEY = "claude-clone:ai-provider";
 /** @deprecated legacy theme storage key */
@@ -13,16 +21,12 @@ export const CHAT_AI_PROVIDER_OPTIONS: {
   { id: "chatgpt", label: "ChatGPT" },
   { id: "claude", label: "Claude" },
   { id: "gemini", label: "Gemini" },
+  { id: "grok", label: "Grok" },
   { id: "other", label: "其他" },
 ];
 
 export function isChatAiProvider(value: string): value is ChatAiProvider {
-  return (
-    value === "claude" ||
-    value === "chatgpt" ||
-    value === "gemini" ||
-    value === "other"
-  );
+  return (CHAT_AI_PROVIDERS as readonly string[]).includes(value);
 }
 
 function migrateLegacyStoredValue(stored: string): ChatAiProvider | null {
@@ -53,4 +57,3 @@ export function getProviderDisplayName(provider: ChatAiProvider): string {
     CHAT_AI_PROVIDER_OPTIONS.find((o) => o.id === provider)?.label ?? provider
   );
 }
-

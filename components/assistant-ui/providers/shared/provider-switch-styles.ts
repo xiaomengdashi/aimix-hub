@@ -7,6 +7,7 @@ export type ProviderSwitchVariant =
   | "claude"
   | "chatgpt"
   | "gemini"
+  | "grok"
   | "image";
 
 const TRIGGER_CLASS: Record<ProviderSwitchVariant, string> = {
@@ -18,6 +19,8 @@ const TRIGGER_CLASS: Record<ProviderSwitchVariant, string> = {
     "border-[#e5e5e5] bg-[#f7f7f7] text-[#0d0d0d] hover:bg-[#efefef] dark:border-transparent dark:bg-[#303030] dark:text-[#ececec] dark:hover:bg-[#3a3a3a]",
   gemini:
     "border-[#dadce0] bg-white text-[#1f1f1f] shadow-sm hover:bg-[#f8f9fa] dark:border-[#3c4043] dark:bg-[#1e1f20] dark:text-[#e3e3e3] dark:hover:bg-[#282a2c]",
+  grok:
+    "border-[#e5e5e5] bg-[#f8f8f8] text-[#0d0d0d] hover:bg-[#f0f0f0] dark:border-[#2a2a2a] dark:bg-[#212121] dark:text-white dark:hover:bg-[#2a2a2a]",
   image:
     "border-[#d4e4ff] bg-[#f0f6ff] text-[#0d3b8c] hover:bg-[#e6efff] dark:border-[#3d4f6f] dark:bg-[#1a2332] dark:text-[#b8d4ff] dark:hover:bg-[#243044]",
 };
@@ -27,6 +30,7 @@ const CHECK_CLASS: Record<ProviderSwitchVariant, string> = {
   claude: "text-[#c96442]",
   chatgpt: "text-[#0d0d0d] dark:text-[#ececec]",
   gemini: "text-[#1a73e8] dark:text-[#8ab4f8]",
+  grok: "text-[#0d0d0d] dark:text-white",
   image: "text-[#1a73e8] dark:text-[#8ab4f8]",
 };
 
@@ -52,6 +56,7 @@ export function providerSwitchVariantForApp(appId: AppId): ProviderSwitchVariant
   if (appId === "claude") return "claude";
   if (appId === "chatgpt") return "chatgpt";
   if (appId === "gemini") return "gemini";
+  if (appId === "grok") return "grok";
   if (appId === "image") return "image";
   return "default";
 }

@@ -28,6 +28,7 @@ export type AssistantMessageActionBarVariant =
   | "chatgpt"
   | "claude"
   | "gemini"
+  | "grok"
   | "other";
 
 type VariantConfig = {
@@ -100,6 +101,24 @@ const VARIANT_CONFIG: Record<AssistantMessageActionBarVariant, VariantConfig> = 
       "z-50 min-w-40 overflow-hidden rounded-2xl border border-[#dadce0] bg-[#f8f9fa] p-1 text-[#1f1f1f] shadow-lg dark:border-[#3c4043] dark:bg-[#282a2c] dark:text-[#e3e3e3]",
     moreItemClass:
       "flex w-full cursor-pointer select-none items-center gap-2 rounded-xl px-2.5 py-2 text-sm outline-none hover:bg-[#444746]/8 dark:hover:bg-[#c4c7c5]/8",
+  },
+  grok: {
+    buttonClass:
+      "flex h-8 w-8 items-center justify-center rounded-full text-[#6b6b6b] transition-colors hover:bg-[#e5e5e5] hover:text-[#0d0d0d] disabled:pointer-events-none disabled:opacity-40 dark:text-[#9a9a9a] dark:hover:bg-[#2a2a2a] dark:hover:text-white",
+    iconClass: "size-4",
+    useTooltip: false,
+    copyIcon: "lucide",
+    reloadIcon: "lucide",
+    labels: {
+      copy: "Copy",
+      reload: "Regenerate",
+      more: "More",
+      exportMarkdown: "Export as Markdown",
+    },
+    moreContentClass:
+      "z-50 min-w-40 overflow-hidden rounded-xl border border-[#e5e5e5] bg-white p-1 text-[#0d0d0d] shadow-lg dark:border-[#2a2a2a] dark:bg-[#1a1a1a] dark:text-white",
+    moreItemClass:
+      "flex w-full cursor-pointer select-none items-center gap-2 rounded-lg px-2.5 py-2 text-sm outline-none hover:bg-[#f0f0f0] dark:hover:bg-[#2a2a2a]",
   },
   other: {
     buttonClass: "aui-button-icon size-6 p-1",

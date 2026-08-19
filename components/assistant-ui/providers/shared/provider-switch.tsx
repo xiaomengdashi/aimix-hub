@@ -6,6 +6,7 @@ import { useAppNav } from "@/components/assistant-ui/contexts/chat-ui-theme-cont
 import { ClaudeIcon } from "@/components/assistant-ui/providers/claude/icon";
 import { OpenAIIcon } from "@/components/assistant-ui/providers/chatgpt/icon";
 import { GeminiIcon } from "@/components/assistant-ui/providers/gemini/icon";
+import { GrokIcon } from "@/components/assistant-ui/providers/grok/icon";
 import { ImageAppIcon } from "@/components/assistant-ui/providers/image/icon";
 import { GenericModelIcon } from "@/components/assistant-ui/providers/shared/vendor-icons";
 import {
@@ -27,6 +28,7 @@ const APP_ICONS: Record<AppId, ComponentType<SVGProps<SVGSVGElement>>> = {
   chatgpt: OpenAIIcon,
   claude: ClaudeIcon,
   gemini: GeminiIcon,
+  grok: GrokIcon,
   image: ImageAppIcon,
   other: GenericModelIcon,
 };

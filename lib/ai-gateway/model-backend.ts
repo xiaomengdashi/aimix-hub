@@ -4,11 +4,17 @@ import { defaultBackendForProvider } from "@/lib/ai-gateway/gateway-discovery";
 
 /** GPT / o-series / Gemini 等走 OpenAI Chat Completions 兼容接口 */
 export function isOpenAiCompatibleModelId(modelId: string): boolean {
-  return /^(gpt-|o[1-9]|chatgpt|gemini)/i.test(modelId);
+  return /^(gpt-|o[1-9]|chatgpt|gemini|grok)/i.test(modelId);
 }
 
 export function backendForUiProvider(uiProvider: ChatAiProvider): ModelBackend {
-  if (uiProvider === "chatgpt" || uiProvider === "gemini") return "openai";
+  if (
+    uiProvider === "chatgpt" ||
+    uiProvider === "gemini" ||
+    uiProvider === "grok"
+  ) {
+    return "openai";
+  }
   return "anthropic";
 }
 

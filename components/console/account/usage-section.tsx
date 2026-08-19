@@ -13,6 +13,7 @@ const PROVIDER_BAR_CLASS: Record<AppId, string> = {
 	chatgpt: "bg-blue-600",
 	claude: "bg-blue-500",
 	gemini: "bg-cyan-500",
+	grok: "bg-zinc-800",
 	other: "bg-slate-400",
 	image: "bg-indigo-400",
 };
