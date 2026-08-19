@@ -97,9 +97,9 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOi...`}
           </li>
           <li>
             <code className="rounded bg-muted px-1">
-              supabase/migrations/016_message_feedback.sql
+              supabase/migrations/017_model_pricing.sql
             </code>{" "}
-            — 消息点赞/点踩
+            — 模型 Input/Output 计费（$ / 1M tokens）
           </li>
         </ol>
         <p className="text-muted-foreground text-xs">

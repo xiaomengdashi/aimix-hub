@@ -29,6 +29,8 @@ export type ManagedModelConfig = {
   contextWindow: number;
   backend: ChatModel["backend"];
   apiModel: string;
+  inputPricePerMillion: number | null;
+  outputPricePerMillion: number | null;
   updatedAt: string;
 };
 

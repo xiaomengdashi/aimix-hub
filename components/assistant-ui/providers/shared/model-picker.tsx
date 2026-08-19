@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/shared/dropdown-menu";
 import { getChatModel } from "@/lib/chat/models";
+import { formatModelsDevPrice } from "@/lib/chat/format-model-price";
 import { cn } from "@/lib/utils";
 
 export type ProviderModelPickerVariant =
@@ -61,7 +62,7 @@ export const ProviderModelPicker: FC<{
         </span>
         <ChevronDownIcon width={16} height={16} className="shrink-0 opacity-60" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-64">
+      <DropdownMenuContent align="end" className="min-w-72">
         {models.length === 0 ? (
           <div className="px-3 py-2 text-muted-foreground text-xs">
             暂无可用模型
@@ -84,6 +85,10 @@ export const ProviderModelPicker: FC<{
               <ModelOptionLabel
                 name={m.name}
                 description={m.description}
+                price={formatModelsDevPrice(
+                  m.inputPricePerMillion,
+                  m.outputPricePerMillion,
+                )}
               />
             </DropdownMenuItem>
           ))
@@ -96,9 +101,17 @@ export const ProviderModelPicker: FC<{
 const ModelOptionLabel: FC<{
   name: string;
   description: string;
-}> = ({ name, description }) => (
-  <span className="flex min-w-0 flex-1 flex-col">
-    <span className="text-foreground text-sm">{name}</span>
-    <span className="text-muted-foreground text-xs leading-snug">{description}</span>
+  price: string;
+}> = ({ name, description, price }) => (
+  <span className="flex min-w-0 flex-1 items-start justify-between gap-3">
+    <span className="flex min-w-0 flex-1 flex-col">
+      <span className="text-foreground text-sm">{name}</span>
+      <span className="text-muted-foreground text-xs leading-snug">
+        {description}
+      </span>
+    </span>
+    <span className="shrink-0 pt-0.5 font-mono text-[11px] tabular-nums text-muted-foreground">
+      {price}
+    </span>
   </span>
 );

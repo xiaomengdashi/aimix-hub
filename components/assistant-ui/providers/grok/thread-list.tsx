@@ -12,6 +12,7 @@ import type { FC } from "react";
 import { ThreadListItemMoreMenu } from "@/components/assistant-ui/shell/thread-list-item-more-menu";
 import { ThreadListItemLastActivityTooltip } from "@/components/assistant-ui/shell/thread-list-item-last-activity-tooltip";
 import { ThreadListItemTitle } from "@/components/assistant-ui/shell/thread-list-item-title";
+import { GroupedThreadListItems } from "@/components/assistant-ui/shell/grouped-thread-list-items";
 import {
   ThreadListItemNavTrigger,
   useThreadListNewClickHandler,
@@ -44,9 +45,10 @@ export const GrokThreadList: FC = () => {
           !s.threads.isLoading || s.threads.threadIds.length > 0
         }
       >
-        <ThreadListPrimitive.Items>
-          {() => <GrokThreadListItem />}
-        </ThreadListPrimitive.Items>
+        <GroupedThreadListItems
+          ThreadListItem={GrokThreadListItem}
+          labelClassName="text-[#9a9a9a] dark:text-[#6b6b6b]"
+        />
       </AuiIf>
     </ThreadListPrimitive.Root>
   );

@@ -117,6 +117,9 @@ export function createSupabaseThreadListAdapter(
       externalId: row.external_id ?? undefined,
       status: row.is_archived ? "archived" : "regular",
       title: row.title ?? undefined,
+      lastMessageAt: row.last_message_at
+        ? new Date(row.last_message_at)
+        : undefined,
       custom: Object.keys(custom).length > 0 ? custom : undefined,
     };
   };

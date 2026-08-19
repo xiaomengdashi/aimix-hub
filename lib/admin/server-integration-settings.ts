@@ -178,6 +178,8 @@ export async function readModelCatalogRows(options?: {
     context_window: number;
     backend: string;
     api_model: string;
+    input_price_per_million?: number | string | null;
+    output_price_per_million?: number | string | null;
   }>
 > {
   const enabledOnly = options?.enabledOnly ?? true;
@@ -188,7 +190,7 @@ export async function readModelCatalogRows(options?: {
       let query = admin
         .from("model_catalog")
         .select(
-          "model_id, ui_provider, enabled, sort_order, name, description, context_window, backend, api_model",
+          "model_id, ui_provider, enabled, sort_order, name, description, context_window, backend, api_model, input_price_per_million, output_price_per_million",
         )
         .order("ui_provider", { ascending: true })
         .order("sort_order", { ascending: true })

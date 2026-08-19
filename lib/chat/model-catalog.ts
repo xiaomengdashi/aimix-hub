@@ -6,8 +6,15 @@ import {
   readModelCatalogRows,
 } from "@/lib/admin/server-integration-settings";
 import { isAdminClientConfigured } from "@/lib/supabase/admin";
+import {
+  applyModelsDevPricesToModel,
+  lookupPricesForModelIds,
+} from "@/lib/admin/models-dev-pricing";
 
 const CACHE_TTL_MS = 60_000;
+
+let enabledCache: { at: number; models: ChatModel[] } | null = null;
+let allCache: { at: number; models: ChatModel[] } | null = null;
 
 type CatalogRow = {
   model_id: string;
@@ -19,10 +26,15 @@ type CatalogRow = {
   context_window: number;
   backend: string;
   api_model: string;
+  input_price_per_million?: number | string | null;
+  output_price_per_million?: number | string | null;
 };
 
-let enabledCache: { at: number; models: ChatModel[] } | null = null;
-let allCache: { at: number; models: ChatModel[] } | null = null;
+function toNullableNumber(value: number | string | null | undefined): number | null {
+  if (value == null || value === "") return null;
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
 
 function rowToChatModel(row: CatalogRow): ChatModel {
   return {
@@ -33,7 +45,24 @@ function rowToChatModel(row: CatalogRow): ChatModel {
     uiProvider: row.ui_provider as ModelUiScope,
     backend: row.backend as ChatModel["backend"],
     apiModel: row.api_model,
+    inputPricePerMillion: toNullableNumber(row.input_price_per_million),
+    outputPricePerMillion: toNullableNumber(row.output_price_per_million),
   };
+}
+
+async function overlayModelsDevPrices(models: ChatModel[]): Promise<ChatModel[]> {
+  try {
+    const prices = await lookupPricesForModelIds(
+      models.map((model) => ({
+        id: model.id,
+        uiProvider: model.uiProvider,
+        apiModel: model.apiModel,
+      })),
+    );
+    return models.map((model) => applyModelsDevPricesToModel(model, prices));
+  } catch {
+    return models;
+  }
 }
 
 export function invalidateModelCatalogCache(): void {
@@ -58,8 +87,9 @@ export async function getEnabledModelCatalog(): Promise<ChatModel[]> {
     }
 
     const models = applyModelDisplayList(rows.map(rowToChatModel));
-    enabledCache = { at: Date.now(), models };
-    return models;
+    const withPrices = await overlayModelsDevPrices(models);
+    enabledCache = { at: Date.now(), models: withPrices };
+    return withPrices;
   } catch {
     return applyModelDisplayList(FALLBACK_CHAT_MODELS);
   }
@@ -72,6 +102,7 @@ export async function getAllModelCatalog(): Promise<ChatModel[]> {
 
   const rows = await readModelCatalogRows({ enabledOnly: false });
   const models = applyModelDisplayList(rows.map(rowToChatModel));
-  allCache = { at: Date.now(), models };
-  return models;
+  const withPrices = await overlayModelsDevPrices(models);
+  allCache = { at: Date.now(), models: withPrices };
+  return withPrices;
 }

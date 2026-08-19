@@ -9,6 +9,7 @@ import { PlusIcon } from "lucide-react";
 import { ThreadListItemMoreMenu } from "@/components/assistant-ui/shell/thread-list-item-more-menu";
 import { ThreadListItemLastActivityTooltip } from "@/components/assistant-ui/shell/thread-list-item-last-activity-tooltip";
 import { ThreadListItemTitle } from "@/components/assistant-ui/shell/thread-list-item-title";
+import { GroupedThreadListItems } from "@/components/assistant-ui/shell/grouped-thread-list-items";
 import {
   ThreadListItemNavTrigger,
   useThreadListNewClickHandler,
@@ -17,6 +18,9 @@ import type { FC } from "react";
 import { cn } from "@/lib/utils";
 
 type ThreadListVariant = "default" | "claude";
+
+const DefaultThreadListItem: FC = () => <ThreadListItem variant="default" />;
+const ClaudeVariantThreadListItem: FC = () => <ThreadListItem variant="claude" />;
 
 export const ThreadList: FC<{ variant?: ThreadListVariant }> = ({
   variant = "default",
@@ -32,9 +36,13 @@ export const ThreadList: FC<{ variant?: ThreadListVariant }> = ({
       <AuiIf
         condition={(s) => !s.threads.isLoading || s.threads.threadIds.length > 0}
       >
-        <ThreadListPrimitive.Items>
-          {() => <ThreadListItem variant={variant} />}
-        </ThreadListPrimitive.Items>
+        <GroupedThreadListItems
+          ThreadListItem={
+            variant === "claude"
+              ? ClaudeVariantThreadListItem
+              : DefaultThreadListItem
+          }
+        />
       </AuiIf>
     </ThreadListPrimitive.Root>
   );

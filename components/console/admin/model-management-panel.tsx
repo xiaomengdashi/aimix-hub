@@ -10,9 +10,14 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState, type FC } from "react";
 import { filterGatewayModelsByQuery } from "@/lib/admin/filter-gateway-models";
+import {
+	applyModelsDevPricesToModel,
+	type ModelsDevPrice,
+} from "@/lib/admin/models-dev-pricing";
 import type { GatewayModelOption, ModelCatalogInput } from "@/lib/admin/types";
 import { inferBackendFromEndpointTypes } from "@/lib/ai-gateway/model-backend";
 import { resolveModelDisplay } from "@/lib/ai-gateway/model-display";
+import { parsePriceInput } from "@/lib/chat/format-model-price";
 import type { ModelUiScope } from "@/lib/chat/models";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -73,6 +78,8 @@ function createModelFromGateway(
 		apiModel: option.id,
 		modelType: option.modelType,
 		supportedEndpointTypes: option.supportedEndpointTypes,
+		inputPricePerMillion: null,
+		outputPricePerMillion: null,
 	};
 }
 
@@ -83,6 +90,7 @@ export const ModelManagementPanel: FC = () => {
 	const [gatewayFilter, setGatewayFilter] = useState("");
 	const [loading, setLoading] = useState(true);
 	const [savingModels, setSavingModels] = useState(false);
+	const [syncingPrices, setSyncingPrices] = useState(false);
 	const [loadingGateway, setLoadingGateway] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [success, setSuccess] = useState<string | null>(null);
@@ -133,6 +141,42 @@ export const ModelManagementPanel: FC = () => {
 		[gatewayFilter, gatewayModels],
 	);
 
+	const fillPricesFromModelsDev = useCallback(
+		async (source: EditableModel[], overwrite: boolean) => {
+			if (source.length === 0) return 0;
+
+			const response = await fetch("/api/admin/models/pricing", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					ids: source.map((model) => ({
+						id: model.modelId,
+						uiProvider: model.uiProvider,
+						apiModel: model.apiModel,
+					})),
+				}),
+			});
+			const payload = (await response.json()) as {
+				prices?: Record<string, ModelsDevPrice>;
+				error?: string;
+			};
+			if (!response.ok) {
+				throw new Error(payload.error ?? "同步 models.dev 价格失败");
+			}
+
+			const prices = payload.prices ?? {};
+			const matched = source.filter((model) => prices[model.modelId]).length;
+			setModels((current) =>
+				current.map((model) => {
+					if (!prices[model.modelId]) return model;
+					return applyModelsDevPricesToModel(model, prices, { overwrite });
+				}),
+			);
+			return matched;
+		},
+		[],
+	);
+
 	const loadAll = useCallback(async () => {
 		setLoading(true);
 		setError(null);
@@ -148,19 +192,25 @@ export const ModelManagementPanel: FC = () => {
 				throw new Error(modelsPayload.error ?? "加载模型配置失败");
 			}
 
-			setModels(
-				(modelsPayload.models ?? []).map((model) => ({
-					modelId: model.modelId,
-					uiProvider: model.uiProvider,
-					enabled: model.enabled,
-					sortOrder: model.sortOrder,
-					name: model.name,
-					description: model.description,
-					contextWindow: model.contextWindow,
-					backend: model.backend,
-					apiModel: model.apiModel,
-				})),
-			);
+			const loaded = (modelsPayload.models ?? []).map((model) => ({
+				modelId: model.modelId,
+				uiProvider: model.uiProvider,
+				enabled: model.enabled,
+				sortOrder: model.sortOrder,
+				name: model.name,
+				description: model.description,
+				contextWindow: model.contextWindow,
+				backend: model.backend,
+				apiModel: model.apiModel,
+				inputPricePerMillion: model.inputPricePerMillion ?? null,
+				outputPricePerMillion: model.outputPricePerMillion ?? null,
+			}));
+			setModels(loaded);
+			try {
+				await fillPricesFromModelsDev(loaded, false);
+			} catch {
+				// 价格源不可用时仍展示目录
+			}
 		} catch (loadError) {
 			setError(
 				loadError instanceof Error ? loadError.message : "加载管理数据失败",
@@ -168,7 +218,7 @@ export const ModelManagementPanel: FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, []);
+	}, [fillPricesFromModelsDev]);
 
 	useEffect(() => {
 		void loadAll();
@@ -257,6 +307,8 @@ export const ModelManagementPanel: FC = () => {
 					contextWindow: model.contextWindow,
 					backend: model.backend,
 					apiModel: model.apiModel,
+					inputPricePerMillion: model.inputPricePerMillion ?? null,
+					outputPricePerMillion: model.outputPricePerMillion ?? null,
 					modelType: gatewayTypeById.get(model.modelId),
 					supportedEndpointTypes: gatewayEndpointTypesById.get(model.modelId),
 				})),
@@ -268,6 +320,26 @@ export const ModelManagementPanel: FC = () => {
 			);
 		} finally {
 			setSavingModels(false);
+		}
+	};
+
+	const handleSyncPrices = async (overwrite: boolean) => {
+		setSyncingPrices(true);
+		setError(null);
+		setSuccess(null);
+		try {
+			const matched = await fillPricesFromModelsDev(models, overwrite);
+			setSuccess(
+				overwrite
+					? `已从 models.dev 覆盖 ${matched} 个模型的价格（请保存后生效到数据库）`
+					: `已从 models.dev 补全 ${matched} 个空价格（请保存后写入数据库）`,
+			);
+		} catch (syncError) {
+			setError(
+				syncError instanceof Error ? syncError.message : "同步 models.dev 价格失败",
+			);
+		} finally {
+			setSyncingPrices(false);
 		}
 	};
 
@@ -338,6 +410,7 @@ export const ModelManagementPanel: FC = () => {
 			}
 			return [...current, nextModel];
 		});
+		void fillPricesFromModelsDev([nextModel], true).catch(() => undefined);
 	};
 
 	return (
@@ -365,22 +438,40 @@ export const ModelManagementPanel: FC = () => {
 						</h2>
 						<p className="mt-0.5 text-sm text-slate-500">
 							已配置 {models.length} 个模型，其中{" "}
-							{models.filter((model) => model.enabled).length} 个启用
+							{models.filter((model) => model.enabled).length} 个启用。空价格会自动对照
+							models.dev 补全；点「同步」可覆盖已填价格，保存后写入数据库。
 						</p>
 					</div>
-					<Button
-						onClick={() => void handleSaveModels()}
-						disabled={savingModels || loading}
-					>
-						{savingModels ? (
-							<>
-								<Loader2Icon className="size-4 animate-spin" />
-								保存中…
-							</>
-						) : (
-							"保存模型配置"
-						)}
-					</Button>
+					<div className="flex flex-wrap items-center gap-2">
+						<Button
+							type="button"
+							variant="outline"
+							onClick={() => void handleSyncPrices(true)}
+							disabled={syncingPrices || loading || models.length === 0}
+						>
+							{syncingPrices ? (
+								<>
+									<Loader2Icon className="size-4 animate-spin" />
+									同步中…
+								</>
+							) : (
+								"同步 models.dev 价格"
+							)}
+						</Button>
+						<Button
+							onClick={() => void handleSaveModels()}
+							disabled={savingModels || loading}
+						>
+							{savingModels ? (
+								<>
+									<Loader2Icon className="size-4 animate-spin" />
+									保存中…
+								</>
+							) : (
+								"保存模型配置"
+							)}
+						</Button>
+					</div>
 				</div>
 
 				<div className="flex flex-wrap gap-1 border-b border-slate-200">
@@ -410,6 +501,8 @@ export const ModelManagementPanel: FC = () => {
 								<th className="px-3 py-3 font-medium">名称</th>
 								<th className="px-3 py-3 font-medium">描述</th>
 								<th className="px-3 py-3 font-medium">Context</th>
+								<th className="px-3 py-3 font-medium">Input $ / 1M</th>
+								<th className="px-3 py-3 font-medium">Output $ / 1M</th>
 								<th className="px-3 py-3 font-medium">Backend</th>
 								<th className="px-3 py-3 font-medium">类型</th>
 								<th className="px-3 py-3 font-medium">操作</th>
@@ -418,7 +511,7 @@ export const ModelManagementPanel: FC = () => {
 						<tbody>
 							{loading ? (
 								<tr>
-									<td colSpan={8} className="px-4 py-10 text-center">
+									<td colSpan={10} className="px-4 py-10 text-center">
 										<span className="inline-flex items-center gap-2 text-muted-foreground">
 											<Loader2Icon className="size-4 animate-spin" />
 											加载中…
@@ -428,7 +521,7 @@ export const ModelManagementPanel: FC = () => {
 							) : providerModels.length === 0 ? (
 								<tr>
 									<td
-										colSpan={8}
+										colSpan={10}
 										className="px-4 py-10 text-center text-muted-foreground"
 									>
 										当前 Provider 暂无模型，请从下方网关列表添加
@@ -484,6 +577,42 @@ export const ModelManagementPanel: FC = () => {
 														contextWindow: Number(event.target.value) || 0,
 													})
 												}
+											/>
+										</td>
+										<td className="px-3 py-3">
+											<input
+												type="number"
+												min="0"
+												step="0.01"
+												className="h-9 w-24 rounded-md border bg-background px-2 font-mono text-xs"
+												placeholder="—"
+												value={model.inputPricePerMillion ?? ""}
+												onChange={(event) =>
+													updateModel(model.modelId, {
+														inputPricePerMillion: parsePriceInput(
+															event.target.value,
+														),
+													})
+												}
+												aria-label={`${model.modelId} input 价格`}
+											/>
+										</td>
+										<td className="px-3 py-3">
+											<input
+												type="number"
+												min="0"
+												step="0.01"
+												className="h-9 w-24 rounded-md border bg-background px-2 font-mono text-xs"
+												placeholder="—"
+												value={model.outputPricePerMillion ?? ""}
+												onChange={(event) =>
+													updateModel(model.modelId, {
+														outputPricePerMillion: parsePriceInput(
+															event.target.value,
+														),
+													})
+												}
+												aria-label={`${model.modelId} output 价格`}
 											/>
 										</td>
 										<td className="px-3 py-3">

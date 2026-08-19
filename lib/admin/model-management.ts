@@ -29,8 +29,16 @@ type ModelCatalogRow = {
   context_window: number;
   backend: string;
   api_model: string;
+  input_price_per_million: number | string | null;
+  output_price_per_million: number | string | null;
   updated_at: string;
 };
+
+function toNullableNumber(value: number | string | null | undefined): number | null {
+  if (value == null || value === "") return null;
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
 
 export async function getAdminIntegrationSettings(
   supabase: SupabaseClient,
@@ -105,6 +113,8 @@ export async function listManagedModels(
     contextWindow: row.context_window,
     backend: row.backend as ManagedModelConfig["backend"],
     apiModel: row.api_model,
+    inputPricePerMillion: toNullableNumber(row.input_price_per_million),
+    outputPricePerMillion: toNullableNumber(row.output_price_per_million),
     updatedAt: row.updated_at,
   }));
 }
@@ -123,6 +133,8 @@ export async function saveManagedModels(
     contextWindow: model.contextWindow,
     backend: model.backend,
     apiModel: model.apiModel,
+    inputPricePerMillion: model.inputPricePerMillion,
+    outputPricePerMillion: model.outputPricePerMillion,
   }));
 
   const { error } = await supabase.rpc("admin_save_model_catalog", {

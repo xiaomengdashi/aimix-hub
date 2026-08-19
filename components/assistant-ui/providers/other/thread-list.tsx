@@ -12,6 +12,7 @@ import type { FC } from "react";
 import { ThreadListItemMoreMenu } from "@/components/assistant-ui/shell/thread-list-item-more-menu";
 import { ThreadListItemLastActivityTooltip } from "@/components/assistant-ui/shell/thread-list-item-last-activity-tooltip";
 import { ThreadListItemTitle } from "@/components/assistant-ui/shell/thread-list-item-title";
+import { GroupedThreadListItems } from "@/components/assistant-ui/shell/grouped-thread-list-items";
 import {
   ThreadListItemNavTrigger,
   useThreadListNewClickHandler,
@@ -40,9 +41,7 @@ export const OtherThreadList: FC = () => {
     <AuiIf
       condition={(s) => !s.threads.isLoading || s.threads.threadIds.length > 0}
     >
-      <ThreadListPrimitive.Items>
-        {() => <OtherThreadListItem />}
-      </ThreadListPrimitive.Items>
+        <GroupedThreadListItems ThreadListItem={OtherThreadListItem} />
     </AuiIf>
   </ThreadListPrimitive.Root>
   );

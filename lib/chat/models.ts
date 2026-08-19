@@ -16,6 +16,10 @@ export type ChatModel = {
   uiProvider: ModelUiScope;
   backend: ModelBackend;
   apiModel: string;
+  /** USD per 1M input tokens (models.dev Input) */
+  inputPricePerMillion?: number | null;
+  /** USD per 1M output tokens (models.dev Output) */
+  outputPricePerMillion?: number | null;
 };
 
 /** 网关不可用时的兜底（与历史配置一致） */
