@@ -18,6 +18,7 @@ export type SidebarShellLayoutProps = {
 	sidebar: ReactNode | ((helpers: { closeMobile: () => void }) => ReactNode);
 	children: ReactNode;
 	displayUsername?: string;
+	roleLabel?: string | null;
 	sheetTitle: string;
 	sheetDescription: string;
 	shellClassName?: string;
@@ -32,6 +33,7 @@ export const SidebarShellLayout: FC<SidebarShellLayoutProps> = ({
 	sidebar,
 	children,
 	displayUsername,
+	roleLabel,
 	sheetTitle,
 	sheetDescription,
 	shellClassName,
@@ -52,10 +54,10 @@ export const SidebarShellLayout: FC<SidebarShellLayoutProps> = ({
 		typeof sidebar === "function" ? sidebar({ closeMobile }) : sidebar;
 
 	return (
-		<div className={cn("flex min-h-dvh", shellClassName)}>
+		<div className={cn("flex min-h-dvh items-stretch", shellClassName)}>
 			<aside
 				className={cn(
-					"hidden h-full w-60 shrink-0 border-r lg:flex",
+					"sticky top-0 hidden h-dvh w-60 shrink-0 self-stretch border-r lg:flex lg:flex-col",
 					asideClassName,
 				)}
 			>
@@ -101,6 +103,7 @@ export const SidebarShellLayout: FC<SidebarShellLayoutProps> = ({
 					{displayUsername ? (
 						<UserMenu
 							displayName={displayUsername}
+							roleLabel={roleLabel}
 							className="ms-auto max-w-none"
 						/>
 					) : null}

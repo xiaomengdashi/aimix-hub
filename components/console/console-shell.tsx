@@ -3,7 +3,7 @@
 import type { FC, ReactNode } from "react";
 import { SidebarShellLayout } from "@/components/assistant-ui/shell/sidebar-shell-layout";
 import { ConsoleSidebar } from "@/components/console/console-sidebar";
-import type { AppUserRole } from "@/lib/auth/roles";
+import { APP_USER_ROLE_LABELS, type AppUserRole } from "@/lib/auth/roles";
 
 type ConsoleShellProps = {
 	displayName: string;
@@ -18,19 +18,16 @@ export const ConsoleShell: FC<ConsoleShellProps> = ({
 	isAdmin,
 	children,
 }) => {
+	const roleLabel = role ? APP_USER_ROLE_LABELS[role] : null;
 	const sidebar = ({ closeMobile }: { closeMobile: () => void }) => (
-		<ConsoleSidebar
-			displayName={displayName}
-			role={role}
-			isAdmin={isAdmin}
-			onNavigateAction={closeMobile}
-		/>
+		<ConsoleSidebar isAdmin={isAdmin} onNavigateAction={closeMobile} />
 	);
 
 	return (
 		<SidebarShellLayout
 			sidebar={sidebar}
 			displayUsername={displayName}
+			roleLabel={roleLabel}
 			sheetTitle="控制台导航"
 			sheetDescription="切换账号与管理页面"
 			shellClassName="bg-[#f6f8fb]"

@@ -16,10 +16,15 @@ import { cn } from "@/lib/utils";
 
 type UserMenuProps = {
 	displayName: string;
+	roleLabel?: string | null;
 	className?: string;
 };
 
-export const UserMenu: FC<UserMenuProps> = ({ displayName, className }) => {
+export const UserMenu: FC<UserMenuProps> = ({
+	displayName,
+	roleLabel,
+	className,
+}) => {
 	const initial = displayName.slice(0, 1).toUpperCase();
 	const { signOut, loading } = useSignOut();
 
@@ -27,7 +32,7 @@ export const UserMenu: FC<UserMenuProps> = ({ displayName, className }) => {
 		<DropdownMenu>
 			<DropdownMenuTrigger
 				className={cn(
-					"flex h-9 max-w-[12rem] items-center gap-2 rounded-lg px-2",
+					"flex min-h-9 max-w-[12rem] items-center gap-2 rounded-lg px-2 py-1",
 					"text-foreground hover:bg-muted",
 					className,
 				)}
@@ -36,15 +41,24 @@ export const UserMenu: FC<UserMenuProps> = ({ displayName, className }) => {
 				<Avatar size="sm">
 					<AvatarFallback className="text-xs">{initial}</AvatarFallback>
 				</Avatar>
-				<span className="min-w-0 truncate font-medium text-sm">
-					{displayName}
+				<span className="min-w-0 text-left">
+					<span className="block truncate font-medium text-sm leading-tight">
+						{displayName}
+					</span>
+					{roleLabel ? (
+						<span className="block truncate text-[11px] leading-tight text-muted-foreground">
+							{roleLabel}
+						</span>
+					) : null}
 				</span>
 				<ChevronDownIcon className="size-4 shrink-0 opacity-60" />
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="min-w-52">
 				<div className="px-3 py-2">
 					<p className="truncate font-medium text-sm">{displayName}</p>
-					<p className="text-muted-foreground text-xs">已登录</p>
+					<p className="text-muted-foreground text-xs">
+						{roleLabel ?? "已登录"}
+					</p>
 				</div>
 				<DropdownMenuSeparator />
 				<DropdownMenuItem

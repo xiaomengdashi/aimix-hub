@@ -9,8 +9,8 @@ import {
 	Trash2Icon,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState, type FC } from "react";
+import { filterGatewayModelsByQuery } from "@/lib/admin/filter-gateway-models";
 import type { GatewayModelOption, ModelCatalogInput } from "@/lib/admin/types";
-import { uiProviderForGatewayId } from "@/lib/ai-gateway/gateway-discovery";
 import { inferBackendFromEndpointTypes } from "@/lib/ai-gateway/model-backend";
 import { resolveModelDisplay } from "@/lib/ai-gateway/model-display";
 import type { ModelUiScope } from "@/lib/chat/models";
@@ -98,9 +98,14 @@ export const ModelManagementPanel: FC = () => {
 		[models, activeProvider],
 	);
 
-	const existingIds = useMemo(
-		() => new Set(models.map((model) => model.modelId)),
-		[models],
+	const existingIdsInCurrentCatalog = useMemo(
+		() =>
+			new Set(
+				models
+					.filter((model) => model.uiProvider === activeProvider)
+					.map((model) => model.modelId),
+			),
+		[models, activeProvider],
 	);
 
 	const gatewayTypeById = useMemo(
@@ -123,25 +128,10 @@ export const ModelManagementPanel: FC = () => {
 		[gatewayModels],
 	);
 
-	const filteredGatewayModels = useMemo(() => {
-		const query = gatewayFilter.trim().toLowerCase();
-		const scoped = gatewayModels.filter((model) => {
-			if (model.uiProvider && model.uiProvider !== activeProvider) return false;
-			if (!query) return true;
-			return model.id.toLowerCase().includes(query);
-		});
-		if (!query) return scoped;
-		return [...scoped].sort((a, b) => {
-			const aId = a.id.toLowerCase();
-			const bId = b.id.toLowerCase();
-			const rank = (id: string) => {
-				if (id === query) return 0;
-				if (id.startsWith(query)) return 1;
-				return 2;
-			};
-			return rank(aId) - rank(bId) || aId.localeCompare(bId);
-		});
-	}, [gatewayFilter, gatewayModels, activeProvider]);
+	const filteredGatewayModels = useMemo(
+		() => filterGatewayModelsByQuery(gatewayModels, gatewayFilter),
+		[gatewayFilter, gatewayModels],
+	);
 
 	const loadAll = useCallback(async () => {
 		setLoading(true);
@@ -212,14 +202,11 @@ export const ModelManagementPanel: FC = () => {
 					};
 				}),
 			);
-			const query = gatewayFilter.trim().toLowerCase();
-			const matched = query
-				? nextGateway.filter((model) => model.id.toLowerCase().includes(query))
-						.length
-				: nextGateway.length;
+			const query = gatewayFilter.trim();
+			const matched = filterGatewayModelsByQuery(nextGateway, query).length;
 			setSuccess(
 				query
-					? `已获取 ${nextGateway.length} 个模型，按「${gatewayFilter.trim()}」匹配到 ${matched} 个`
+					? `已获取 ${nextGateway.length} 个模型，按「${query}」匹配到 ${matched} 个`
 					: `已获取全部 ${nextGateway.length} 个网关模型`,
 			);
 		} catch (loadError) {
@@ -329,17 +316,28 @@ export const ModelManagementPanel: FC = () => {
 	};
 
 	const addGatewayModel = (option: GatewayModelOption) => {
-		if (existingIds.has(option.id)) return;
+		if (existingIdsInCurrentCatalog.has(option.id)) return;
 
-		const uiProvider = option.uiProvider ?? uiProviderForGatewayId(option.id);
 		const nextOrder = models.filter(
-			(model) => model.uiProvider === uiProvider,
+			(model) => model.uiProvider === activeProvider,
 		).length;
+		const nextModel = createModelFromGateway(
+			option,
+			activeProvider,
+			nextOrder,
+		);
 
-		setModels((current) => [
-			...current,
-			createModelFromGateway(option, uiProvider, nextOrder),
-		]);
+		setModels((current) => {
+			const existingIndex = current.findIndex(
+				(model) => model.modelId === option.id,
+			);
+			if (existingIndex >= 0) {
+				return current.map((model, index) =>
+					index === existingIndex ? nextModel : model,
+				);
+			}
+			return [...current, nextModel];
+		});
 	};
 
 	return (
@@ -582,7 +580,7 @@ export const ModelManagementPanel: FC = () => {
 									void handleLoadGatewayModels();
 								}
 							}}
-							placeholder="输入 model id，优先按此匹配"
+							placeholder="按输入的 model id 过滤，不限当前厂商"
 						/>
 						<Button
 							variant="outline"
@@ -613,7 +611,7 @@ export const ModelManagementPanel: FC = () => {
 						) : (
 							<ul className="divide-y">
 								{filteredGatewayModels.map((option) => {
-									const added = existingIds.has(option.id);
+									const added = existingIdsInCurrentCatalog.has(option.id);
 									return (
 										<li
 											key={option.id}
