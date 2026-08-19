@@ -1,13 +1,13 @@
 # Aimix Hub
 
-自托管多模型 AI 聚合工作台：在统一的界面中使用 ChatGPT、Claude、Gemini 及其他模型对话，内置绘图工作台、联网搜索、Artifacts 与亮色管理中控台。基于 Next.js 16 与 Supabase 构建，多用户隔离，密钥不落环境文件。
+自托管多模型 AI 聚合工作台：在统一的界面中使用 ChatGPT、Claude、Gemini 及国产模型对话，内置绘图工作台、联网搜索、Artifacts 与亮色管理中控台。基于 Next.js 16 与 Supabase 构建，多用户隔离，密钥不落环境文件。
 
 ## 功能概览
 
 ### 多模型对话
 
 - 模型目录由管理员在后台配置，支持 **OpenAI / Anthropic / Google** 多后端，从 AI 网关一键拉取
-- 分应用入口：ChatGPT / Claude / Gemini / 其他，各自独立会话列表
+- 分应用入口：ChatGPT / Claude / Gemini / 国产，各自独立会话列表
 - 流式输出，Markdown + KaTeX 公式 + Mermaid 图表渲染，Shiki 代码高亮
 - 消息操作：复制、重新生成、编辑后重发；提问目录快速定位历史消息
 - **联网搜索**：对话可调用 Tavily 检索实时信息（后台配置密钥）
@@ -149,7 +149,7 @@ npm start
 1. 登录后进入首页，默认打开上次会话或新建对话
 2. 输入问题，**Enter** 发送，**Shift + Enter** 换行
 3. 空对话页可切换 Write / Learn / Code 等模式，或点击建议卡片
-4. 通过应用入口（ChatGPT / Claude / Gemini / 其他 / 绘图）切换模型目录与界面
+4. 通过应用入口（ChatGPT / Claude / Gemini / 国产 / 绘图）切换模型目录与界面
 5. 点击输入框左侧 **「+」** 上传文件作为上下文
 
 ### 管理后台

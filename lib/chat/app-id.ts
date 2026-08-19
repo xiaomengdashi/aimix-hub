@@ -7,7 +7,7 @@ import {
   isChatAiProvider,
 } from "@/lib/chat/provider";
 
-/** 主导航应用：对话 + 绘图 + 其他模型 */
+/** 主导航应用：对话 + 绘图 + 国产模型 */
 export type AppId = ChatAiProvider | "image";
 
 export const APP_NAV_OPTIONS: { id: AppId; label: string }[] = [
@@ -15,7 +15,7 @@ export const APP_NAV_OPTIONS: { id: AppId; label: string }[] = [
   { id: "claude", label: "Claude" },
   { id: "gemini", label: "Gemini" },
   { id: "grok", label: "Grok" },
-  { id: "other", label: "其他" },
+  { id: "other", label: "国产" },
   { id: "image", label: "绘图" },
 ];
 

@@ -97,7 +97,7 @@ const KNOWN: Record<string, ModelDisplay> = {
     name: "Grok 3",
     description: "均衡对话",
   },
-  // 其他
+  // 国产
   "deepseek-v4-pro": {
     name: "DeepSeek V4 Pro",
     description: "旗舰推理，复杂任务",

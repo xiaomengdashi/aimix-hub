@@ -22,7 +22,7 @@ export const CHAT_AI_PROVIDER_OPTIONS: {
   { id: "claude", label: "Claude" },
   { id: "gemini", label: "Gemini" },
   { id: "grok", label: "Grok" },
-  { id: "other", label: "其他" },
+  { id: "other", label: "国产" },
 ];
 
 export function isChatAiProvider(value: string): value is ChatAiProvider {

@@ -22,7 +22,7 @@ const PROVIDER_TABS: { id: ModelUiScope; label: string }[] = [
 	{ id: "claude", label: "Claude" },
 	{ id: "gemini", label: "Gemini" },
 	{ id: "grok", label: "Grok" },
-	{ id: "other", label: "其他" },
+	{ id: "other", label: "国产" },
 	{ id: "image", label: "绘图" },
 ];
 
