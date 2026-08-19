@@ -23,6 +23,7 @@ import { AssistantFilePart } from "@/components/assistant-ui/message/assistant-f
 import { ArtifactAssistantMarkdown } from "@/components/assistant-ui/artifacts/artifact-assistant-markdown";
 import { TooltipIconButton } from "@/components/assistant-ui/message/tooltip-icon-button";
 import { AssistantMessageActionBar } from "@/components/assistant-ui/providers/shared/assistant-message-action-bar";
+import { AssistantMessageError } from "@/components/assistant-ui/providers/shared/assistant-message-error";
 import { userMessageActionBarRootClass } from "@/components/assistant-ui/providers/shared/message-action-bar-styles";
 import { ThreadUserMessageRoot } from "@/components/assistant-ui/shell/thread-user-message-root";
 import { cn } from "@/lib/utils";
@@ -35,13 +36,13 @@ const SUGGESTIONS = [
 ];
 
 export const ImageThread: FC = () => (
-  <ThreadPrimitive.Root className="flex h-full min-h-0 flex-col items-stretch px-4">
+  <ThreadPrimitive.Root className="flex h-full min-h-0 flex-col items-stretch overflow-hidden px-4">
     <AuiIf condition={(s) => s.thread.isEmpty}>
       <EmptyState />
     </AuiIf>
 
     <AuiIf condition={(s) => !s.thread.isEmpty}>
-      <ThreadPrimitive.Viewport className="flex min-h-0 flex-1 flex-col gap-8 overflow-x-hidden overflow-y-scroll scroll-pb-52 pt-16 pb-52">
+      <ThreadPrimitive.Viewport className="flex min-h-0 flex-1 flex-col gap-8 overflow-x-hidden overflow-y-scroll pt-16">
         <ThreadPrimitive.Messages>
           {({ message }) => {
             if (message.composer.isEditing) return <EditComposer />;
@@ -50,14 +51,16 @@ export const ImageThread: FC = () => (
           }}
         </ThreadPrimitive.Messages>
 
-        <ThreadPrimitive.ViewportFooter className="sticky bottom-0 mx-auto mt-auto flex w-full max-w-3xl flex-col gap-2 overflow-visible rounded-t-3xl bg-[#f7faff] pb-2 dark:bg-[#0f1419]">
+        <ThreadPrimitive.ViewportFooter className="sticky bottom-0 mt-auto flex justify-center overflow-visible bg-[#f7faff] pb-2 dark:bg-[#0f1419]">
           <ThreadScrollToBottom />
-          <Composer />
-          <p className="text-center text-[#3d5a8c] text-xs dark:text-[#8ab4f8]">
-            生成图片约需 1 分钟，请耐心等待。
-          </p>
         </ThreadPrimitive.ViewportFooter>
       </ThreadPrimitive.Viewport>
+      <div className="mx-auto w-full max-w-3xl shrink-0 pb-2">
+        <Composer />
+        <p className="text-center text-[#3d5a8c] text-xs dark:text-[#8ab4f8]">
+          生成图片约需 1 分钟，请耐心等待。
+        </p>
+      </div>
     </AuiIf>
   </ThreadPrimitive.Root>
 );
@@ -200,6 +203,7 @@ const AssistantMessage: FC = () => (
         unstable_showEmptyOnNonTextEnd={false}
       />
     </div>
+    <AssistantMessageError />
     <div className="-ml-2 flex items-center pt-1">
       <AssistantMessageActionBar variant="chatgpt" />
       <BranchPicker className="ml-1" />

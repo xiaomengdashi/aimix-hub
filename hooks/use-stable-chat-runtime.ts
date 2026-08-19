@@ -2,7 +2,11 @@
 
 import { useChat, type UIMessage } from "@ai-sdk/react";
 import type { AssistantRuntime, RemoteThreadListAdapter } from "@assistant-ui/core";
-import { useRemoteThreadListRuntime } from "@assistant-ui/react";
+import {
+  useRemoteThreadListRuntime,
+  WebSpeechDictationAdapter,
+  WebSpeechSynthesisAdapter,
+} from "@assistant-ui/react";
 import { useAui, useAuiState } from "@assistant-ui/store";
 import {
   useAISDKRuntime,
@@ -70,6 +74,13 @@ const useChatThreadRuntime = <UI_MESSAGE extends UIMessage = UIMessage>(
       ),
     [aui],
   );
+  const voiceAdapters = useMemo(
+    () => ({
+      speech: new WebSpeechSynthesisAdapter(),
+      dictation: new WebSpeechDictationAdapter(),
+    }),
+    [],
+  );
   const chat = useChat({
     ...chatOptions,
     id,
@@ -80,6 +91,7 @@ const useChatThreadRuntime = <UI_MESSAGE extends UIMessage = UIMessage>(
     adapters: {
       attachments: chatAttachmentAdapter,
       feedback: feedbackAdapter,
+      ...voiceAdapters,
       ...adapters,
     },
     ...(toCreateMessage && { toCreateMessage }),

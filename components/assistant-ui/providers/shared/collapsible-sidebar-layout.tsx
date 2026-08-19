@@ -85,7 +85,7 @@ export const CollapsibleSidebarLayout: FC<CollapsibleSidebarLayoutProps> = ({
 	);
 
 	return (
-		<div className={cn("flex h-dvh w-full", shellClassName)}>
+		<div className={cn("flex h-dvh min-h-0 w-full overflow-hidden", shellClassName)}>
 			<aside
 				className={cn(
 					"hidden h-full shrink-0 flex-col border-r transition-[width] duration-200 md:flex",

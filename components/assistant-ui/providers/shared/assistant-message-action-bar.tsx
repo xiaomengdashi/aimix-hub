@@ -245,7 +245,7 @@ export const AssistantMessageActionBar: FC<
     variant: AssistantMessageActionBarVariant;
   } & Pick<
     ComponentProps<typeof ActionBarPrimitive.Root>,
-    "className" | "hideWhenRunning"
+    "className" | "hideWhenRunning" | "autohide"
   >
 > = ({ variant, className, hideWhenRunning, ...rootProps }) => {
   const config = VARIANT_CONFIG[variant];

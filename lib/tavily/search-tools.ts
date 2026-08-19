@@ -12,7 +12,9 @@ export function getSearchToolSystemPrompt(): string {
 }
 
 /** 为 AI SDK 创建 Tavily 搜索工具；未配置 API key 时返回 null */
-export async function createTavilySearchTools() {
+export async function createTavilySearchTools(options?: {
+  maxResults?: number;
+}) {
   const client = await getTavilyClientConfig();
   if (!client) return null;
 
@@ -22,7 +24,7 @@ export async function createTavilySearchTools() {
       ...(client.apiBaseURL ? { apiBaseURL: client.apiBaseURL } : {}),
       searchDepth: "advanced",
       includeAnswer: true,
-      maxResults: 5,
+      maxResults: options?.maxResults ?? 5,
     }),
   } as const;
 }

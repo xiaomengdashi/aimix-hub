@@ -22,7 +22,7 @@ export const ChatGPTLayout: FC<{
         </span>
       </>
     }
-    shellClassName="bg-white text-[#0d0d0d] dark:bg-[#212121] dark:text-[#ececec]"
+    shellClassName="bg-white text-[#0d0d0d] dark:bg-black dark:text-[#ececec]"
     sidebarBorderClassName="border-[#e5e5e5] dark:border-[#303030]"
     sheetClassName="border-[#e5e5e5] bg-white text-[#0d0d0d] dark:border-[#303030] dark:bg-[#212121] dark:text-[#ececec]"
     headerButtonClassName="text-[#5d5d5d] hover:bg-[#0d0d0d]/5 hover:text-[#0d0d0d] dark:text-[#cdcdcd] dark:hover:bg-white/10 dark:hover:text-white"

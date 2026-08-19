@@ -41,13 +41,18 @@ export const CHATGPT_TOOLS_MENU = buildComposerToolsMenu(
 );
 
 export const GEMINI_TOOLS_MENU = buildComposerToolsMenu(
-  ["research", "search", "study"],
+  ["research", "search", "think", "study"],
   EN_LABELS,
 );
 
 export const CLAUDE_TOOLS_MENU = buildComposerToolsMenu(
   ["search", "research", "think", "study"],
   ZH_LABELS,
+);
+
+export const GROK_TOOLS_MENU = buildComposerToolsMenu(
+  ["search", "research", "think", "study"],
+  EN_LABELS,
 );
 
 export const OTHER_TOOLS_MENU = buildComposerToolsMenu(

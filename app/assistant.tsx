@@ -28,6 +28,7 @@ import { chatTransport } from "@/lib/chat/transport";
 import { createClient } from "@/lib/supabase/client";
 import { getDisplayUsername } from "@/lib/auth/username";
 import { createSupabaseThreadListAdapter } from "@/lib/supabase/thread-adapter";
+import { formatChatErrorMessage } from "@/lib/chat/format-chat-error";
 
 const ChatShellContent: FC<{
   userId: string;
@@ -49,10 +50,12 @@ const ChatShellContent: FC<{
     threadListAdapter,
     transport: chatTransport,
     onError: (error) => {
-      setChatError(error.message || "发送失败，请稍后重试");
+      setChatError(formatChatErrorMessage(error));
     },
-    onFinish: () => {
-      setChatError(null);
+    onFinish: ({ isError }) => {
+      if (!isError) {
+        setChatError(null);
+      }
     },
   });
 

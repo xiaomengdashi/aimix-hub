@@ -25,7 +25,7 @@ export type ComposerToolsMenuItem = {
   Icon: LucideIcon;
 };
 
-type ComposerToolsMenuVariant = "chatgpt" | "gemini" | "claude" | "other";
+type ComposerToolsMenuVariant = "chatgpt" | "gemini" | "claude" | "other" | "grok";
 
 const TRIGGER_CLASS: Record<ComposerToolsMenuVariant, string> = {
   chatgpt:
@@ -34,6 +34,8 @@ const TRIGGER_CLASS: Record<ComposerToolsMenuVariant, string> = {
     "flex h-10 items-center justify-center gap-1.5 rounded-full px-3 text-sm transition hover:bg-[#444746]/8 dark:hover:bg-[#c4c7c5]/8",
   claude:
     "flex h-8 items-center gap-1.5 rounded-md px-2.5 text-[#5b5950] text-sm transition-colors hover:bg-[#1a1a18]/5 hover:text-[#1a1a18] dark:text-[#a3a098] dark:hover:bg-white/5 dark:hover:text-[#eee]",
+  grok:
+    "mb-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[#0d0d0d] transition-colors hover:bg-[#f0f0f0] dark:text-white dark:hover:bg-[#2a2a2a]",
   other:
     "flex h-8 items-center gap-1.5 rounded-full px-2.5 text-muted-foreground text-sm transition-colors hover:bg-muted hover:text-foreground",
 };
@@ -57,7 +59,11 @@ export const ComposerToolsMenu: FC<{
         ) : (
           <SlidersHorizontal className="size-4" />
         )}
-        <span>{variant === "claude" || variant === "other" ? "工具" : "Tools"}</span>
+        {variant !== "grok" ? (
+          <span>{variant === "claude" || variant === "other" ? "工具" : "Tools"}</span>
+        ) : (
+          <span className="sr-only">Tools</span>
+        )}
         {variant === "chatgpt" || variant === "claude" || variant === "other" ? (
           <ChevronDownIcon className="size-3.5 opacity-70" />
         ) : null}

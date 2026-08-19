@@ -1,6 +1,7 @@
 import {
   streamText,
   convertToModelMessages,
+  stepCountIs,
   type UIMessage,
 } from "ai";
 import type { ChatUsageMetadata } from "@/lib/chat/context-usage";
@@ -18,6 +19,7 @@ import {
 import { resolveLanguageModel } from "@/lib/ai-gateway/resolve-language-model";
 import { getChatMode, parseChatModeId } from "@/lib/chat/modes";
 import {
+  composerToolNeedsWebSearch,
   getComposerTool,
   mergeSystemPrompts,
   parseComposerToolId,
@@ -30,11 +32,9 @@ import {
 import { isImageGenerationModel } from "@/lib/image-generation/models";
 import { normalizeModelId } from "@/lib/ai-gateway/normalize-model-id";
 import { isTavilyConfigured } from "@/lib/tavily/env";
-import {
-  prefetchTavilySearchContext,
-  getPrefetchSearchSystemPrompt,
-} from "@/lib/tavily/prefetch-search";
+import { createTavilySearchTools } from "@/lib/tavily/search-tools";
 import { resolveMaxOutputTokens } from "@/lib/chat/output-limits";
+import { formatChatErrorMessage } from "@/lib/chat/format-chat-error";
 
 /** 文生图可能需 1–2 分钟 */
 export const maxDuration = 300;
@@ -99,13 +99,13 @@ export async function POST(req: Request) {
     (await getDefaultModelIdForScopeAsync(uiScope));
   const modeId = parseChatModeId(mode);
   const toolId = parseComposerToolId(tool);
-  const isSearchMode = toolId === "search";
+  const needsWebSearch = composerToolNeedsWebSearch(toolId);
 
-  if (isSearchMode && !(await isTavilyConfigured())) {
+  if (needsWebSearch && !(await isTavilyConfigured())) {
     return new Response(
       JSON.stringify({
         error:
-          "搜索模式需要 Tavily：请在管理后台配置 Tavily API Key（可选 Base URL）",
+          "联网搜索/深度研究需要 Tavily：请在管理后台配置 Tavily API Key（可选 Base URL）",
       }),
       {
         status: 503,
@@ -135,59 +135,76 @@ export async function POST(req: Request) {
   try {
     languageModel = await resolveLanguageModel(modelId, modelDef);
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "模型配置错误";
-    return new Response(JSON.stringify({ error: message }), {
+    return new Response(JSON.stringify({ error: formatChatErrorMessage(error) }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });
   }
 
   const uiMessages = messages as UIMessage[];
-  let searchPrefetchPrompt: string | undefined;
+  const webSearchTools = needsWebSearch
+    ? await createTavilySearchTools({
+        maxResults: toolId === "research" ? 8 : 5,
+      })
+    : null;
 
-  if (isSearchMode) {
-    try {
-      const searchContext = await prefetchTavilySearchContext(uiMessages);
-      searchPrefetchPrompt = getPrefetchSearchSystemPrompt(searchContext);
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "网页搜索失败";
-      return new Response(JSON.stringify({ error: message }), {
-        status: 502,
+  if (needsWebSearch && webSearchTools == null) {
+    return new Response(
+      JSON.stringify({
+        error:
+          "联网搜索/深度研究需要 Tavily：请在管理后台配置 Tavily API Key（可选 Base URL）",
+      }),
+      {
+        status: 503,
         headers: { "Content-Type": "application/json" },
-      });
-    }
+      },
+    );
   }
 
   const system = mergeSystemPrompts(
     modeId ? getChatMode(modeId)?.systemPrompt : undefined,
     toolId ? getComposerTool(toolId).systemPrompt : undefined,
-    searchPrefetchPrompt,
   );
 
-  const result = streamText({
-    model: languageModel,
-    maxOutputTokens: resolveMaxOutputTokens(modelId, modelDef),
-    ...(system ? { system } : {}),
-    messages: await convertToModelMessages(
-      expandTextFilePartsForModel(uiMessages),
-    ),
-  });
+  try {
+    const result = streamText({
+      model: languageModel,
+      maxOutputTokens: resolveMaxOutputTokens(modelId, modelDef),
+      ...(system ? { system } : {}),
+      ...(webSearchTools
+        ? {
+            tools: webSearchTools,
+            stopWhen: stepCountIs(toolId === "research" ? 8 : 5),
+          }
+        : {}),
+      messages: await convertToModelMessages(
+        expandTextFilePartsForModel(uiMessages),
+      ),
+    });
 
-  return result.toUIMessageStreamResponse({
-    originalMessages: messages as UIMessage[],
-    messageMetadata: ({ part }) => {
-      if (part.type !== "finish") return undefined;
+    return result.toUIMessageStreamResponse({
+      originalMessages: messages as UIMessage[],
+      onError: (error) => formatChatErrorMessage(error),
+      messageMetadata: ({ part }) => {
+        if (part.type !== "finish") return undefined;
 
-      const inputTokens = part.totalUsage.inputTokens ?? 0;
-      const outputTokens = part.totalUsage.outputTokens ?? 0;
-      const metadata: ChatUsageMetadata = {
-        inputTokens,
-        outputTokens,
-        contextTokens: inputTokens + outputTokens,
-      };
-      return metadata;
-    },
-  });
+        const inputTokens = part.totalUsage.inputTokens ?? 0;
+        const outputTokens = part.totalUsage.outputTokens ?? 0;
+        const metadata: ChatUsageMetadata = {
+          inputTokens,
+          outputTokens,
+          contextTokens: inputTokens + outputTokens,
+        };
+        return metadata;
+      },
+    });
+  } catch (error) {
+    return new Response(
+      JSON.stringify({ error: formatChatErrorMessage(error) }),
+      {
+        status: 502,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
+  }
 }
