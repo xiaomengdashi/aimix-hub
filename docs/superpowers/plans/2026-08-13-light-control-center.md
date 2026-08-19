@@ -593,7 +593,7 @@ npm test -- components/console/console-nav.test.ts
 
 - 图标新增 `LayoutDashboardIcon`、`UsersRoundIcon`、`RouteIcon`、`Settings2Icon`；移除未用图标。
 - 输出固定顺序：`overview`（admin-only，仅 `控制台首页` `/admin`）、`resources`（admin-only，`成员与权限` `/admin/users`、`模型与路由` `/admin/models`、`服务配置` `/admin/integration`）、`account`（个人空间的现有三项）。
-- 在 `isConsoleNavActive` 首先专门处理 `href === "/admin"`：`return pathname === "/admin"`；保留 `/account` 的精确匹配，其他项使用既有子路径匹配。
+- 在 `isConsoleNavActive` 首先专门处理 `href === "/admin"`：`return pathname === "/admin"`；保留 `/account` 的精确匹配，国产项使用既有子路径匹配。
 
 - [ ] **步骤 4：更新侧栏、壳和 header 的亮色工作区样式**
 

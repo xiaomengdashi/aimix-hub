@@ -26,7 +26,7 @@ export function resolveSchemaModeFromError(
   return current === "unknown" ? "with_provider" : current;
 }
 
-/** 未迁移时：历史会话视为 Claude，其他 provider 无会话 */
+/** 未迁移时：历史会话视为 Claude，国产 provider 无会话 */
 export function legacyProviderAllowsThreads(provider: ChatAiProvider): boolean {
   return provider === "claude";
 }
